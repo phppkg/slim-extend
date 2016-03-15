@@ -1,5 +1,6 @@
 {
   "name": "inhere/slim-extend",
+  "type": "library",
   "description": "A Slim Framework extension",
   "keywords": ["Slim","extensions"],
   "homepage": "http://github.com/inhere/slim-extensions",
