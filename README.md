@@ -8,7 +8,7 @@
 
 edit `composer.json`
 
-_require-dev_ add
+_require_ add
 
 ```
 "inhere/slim-extend": "dev-master",
@@ -31,21 +31,3 @@ run: `composer update`
 
 - add the middleware into slim application
 
-```
-$app->add(new \inhere\extend\middleware\WhoopsTool());
-```
-
-## Options
-
-- Opening referenced files with your favorite editor or IDE
-
-```
-$app = new App([
-    'settings' => [
-        'debug'         => true,
-        'extend.editor' => 'sublime' // Support click to open editor
-    ]
-]);
-```
-
->>>>>>> init project
