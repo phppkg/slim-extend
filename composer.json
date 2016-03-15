@@ -15,8 +15,12 @@
     "php": ">=5.5.0",
     "slim/slim": "^3.1",
     "symfony/yaml": "^3.0",
+    "windwalker/query": "^2.1"
   },
   "require-dev": {
+      "filp/whoops": "2.*",
+      "inhere/slim-whoops": "dev-master",
+      "inhere/simple-print-tool": "dev-master"
   },
   "autoload":{
     "files":[
