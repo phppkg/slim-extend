@@ -1,0 +1,94 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Inhere
+ * Date: 2016/3/3 0003
+ * Time: 23:05
+ */
+
+namespace slimExtend\base;
+
+use slimExtend\DataConst;
+use Slim;
+use Slim\Http\Response as SlimResponse;
+
+/**
+ * extension Slim's Response class
+ *
+ * Class Response
+ * @package slimExtend\base
+ */
+class Response extends SlimResponse
+{
+    /**
+     * @param mixed $data
+     * @param int $code
+     * @param string $msg
+     * @param string $describe
+     * @return SlimResponse|static
+     */
+    public function withJson($data, $code = 0, $msg = '', $describe = '')
+    {
+        $data = format_messages($data, $code, $msg, $describe);
+
+        return parent::withJson($data, 200, 0);
+    }
+
+    /**
+     * @param \Psr\Http\Message\UriInterface|string $url
+     * @param int $status
+     * @return static
+     */
+    public function withRedirect($url, $status = 301)
+    {
+        return $this->withStatus($status)->withHeader('Location', (string)$url);
+    }
+
+    /**
+     * Flash messages.
+     *
+     * Note: This method is not part of the PSR-7 standard.
+     *
+     * This method prepares the response object to return an HTTP Json
+     * response to the client.
+     *
+     * @param  string|array $msg The msg
+     * @return Response
+     * @throws \InvalidArgumentException
+     */
+    public function withMessage($msg)
+    {
+        // add a new alert message
+        $alert = [
+            'type'      => 'info', // info success primary warning danger
+            'title'     => 'Info!',
+            'msg'       => '',
+            'closeBtn'  => true
+        ];
+
+        if ( is_string($msg) ) {
+            $alert['msg'] = $msg;
+        } elseif ( is_array($msg) ) {
+            $alert = array_merge($alert, $msg);
+            $alert['title'] = ucfirst($alert['type']);
+        } else {
+            throw new \InvalidArgumentException('params type error!');
+        }
+
+        Slim::$app->flash->addMessage(DataConst::FLASH_MSG_KEY, json_encode($alert));
+
+        return $this;
+    }
+
+    /**
+     * withInputs
+     * @param  array  $data
+     * @return self
+     */
+    public function withInput(array $data)
+    {
+        Slim::$app->flash->addMessage(DataConst::FLASH_OLD_INPUT_KEY, json_encode($data));
+Slim::$app->logger->info('dev-' . session_id(), $_SESSION);
+        return $this;
+    }
+}

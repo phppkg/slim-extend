@@ -1,0 +1,43 @@
+{
+  "name": "inhere/slim-extensions",
+  "description": "A Slim Framework extension",
+  "keywords": ["Slim","extensions"],
+  "homepage": "http://github.com/inhere/slim-extensions",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "inhere",
+      "email": "in.798@qq.com",
+      "homepage": "http://www.yzone.net/"
+    }
+  ],
+  "require": {
+    "php": ">=5.5.0",
+    "slim/slim": "^3.1",
+    "symfony/yaml": "^3.0",
+  },
+  "require-dev": {
+  },
+  "autoload":{
+    "files":[
+      "src/functions.php"
+    ],
+    "classmap": ["src/Slim.php"],
+    "psr-4": {
+      "slimExtend\\" : "src/"
+    }
+  },
+  "suggest": {
+    "symfony/yaml": "Allow support parse yml file"
+  },
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://git.oschina.net/inhere/simple-print-tool"
+    },
+    {
+      "type": "git",
+      "url": "https://git.oschina.net/inhere/slim-whoops"
+    }
+  ]
+}

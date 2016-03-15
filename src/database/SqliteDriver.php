@@ -1,0 +1,39 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Inhere
+ * Date: 2016/3/2 0002
+ * Time: 22:33
+ */
+
+namespace slimExtend\database;
+
+use Windwalker\Query\Query;
+use Windwalker\Query\Sqlite\SqliteQuery;
+
+/**
+ * Class Sqlite
+ * @package slimExtend\database
+ */
+class SqliteDriver extends AbstractDriver
+{
+    protected $name = 'sqlite';
+
+    public function newQuery($forceNew=false)
+    {
+        if ( $forceNew || self::$newQueryCache === null ) {
+            self::$newQueryCache = new SqliteQuery($this->pdo);
+        }
+        return self::$newQueryCache;
+    }
+
+    /**
+     * Is this driver supported.
+     *
+     * @return  boolean
+     */
+    public static function isSupported()
+    {
+        return in_array('sqlite', \PDO::getAvailableDrivers());
+    }
+}

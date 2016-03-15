@@ -1,0 +1,4 @@
+.idea/
+.phpintel/
+!README.md
+composer.lock

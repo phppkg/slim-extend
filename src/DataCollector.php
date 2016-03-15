@@ -1,0 +1,664 @@
+<?php
+/**
+ * @referee  windwalker-registry {@link https://github.com/ventoviro/windwalker-registry}
+ */
+
+namespace slimExtend;
+
+/**
+ * Class DataCollector - 数据收集器 (数据存储器 - DataStorage)
+ * @package slimExtend
+ * 支持 链式的子节点 设置 和 值获取
+ * e.g:
+ * ```
+ * $data = [
+ *      'foo' => [
+ *          'bar' => [
+ *              'yoo' => 'value'
+ *          ]
+ *       ]
+ * ];
+ * $config = new DataCollector();
+ * $config->get('foo.bar.yoo')` equals to $data['foo']['bar']['yoo'];
+ *
+ * ```
+ *
+ * 简单的数据对象可使用Slim内置的 Collection @see \Slim\Collection
+ * ```
+ * $config = new \Slim\Collection($data)
+ * $config->get('foo');
+ * ```
+ */
+class DataCollector implements \JsonSerializable, \ArrayAccess, \IteratorAggregate, \Countable
+{
+    /**
+     * data
+     * @var array
+     */
+    private $data = [];
+
+    /**
+     * @var array
+     */
+//    protected $files = [];
+
+    /**
+     * Property separator.
+     * @var  string
+     */
+    protected $separator = '.';
+
+    /**
+     * name
+     * @var string
+     */
+    protected $name;
+
+    /**
+     * formats
+     * @var array
+     */
+    protected static $formats = ['json', 'php', 'ini', 'yml'];
+
+    const FORMAT_JSON = 'json';
+    const FORMAT_PHP = 'php';
+    const FORMAT_INI = 'ini';
+    const FORMAT_YML = 'yml';
+
+    /**
+     * __construct
+     * @param mixed $data
+     * @param string $format
+     * @param string $name
+     */
+    public function __construct ($data, $format = self::FORMAT_PHP, $name = 'box1')
+    {
+        // Optionally load supplied data.
+        if (is_array($data) || is_object($data)) {
+            $this->bindData($this->data, $data);
+        } elseif ($data && is_string($data)) {
+            $this->load($data, $format);
+        }
+
+        $this->name = $name;
+    }
+
+    /**
+     * set
+     * @param string $path
+     * @param mixed $value
+     * @return mixed
+     */
+    public function set($path, $value)
+    {
+        if (is_array($value) || is_object($value)) {
+            $value = self::dataToArray($value, true);
+        }
+
+        self::setByPath($this->data, $path, $value, $this->separator);
+
+        return $this;
+    }
+
+    /**
+     * get
+     * @param string $path
+     * @param string $default
+     * @return mixed
+     */
+    public function get($path, $default = null)
+    {
+        $result = self::getByPath($this->data, $path, $this->separator);
+
+        return $result !== null ? $result : $default;
+    }
+
+    public function exists($path)
+    {
+        return $this->get($path) !== null;
+    }
+
+    public function has($path)
+    {
+        return $this->exists($path);
+    }
+
+    public function reset()
+    {
+        $this->data = [];
+
+        return $this;
+    }
+
+    /**
+     * Clear all data.
+     * @return  static
+     */
+    public function clear()
+    {
+        return $this->reset();
+    }
+
+    public function toObject($class = 'stdClass')
+    {
+        return static::dataToObject($this->data, $class);
+    }
+
+    /**
+     * get all Data
+     * @return array
+     */
+    public function all()
+    {
+        return $this->data;
+    }
+    public function toArray()
+    {
+        return $this->all();
+    }
+
+    /**
+     * @return string
+     */
+    public function getSeparator()
+    {
+        return $this->separator;
+    }
+
+    /**
+     * @param string $separator
+     */
+    public function setSeparator($separator)
+    {
+        $this->separator = $separator;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getFormats()
+    {
+        return self::$formats;
+    }
+
+    /**
+     * setName
+     * @param $value
+     * @return void
+     */
+    public function setName($value)
+    {
+        $this->name = $value;
+    }
+
+    /**
+     * getName
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+// @method -v public -p {string|array:file, string:format='php'} -r bool load
+
+    /**
+     * load
+     * @param string|array $data
+     * @param string $format = 'php'
+     * @return static
+     * @throws \RangeException
+     */
+    public function load( $data, $format = self::FORMAT_PHP)
+    {
+        if ( is_string($data) && in_array($format, static::$formats) ) {
+            switch ( $format ) {
+                case self::FORMAT_YML:
+                    $this->loadYaml($data);
+                    break;
+
+                case self::FORMAT_JSON:
+                    $this->loadJson($data);
+                    break;
+
+                case self::FORMAT_INI:
+                    $this->loadIni($data);
+                    break;
+
+                case self::FORMAT_PHP:
+                default:
+                    $this->loadArray($data);
+                    break;
+            }
+
+        } else if ( is_array($data) ) {
+            $this->bindData($this->data, $data);
+        } else {
+            throw new \RangeException('params error!!');
+        }
+
+        return $this;
+    }
+
+    /**
+     * load data form yml file
+     * @param $data
+     * @throws \RuntimeException
+     * @return static
+     */
+    public function loadYaml($data)
+    {
+        $array  = self::parseYaml(trim($data));
+
+        return $this->bindData($this->data, $array);
+    }
+
+    /**
+     * load data form php file or array
+     * @param array|string $data
+     * @return static
+     */
+    public function loadArray($data)
+    {
+        if ( is_string($data) && is_file($data) ) {
+            $data = require $data;
+        }
+
+        if ( !is_array($data) ) {
+            throw new \RuntimeException('param type error!');
+        }
+
+        return $this->bindData($this->data, $data);
+    }
+
+    /**
+     * load data form php file or array
+     * @param array|string $data
+     * @return static
+     */
+    public function loadObject($data)
+    {
+        if ( !is_object($data) ) {
+            throw new \RuntimeException('param type error!');
+        }
+
+        return $this->bindData($this->data, $data);
+    }
+
+    /**
+     * load data form ini file
+     * @param $data
+     * @return static
+     */
+    public function loadIni($data)
+    {
+        if ( !is_string($data) ) {
+            throw new \RuntimeException('param type error! must is string.');
+        }
+
+        if ( file_exists($data) ) {
+            $data = file_get_contents($data);
+        }
+
+        $data = parse_ini_string($data);
+
+        return $this->bindData($this->data, $data);
+    }
+
+    /**
+     * load data form json file
+     * @param $data
+     * @return DataCollector
+     * @throws \RuntimeException
+     */
+    public function loadJson($data)
+    {
+         return $this->bindData($this->data, self::parseJson($data));
+    }
+
+    /**
+     * @param $parent
+     * @param $data
+     * @param bool|false $raw
+     * @return $this
+     */
+    protected function bindData(&$parent, $data, $raw = false)
+    {
+        // Ensure the input data is an array.
+        if (!$raw) {
+            $data = self::dataToArray($data, true);
+        }
+
+        foreach ($data as $key => $value) {
+            if ($value === null) {
+                continue;
+            }
+
+            if (is_array($value)) {
+                if (!isset($parent[$key])) {
+                    $parent[$key] = array();
+                }
+
+                $this->bindData($parent[$key], $value);
+            } else {
+                $parent[$key] = $value;
+            }
+        }
+
+        return $this;
+    }
+
+    public function getKeys()
+    {
+        return array_keys($this->data);
+    }
+
+    public function jsonSerialize()
+    {
+        return $this->data;
+    }
+
+    public function getIterator()
+    {
+        return new \RecursiveArrayIterator($this->data);
+    }
+
+    /**
+     * Count elements of the data object
+     * @return  integer  The custom count as an integer.
+     * @link    http://php.net/manual/en/countable.count.php
+     */
+    public function count()
+    {
+        return count($this->data);
+    }
+
+    public function offsetExists($offset)
+    {
+        return $this->exists($offset);
+    }
+
+    /**
+     * Gets an offset in the iterator.
+     * @param   mixed  $offset  The array offset.
+     * @return  mixed  The array value if it exists, null otherwise.
+     */
+    public function offsetGet($offset)
+    {
+        return $this->get($offset);
+    }
+
+    /**
+     * Sets an offset in the iterator.
+     *
+     * @param mixed $offset
+     * @param mixed $value The array value.
+     */
+    public function offsetSet($offset, $value)
+    {
+        $this->set($offset, $value);
+    }
+
+    /**
+     * Unsets an offset in the iterator.
+     * @param   mixed  $offset  The array offset.
+     * @return  void
+     */
+    public function offsetUnset($offset)
+    {
+        $this->set($offset, null);
+    }
+
+    public function __clone()
+    {
+        $this->data = unserialize(serialize($this->data));
+    }
+
+    public function __get($name)
+    {
+        return $this->get($name);
+    }
+
+    public function __set($name, $value)
+    {
+        return $this->set($name, $value);
+    }
+
+    public function __isset($name)
+    {
+        return $this->exists($name);
+    }
+
+//////
+///////////////////////////// helper /////////////////////////
+//////
+
+/**
+     * Get data from array or object by path.
+     *
+     * Example: `DataCollector::getByPath($array, 'foo.bar.yoo')` equals to $array['foo']['bar']['yoo'].
+     *
+     * @param mixed  $data      An array or object to get value.
+     * @param mixed  $path      The key path.
+     * @param string $separator Separator of paths.
+     *
+     * @return  mixed Found value, null if not exists.
+     */
+    public static function getByPath(array $data, $path, $separator = '.')
+    {
+        $nodes = static::getPathNodes($path, $separator);
+
+        if (!$nodes) {
+            return null;
+        }
+
+        $dataTmp = $data;
+
+        foreach ($nodes as $arg) {
+            if (is_object($dataTmp) && isset($dataTmp->$arg)) {
+                $dataTmp = $dataTmp->$arg;
+            } elseif (
+                ( is_array($dataTmp) || $dataTmp instanceof \ArrayAccess)
+                 AND isset($dataTmp[$arg])
+            ) {
+                $dataTmp = $dataTmp[$arg];
+            } else {
+                return null;
+            }
+        }
+
+        return $dataTmp;
+    }
+
+    /**
+     * setByPath
+     *
+     * @param mixed  &$data
+     * @param string $path
+     * @param mixed  $value
+     * @param string $separator
+     *
+     * @return  boolean
+     */
+    public static function setByPath(array &$data, $path, $value, $separator = '.')
+    {
+        $nodes = static::getPathNodes($path, $separator);
+
+        if (!$nodes) {
+            return false;
+        }
+
+        $dataTmp = &$data;
+
+        foreach ($nodes as $node) {
+            if (is_array($dataTmp)) {
+                if (empty($dataTmp[$node])) {
+                    $dataTmp[$node] = array();
+                }
+
+                $dataTmp = &$dataTmp[$node];
+            } else {
+                // If a node is value but path is not go to the end, we replace this value as a new store.
+                // Then next node can insert new value to this store.
+                $dataTmp = array();
+            }
+        }
+
+        // Now, path go to the end, means we get latest node, set value to this node.
+        $dataTmp = $value;
+
+        return true;
+    }
+
+    /**
+     * @param string $path
+     * @param string $separator
+     * @return  array
+     */
+    public static function getPathNodes($path, $separator = '.')
+    {
+        return array_values(array_filter(explode($separator, $path), 'strlen'));
+    }
+
+    /**
+     * @param $data
+     * @param bool|false $recursive
+     * @return array
+     */
+    public static function dataToArray($data, $recursive = false)
+    {
+        // Ensure the input data is an array.
+        if ($data instanceof \Traversable) {
+            $data = iterator_to_array($data);
+        } elseif (is_object($data)) {
+            $data = get_object_vars($data);
+        } else {
+            $data = (array) $data;
+        }
+
+        if ($recursive) {
+            foreach ($data as &$value) {
+                if (is_array($value) || is_object($value)) {
+                    $value = static::dataToArray($value, $recursive);
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param $array
+     * @param string $class
+     * @return mixed
+     */
+    public static function dataToObject($array, $class = 'stdClass')
+    {
+        $object = new $class;
+
+        foreach ($array as $k => $v) {
+            $object->$k = is_array($v) ? static::dataToObject($v, $class) : $v;
+        }
+
+        return $object;
+    }
+
+    /**
+     * @param $data
+     * @return array
+     * @throws \RuntimeException
+     */
+    public static function parseJson($data)
+    {
+        if ( !is_string($data) ) {
+            throw new \RuntimeException('param type error! must is string.');
+        }
+
+        if ( !$data ) {
+            return [];
+        }
+
+        if ( file_exists($data) ) {
+            $data = file_get_contents($data);
+            $pattern = [
+                '!/\*[^*]*\*+([^/][^*]*\*+)*/!', //去除文件中的注释
+                '/\/\/.*?[\r\n]/is',             //去掉所有单行注释
+                "/(?!\w)\s*?(?!\w)/is"           // 多个空格 换成一个
+            ];
+            $replace = ['','',''];
+            $data = preg_replace($pattern, $replace, $data);
+        }
+
+        $data = json_decode(trim($data), true);
+        if ( json_last_error() === JSON_ERROR_NONE ) {
+            return $data;
+        } else {
+            throw new \RuntimeException('json config data parse error :'.json_last_error_msg());
+        }
+    }
+
+    /**
+     * parse Yaml
+     * @param string $data              Waiting for the parse data
+     * @param bool $supportImport       Simple support import other config by tag 'import'. must is bool.
+     * @param callable $pathHandler     When the second param is true, this param is valid.
+     * @param string $fileDir           When the second param is true, this param is valid.
+     * @return array
+     */
+    public static function parseYaml($data, $supportImport=false, callable $pathHandler=null, $fileDir = '')
+    {
+        if ( !is_string($data) ) {
+            throw new \RuntimeException('param type error! must is string.');
+        }
+
+        if ( !$data ) {
+            return [];
+        }
+
+        $parserClass = '\Symfony\Component\Yaml\Parser';
+
+        if ( !class_exists($parserClass) ) {
+            throw new \RuntimeException("yml format parser Class $parserClass don't exists! please install package 'symfony/yaml'.");
+        }
+
+        if ( is_file($data) ) {
+            $fileDir = $fileDir ? : dirname($data);
+            $data = file_get_contents($data);
+        }
+
+        /** @var \Symfony\Component\Yaml\Parser $parser */
+        $parser = new $parserClass;
+        $array = $parser->parse(trim($data));
+//        $array  = json_decode(json_encode($array));
+
+        // import other config by tag 'import'
+        if ( $supportImport===true && !empty($array['import']) && is_string($array['import']) ) {
+            $importFile = trim($array['import']);
+
+            // if needed custom handle $importFile path. e.g: Maybe it uses custom alias path
+            if ( $pathHandler && is_callable($pathHandler) ) {
+                $importFile = call_user_func($pathHandler, $importFile);
+            }
+
+            // if $importFile is not exists AND $importFile is not a absolute path AND have $parentFile
+            if ( $fileDir && !file_exists($importFile) && $importFile[0] !== '/') {
+                $importFile = $fileDir . '/' . trim($importFile, './');
+            }
+
+            // $importFile is file
+            if ( is_file($importFile) ) {
+
+                unset($array['import']);
+                $data     = file_get_contents($importFile);
+                $imported = $parser->parse(trim($data));
+                $array    = array_merge($imported, $array);
+            } else {
+                throw new \RuntimeException("needed imported file $importFile don't exists!");
+            }
+        }
+
+        unset($parser);
+
+        return $array;
+    }
+}
