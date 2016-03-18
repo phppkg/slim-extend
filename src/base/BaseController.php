@@ -74,7 +74,7 @@ abstract class BaseController extends RestFulController
         $view  = $this->getViewPath($view, $settings);
 
         // add tpl global var
-        list($varKey, $varList) = $this->handleGlobalVar([], $settings);
+        list($varKey, $varList) = $this->handleGlobalVar($settings);
         $args[$varKey] = $varList;
 
         return Slim::get('renderer')->render($response, $view, $args);
@@ -92,9 +92,8 @@ abstract class BaseController extends RestFulController
      * @param int $return
      * @return Response
      */
-    protected function renderTwig($view, Response $response, array $args = [], $return=self::RETURN_RESPONSE)
+    protected function renderTwig($view, Response $response, array $args = [], $return= 2)
     {
-//        $response = $response ?: Slim::get('response');
         $settings = Slim::get('settings')['twigRenderer'];
         $view  = $this->getViewPath($view, $settings);
 
@@ -102,7 +101,7 @@ abstract class BaseController extends RestFulController
         $twig = Slim::get('twigRenderer');
 
         $globalVar = $this->addTwigGlobalVar();
-        list($globalKey, $globalVar) = $this->handleGlobalVar($globalVar, $settings);
+        list($globalKey, $globalVar) = $this->handleGlobalVar($settings, $globalVar);
 
         // add tpl global var
         $twig->getEnvironment()->addGlobal($globalKey, $globalVar);
@@ -113,9 +112,9 @@ abstract class BaseController extends RestFulController
         // Fetch rendered template {@see \Slim\Views\Twig::fetch()}
         $rendered = $twig->fetch($view, $args);
 
-        if ( $return === self::RETURN_RENDERED ) {
+        if ( $return === static::RETURN_RENDERED ) {
             return $rendered;
-        } elseif ( $return === self::RETURN_BOTH ) {
+        } elseif ( $return === static::RETURN_BOTH ) {
             $response->getBody()->write($rendered);
 
             return [$response, $rendered];
@@ -142,18 +141,21 @@ abstract class BaseController extends RestFulController
         ];
     }
 
+    const GLOBAL_VAR_NAME_CONFIG_KEY  = 'global_var_key';
+    const GLOBAL_VAR_LIST_CONFIG_KEY  = 'global_var_list';
+
     /**
-     * @param array $varList
      * @param array $settings
+     * @param array $varList
      * @return array
      */
-    protected function handleGlobalVar(array $varList=[], array $settings)
+    protected function handleGlobalVar(array $settings, array $varList=[])
     {
         // form settings
-        if ( !empty($settings['global_var_list']) ) {
+        if ( !empty($settings[static::GLOBAL_VAR_LIST_CONFIG_KEY]) ) {
             $varList = $varList ?
-                array_merge($varList, $settings['global_var_list']) :
-                $settings['global_var_list'];
+                array_merge($varList, $settings[static::GLOBAL_VAR_LIST_CONFIG_KEY]) :
+                $settings[static::GLOBAL_VAR_LIST_CONFIG_KEY];
         }
 
         // form current controller
@@ -167,10 +169,10 @@ abstract class BaseController extends RestFulController
         if ( $this->tplGlobalVarKey ) {
             $varKey = $this->tplGlobalVarKey;
         } else {
-            $varKey = empty($settings['global_var_key']) ? '' : $settings['global_var_key'];
+            $varKey = empty($settings[static::GLOBAL_VAR_NAME_CONFIG_KEY]) ? '' : $settings[static::GLOBAL_VAR_NAME_CONFIG_KEY];
 
             if ( !$varKey ) {
-                $varKey = self::DEFAULT_VAR_KEY;
+                $varKey = static::DEFAULT_VAR_KEY;
             }
         }
 
@@ -204,7 +206,8 @@ EOF;
         if ( !$this->tplPath ) {
             $calledClass = get_class($this);
             $nodes = explode('\\', trim($calledClass,'\\'));
-            $nodes = array_slice($nodes, 2); // remove `app` e.g: `app\controllers\SimpleAuth`
+            // remove `app` e.g: `app\controllers\SimpleAuth`
+            $nodes = array_slice($nodes, 2);
             $nodePath = implode('/', array_map(function($node){
                 return lcfirst($node);
             }, $nodes));
