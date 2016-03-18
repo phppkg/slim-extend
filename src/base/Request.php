@@ -32,13 +32,6 @@ use Slim\Http\Request as SlimRequest;
 class Request extends SlimRequest
 {
     /**
-     * @var array
-     */
-    protected $keywords = [
-      'int', 'float', 'bool', 'boolean', 'array', 'object', 'string'
-    ];
-
-    /**
      * return raw data
      */
     const FILTER_RAW = 'raw';
@@ -47,17 +40,26 @@ class Request extends SlimRequest
      * @var array
      */
     protected $filterList = [
-        'raw'     => '',                                // return raw
+        // return raw
+        'raw'     => '',
 
-        'int'     => 'int',                             // (int)$var
-        'float'   => 'float',                           // (float)$var or floatval($var)
-        'bool'    => 'bool',                            // (bool)$var
-        'boolean' => 'bool',                            // (bool)$var
-        'string'  => 'trim',                            // trim($var)
+        // (int)$var
+        'int'     => 'int',
+        // (float)$var or floatval($var)
+        'float'   => 'float',
+        // (bool)$var
+        'bool'    => 'bool',
+        // (bool)$var
+        'boolean' => 'bool',
+        // trim($var)
+        'string'  => 'trim',
 
-        'number'  => StrainerList::class . '::abs',     // abs((int)$var)
-        'email'   => StrainerList::class . '::email',   // filter_var($var ,FILTER_SANITIZE_URL);
-        'url'     => StrainerList::class . '::url',     // filter_var($var ,FILTER_SANITIZE_URL);
+        // abs((int)$var)
+        'number'  => StrainerList::class . '::abs',
+        // will use filter_var($var ,FILTER_SANITIZE_URL)
+        'email'   => StrainerList::class . '::email',
+        // will use filter_var($var ,FILTER_SANITIZE_URL)
+        'url'     => StrainerList::class . '::url',
     ];
 
     /**
@@ -98,8 +100,8 @@ class Request extends SlimRequest
     }
 
     /**
-     * @param $name
-     * @param null $default
+     * @param string $name
+     * @param mixed $default
      * @param string $filter
      * @return mixed
      */
@@ -159,7 +161,7 @@ class Request extends SlimRequest
      */
     protected function doFilter($var, $filter, $default = null)
     {
-        if ( $filter === self::FILTER_RAW ) {
+        if ( $filter === static::FILTER_RAW ) {
             return $var;
         }
 
@@ -167,42 +169,45 @@ class Request extends SlimRequest
 
             // is custom callable filter
             if ( is_callable($filter) ) {
-                return call_user_func($filter, $var);
+                $value = call_user_func($filter, $var);
+            } else {
+                $value = $default;
             }
 
-            return $default;
+            return $value;
         }
 
         $filter = $this->filterList[$filter];
 
-        if ( !in_array($filter, $this->keywords) ) {
-            return call_user_func($filter, $var);
-        }
-
-        switch ( lcfirst(trim($filter)) ) {
-            case DataConst::TYPE_ARRAY :
-                $var = (array)$var;
-                break;
-            case DataConst::TYPE_BOOL :
-            case DataConst::TYPE_BOOLEAN :
-                $var = (bool)$var;
-                break;
-            case DataConst::TYPE_DOUBLE :
-            case DataConst::TYPE_FLOAT :
-                $var = (float)$var;
-                break;
-            case DataConst::TYPE_INT :
-            case DataConst::TYPE_INTEGER :
-                $var = (int)$var;
-                break;
-            case DataConst::TYPE_OBJECT :
-                $var = (object)$var;
-                break;
-            case DataConst::TYPE_STRING :
-                $var = trim((string)$var);
-                break;
-            default:
-                break;
+        if ( !in_array($filter, DataConst::dataTypes()) ) {
+            $var = call_user_func($filter, $var);
+        } else {
+            switch ( lcfirst(trim($filter)) ) {
+                case DataConst::TYPE_ARRAY :
+                    $var = (array)$var;
+                    break;
+                case DataConst::TYPE_BOOL :
+                case DataConst::TYPE_BOOLEAN :
+                    $var = (bool)$var;
+                    break;
+                case DataConst::TYPE_DOUBLE :
+                case DataConst::TYPE_FLOAT :
+                    $var = (float)$var;
+                    break;
+                case DataConst::TYPE_INT :
+                case DataConst::TYPE_INTEGER :
+                    $var = (int)$var;
+                    break;
+                case DataConst::TYPE_OBJECT :
+                    $var = (object)$var;
+                    break;
+                case DataConst::TYPE_STRING :
+                    $var = trim((string)$var);
+                    break;
+                default:
+                    $var = $default;
+                    break;
+            }
         }
 
         return $var;

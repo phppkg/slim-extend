@@ -25,6 +25,7 @@
   },
   "autoload":{
     "files":[
+      "src/defined.php",
       "src/functions.php"
     ],
     "classmap": ["src/Slim.php"],

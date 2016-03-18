@@ -5,6 +5,9 @@
 
 namespace slimExtend;
 
+use RuntimeException;
+use slimExtend\exceptions\ParseDataException;
+
 /**
  * Class DataCollector - 数据收集器 (数据存储器 - DataStorage)
  * @package slimExtend
@@ -71,7 +74,7 @@ class DataCollector implements \JsonSerializable, \ArrayAccess, \IteratorAggrega
      * @param string $format
      * @param string $name
      */
-    public function __construct ($data, $format = self::FORMAT_PHP, $name = 'box1')
+    public function __construct ($data, $format = 'php', $name = 'box1')
     {
         // Optionally load supplied data.
         if (is_array($data) || is_object($data)) {
@@ -92,10 +95,10 @@ class DataCollector implements \JsonSerializable, \ArrayAccess, \IteratorAggrega
     public function set($path, $value)
     {
         if (is_array($value) || is_object($value)) {
-            $value = self::dataToArray($value, true);
+            $value = static::dataToArray($value, true);
         }
 
-        self::setByPath($this->data, $path, $value, $this->separator);
+        static::setByPath($this->data, $path, $value, $this->separator);
 
         return $this;
     }
@@ -108,7 +111,7 @@ class DataCollector implements \JsonSerializable, \ArrayAccess, \IteratorAggrega
      */
     public function get($path, $default = null)
     {
-        $result = self::getByPath($this->data, $path, $this->separator);
+        $result = static::getByPath($this->data, $path, $this->separator);
 
         return $result !== null ? $result : $default;
     }
@@ -178,7 +181,7 @@ class DataCollector implements \JsonSerializable, \ArrayAccess, \IteratorAggrega
      */
     public static function getFormats()
     {
-        return self::$formats;
+        return static::$formats;
     }
 
     /**
@@ -209,23 +212,23 @@ class DataCollector implements \JsonSerializable, \ArrayAccess, \IteratorAggrega
      * @return static
      * @throws \RangeException
      */
-    public function load( $data, $format = self::FORMAT_PHP)
+    public function load( $data, $format = 'php')
     {
         if ( is_string($data) && in_array($format, static::$formats) ) {
             switch ( $format ) {
-                case self::FORMAT_YML:
+                case static::FORMAT_YML:
                     $this->loadYaml($data);
                     break;
 
-                case self::FORMAT_JSON:
+                case static::FORMAT_JSON:
                     $this->loadJson($data);
                     break;
 
-                case self::FORMAT_INI:
+                case static::FORMAT_INI:
                     $this->loadIni($data);
                     break;
 
-                case self::FORMAT_PHP:
+                case static::FORMAT_PHP:
                 default:
                     $this->loadArray($data);
                     break;
@@ -243,12 +246,12 @@ class DataCollector implements \JsonSerializable, \ArrayAccess, \IteratorAggrega
     /**
      * load data form yml file
      * @param $data
-     * @throws \RuntimeException
+     * @throws RuntimeException
      * @return static
      */
     public function loadYaml($data)
     {
-        $array  = self::parseYaml(trim($data));
+        $array  = static::parseYaml(trim($data));
 
         return $this->bindData($this->data, $array);
     }
@@ -265,7 +268,7 @@ class DataCollector implements \JsonSerializable, \ArrayAccess, \IteratorAggrega
         }
 
         if ( !is_array($data) ) {
-            throw new \RuntimeException('param type error!');
+            throw new \InvalidArgumentException('param type error! must is array.');
         }
 
         return $this->bindData($this->data, $data);
@@ -279,7 +282,7 @@ class DataCollector implements \JsonSerializable, \ArrayAccess, \IteratorAggrega
     public function loadObject($data)
     {
         if ( !is_object($data) ) {
-            throw new \RuntimeException('param type error!');
+            throw new \InvalidArgumentException('param type error! must is object.');
         }
 
         return $this->bindData($this->data, $data);
@@ -293,7 +296,7 @@ class DataCollector implements \JsonSerializable, \ArrayAccess, \IteratorAggrega
     public function loadIni($data)
     {
         if ( !is_string($data) ) {
-            throw new \RuntimeException('param type error! must is string.');
+            throw new \InvalidArgumentException('param type error! must is string.');
         }
 
         if ( file_exists($data) ) {
@@ -309,11 +312,11 @@ class DataCollector implements \JsonSerializable, \ArrayAccess, \IteratorAggrega
      * load data form json file
      * @param $data
      * @return DataCollector
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function loadJson($data)
     {
-         return $this->bindData($this->data, self::parseJson($data));
+         return $this->bindData($this->data, static::parseJson($data));
     }
 
     /**
@@ -326,7 +329,7 @@ class DataCollector implements \JsonSerializable, \ArrayAccess, \IteratorAggrega
     {
         // Ensure the input data is an array.
         if (!$raw) {
-            $data = self::dataToArray($data, true);
+            $data = static::dataToArray($data, true);
         }
 
         foreach ($data as $key => $value) {
@@ -459,7 +462,7 @@ class DataCollector implements \JsonSerializable, \ArrayAccess, \IteratorAggrega
                 $dataTmp = $dataTmp->$arg;
             } elseif (
                 ( is_array($dataTmp) || $dataTmp instanceof \ArrayAccess)
-                 AND isset($dataTmp[$arg])
+                 && isset($dataTmp[$arg])
             ) {
                 $dataTmp = $dataTmp[$arg];
             } else {
@@ -566,12 +569,12 @@ class DataCollector implements \JsonSerializable, \ArrayAccess, \IteratorAggrega
     /**
      * @param $data
      * @return array
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public static function parseJson($data)
     {
         if ( !is_string($data) ) {
-            throw new \RuntimeException('param type error! must is string.');
+            throw new \InvalidArgumentException('param type error! must is string.');
         }
 
         if ( !$data ) {
@@ -581,9 +584,14 @@ class DataCollector implements \JsonSerializable, \ArrayAccess, \IteratorAggrega
         if ( file_exists($data) ) {
             $data = file_get_contents($data);
             $pattern = [
-                '!/\*[^*]*\*+([^/][^*]*\*+)*/!', //去除文件中的注释
-                '/\/\/.*?[\r\n]/is',             //去掉所有单行注释
-                "/(?!\w)\s*?(?!\w)/is"           // 多个空格 换成一个
+                //去除文件中的注释
+                '!/\*[^*]*\*+([^/][^*]*\*+)*/!',
+
+                //去掉所有单行注释
+                '/\/\/.*?[\r\n]/is',
+
+                // 多个空格 换成一个
+                "/(?!\w)\s*?(?!\w)/is"
             ];
             $replace = ['','',''];
             $data = preg_replace($pattern, $replace, $data);
@@ -593,9 +601,11 @@ class DataCollector implements \JsonSerializable, \ArrayAccess, \IteratorAggrega
         if ( json_last_error() === JSON_ERROR_NONE ) {
             return $data;
         } else {
-            throw new \RuntimeException('json config data parse error :'.json_last_error_msg());
+            throw new ParseDataException('json config data parse error :'.json_last_error_msg());
         }
     }
+
+    const IMPORT_KEY = 'import';
 
     /**
      * parse Yaml
@@ -608,7 +618,7 @@ class DataCollector implements \JsonSerializable, \ArrayAccess, \IteratorAggrega
     public static function parseYaml($data, $supportImport=false, callable $pathHandler=null, $fileDir = '')
     {
         if ( !is_string($data) ) {
-            throw new \RuntimeException('param type error! must is string.');
+            throw new \InvalidArgumentException('param type error! must is string.');
         }
 
         if ( !$data ) {
@@ -618,7 +628,7 @@ class DataCollector implements \JsonSerializable, \ArrayAccess, \IteratorAggrega
         $parserClass = '\Symfony\Component\Yaml\Parser';
 
         if ( !class_exists($parserClass) ) {
-            throw new \RuntimeException("yml format parser Class $parserClass don't exists! please install package 'symfony/yaml'.");
+            throw new \UnexpectedValueException("yml format parser Class $parserClass don't exists! please install package 'symfony/yaml'.");
         }
 
         if ( is_file($data) ) {
@@ -632,8 +642,8 @@ class DataCollector implements \JsonSerializable, \ArrayAccess, \IteratorAggrega
 //        $array  = json_decode(json_encode($array));
 
         // import other config by tag 'import'
-        if ( $supportImport===true && !empty($array['import']) && is_string($array['import']) ) {
-            $importFile = trim($array['import']);
+        if ( $supportImport===true && !empty($array[static::IMPORT_KEY]) && is_string($array[static::IMPORT_KEY]) ) {
+            $importFile = trim($array[static::IMPORT_KEY]);
 
             // if needed custom handle $importFile path. e.g: Maybe it uses custom alias path
             if ( $pathHandler && is_callable($pathHandler) ) {
@@ -653,7 +663,7 @@ class DataCollector implements \JsonSerializable, \ArrayAccess, \IteratorAggrega
                 $imported = $parser->parse(trim($data));
                 $array    = array_merge($imported, $array);
             } else {
-                throw new \RuntimeException("needed imported file $importFile don't exists!");
+                throw new \UnexpectedValueException("needed imported file $importFile don't exists!");
             }
         }
 

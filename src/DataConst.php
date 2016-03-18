@@ -29,4 +29,26 @@ abstract class DataConst
     const TYPE_ARRAY            = 'array';
     const TYPE_OBJECT           = 'object';
     const TYPE_RESOURCE         = 'resource';
+
+    /**
+     * @return array
+     */
+    public static function dataTypes()
+    {
+        return [
+            static::TYPE_ARRAY, static::TYPE_BOOL, static::TYPE_BOOLEAN , static::TYPE_DOUBLE, static::TYPE_FLOAT,
+            static::TYPE_INT,   static::TYPE_INTEGER, static::TYPE_OBJECT, static::TYPE_STRING, static::TYPE_RESOURCE
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public static function scalarTypes()
+    {
+        return [
+            static::TYPE_BOOL, static::TYPE_BOOLEAN , static::TYPE_DOUBLE, static::TYPE_FLOAT,
+            static::TYPE_INT, static::TYPE_INTEGER, static::TYPE_STRING
+        ];
+    }
 }

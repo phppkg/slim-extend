@@ -10,6 +10,7 @@ namespace slimExtend\base;
 
 use slimExtend\DataCollector;
 use Slim;
+use slimExtend\exceptions\NotFoundException;
 
 /**
  * Class Language
@@ -86,7 +87,7 @@ class Language extends DataCollector
      */
     public function __construct(array $options)
     {
-        parent::__construct(null, self::FORMAT_PHP, 'language');
+        parent::__construct(null, static::FORMAT_PHP, 'language');
 
         $this->prepare($options);
     }
@@ -106,13 +107,13 @@ class Language extends DataCollector
         // maybe use path alias
         $this->path = Slim::alias($this->path);
 
-        $this->mainFile = $this->type === self::TYPE_MONOFILE ?
+        $this->mainFile = $this->type === static::TYPE_MONOFILE ?
             $this->path . DIR_SEP . "{$this->lang}.yml" :
             $this->getDirectoryFile($this->defaultFile);
 
         // check
         if ( !is_file($this->mainFile) ) {
-            throw new \RuntimeException("Main language file don't exists! File: {$this->mainFile}");
+            throw new NotFoundException("Main language file don't exists! File: {$this->mainFile}");
         }
 
         // load main language file data.
@@ -133,7 +134,7 @@ class Language extends DataCollector
      * $msg = Slim::$app->language->tran('userNotFound', 'demo');
      * ```
      *
-     * 2. allow fetch other config file data, when use multifile. (`self::$type === self::TYPE_MULTIFILE`)
+     * 2. allow fetch other config file data, when use multifile. (`static::$type === static::TYPE_MULTIFILE`)
      *
      * @example
      * ```
@@ -167,7 +168,7 @@ class Language extends DataCollector
         $args[0] = $this->get($key);
 
         // if use multifile.
-        if ( $this->type === self::TYPE_MULTIFILE ) {
+        if ( $this->type === static::TYPE_MULTIFILE ) {
            $this->handleMultiFile($key, $args);
         }
 
@@ -224,7 +225,7 @@ class Language extends DataCollector
 
             if ( is_file($otherFile) ) {
                 $this->otherFiles[$name]  = $otherFile;
-                $this->others[$name] = new DataCollector($otherFile, self::FORMAT_YML, $name);
+                $this->others[$name] = new DataCollector($otherFile, static::FORMAT_YML, $name);
             }
         }
 
@@ -252,7 +253,7 @@ class Language extends DataCollector
      */
     public function getTypes()
     {
-        return [self::TYPE_MONOFILE, self::TYPE_MULTIFILE];
+        return [static::TYPE_MONOFILE, static::TYPE_MULTIFILE];
     }
 
     /**
