@@ -17,6 +17,12 @@ namespace slimExtend\validate;
  */
 trait ValidatorTrait
 {
+    /**
+     * 当前验证的场景 -- 如果需要让一个验证器在多个类似情形下使用
+     * (在MVC框架中，通常是根据 controller 的 action name 来区分。 e.g. add, edit, register)
+     * @var string
+     */
+    protected $scene = '';
 
 ////////////////////////////////////////// validate data //////////////////////////////////////////
 
@@ -44,9 +50,16 @@ trait ValidatorTrait
     private $_rules   = [];
 
     /**
+     * attribute field translate list
      * @var array
      */
-    private $_attrLabels = [];
+    private $_attrTrans = [];
+
+    /**
+     * backup for the property data
+     * @var array
+     */
+    private $_rawData = [];
 
     /**
      * @var bool
@@ -59,10 +72,38 @@ trait ValidatorTrait
     public function rules()
     {
         return [];
+        /* e.g:
+            return [
+                // not set 'scene', enable this rule at all scene.
+                [ 'tagId,userId', 'required', 'msg' => '{attr} is required!'],
+
+                // set scene is add -- when `$this->scene == 'add'` enable this rule.
+                [ 'tagId', 'size', 'min'=>4, 'max'=>567, 'scene' => 'add' ],
+
+                // use callback and custom error message
+                [ 'userId', function($value){ echo "$value ttg tg tt";}, 'msg' => '{attr} is required!'],
+            ];
+       */
     }
 
-    public function beforeValidate()
-    {}
+    /**
+     * define attribute field translate list
+     * @return array
+     */
+    public function attrTrans()
+    {
+        return [
+            // 'field' => 'translate',
+            // e.g. 'name'=>'名称',
+        ];
+    }
+
+//    public static function scene()
+//    {
+//        return '';
+//    }
+
+    public function beforeValidate(){}
 
     /**
      * [Validator::required] 验证是必定被调用的
@@ -72,11 +113,6 @@ trait ValidatorTrait
      * @param  boolean $hasErrorStop
      * @return bool
      * @throws \RuntimeException
-     * $this->_rules = [
-     *       ['tagId,userId,freeTime', 'required', 'msg' => '{attr} is required!'],
-     *       ['tagId', 'size', 'min'=>4, 'max'=>567, 'msg' => '{attr} is required!'], // 4<= tagId <=567
-     *       ['userId', function($value){ echo "ttttt";}, 'msg' => '{attr} is required!'],
-     *   ];
      */
     public function validate(array $onlyChecked = [],$hasErrorStop=null)
     {
@@ -84,6 +120,11 @@ trait ValidatorTrait
             return $this;
         }
 
+        if ( property_exists($this, 'data') ) {
+            throw new \InvalidArgumentException('Must be defined attributes \'data (array)\' in the classes used.');
+        }
+
+        $data = $this->_rawData = $this->data;
         $this->beforeValidate();
         $this->clearErrors();
 
@@ -92,7 +133,7 @@ trait ValidatorTrait
 //        $requireChecked = [];
 
         // 循环规则
-        foreach ($this->getRules() as $rule) {
+        foreach ($this->collectRules() as $rule) {
             // 要检查的属性(字段)名称
             $names = array_shift($rule);
             $names = is_string($names) ? array_filter(explode(',', $names),'trim') : (array)$names;
@@ -113,15 +154,15 @@ trait ValidatorTrait
                      continue;
                 }
 
-                $result = ValidatorList::required($this->data, $name);
+                $result = ValidatorList::required($data, $name);
 
                 if ($result && $validator !== 'required') {
-                    array_unshift($copy, $this->data[$name]);// 压入当前属性值
+                    array_unshift($copy, $data[$name]);// 压入当前属性值
 
                     if ( is_callable($validator) ) {
                         $result = call_user_func_array($validator, $copy);
                         $validator = 'callback';
-                    } elseif ( method_exists($this, $validator) ) {
+                    } elseif ( is_string($validator) && method_exists($this, $validator) ) {
 
                         $result = call_user_func_array( [ $this, $validator ] , $copy);
                     } elseif ( is_callable([ValidatorList::class, $validator]) ) {
@@ -156,14 +197,34 @@ trait ValidatorTrait
         return $this;
     }
 
-    public function afterValidate()
-    {}
+    public function afterValidate(){}
+
+    /**
+     * @return array
+     */
+    protected function collectRules()
+    {
+        $availableRules = [];
+        $scene = $this->scene;
+
+        // 循环规则, 搜集当前场景的规则
+        foreach ($this->getRules() as $rule) {
+            if ( isset($rule['scene']) && $rule['scene'] == $scene ) {
+                unset($rule['scene']);
+                $availableRules[] = $rule;
+            } else {
+                $availableRules[] = $rule;
+            }
+        }
+
+        return $availableRules;
+    }
 
 //////////////////////////////////// error info ////////////////////////////////////
 
     public function clearErrors()
     {
-        return $this->_errors = [];
+        $this->_errors = [];
     }
 
     /**
@@ -252,7 +313,7 @@ trait ValidatorTrait
         'string'    => '{attr} must is string',
         'isArray'   => '{attr} must is array',
         'callback'  => '{attr} validation is not through!',
-        '_default_' => '{attr} validation is not through!',
+        '_' => '{attr} validation is not through!',
     ];
 
     /**
@@ -268,10 +329,10 @@ trait ValidatorTrait
     public function getMessage($name, array $params, $rule = [], $msg=null)
     {
         if ( !$msg ) {
-            $msg = isset(self::$errMsgs[$name]) ? self::$errMsgs[$name]: self::$errMsgs['_default_'];
+            $msg = isset(self::$errMsgs[$name]) ? self::$errMsgs[$name]: self::$errMsgs['_'];
         }
 
-        $labels = $this->getAttrLabels();
+        $labels = $this->getAttrTrans();
         $attrName = $params['{attr}'];
         $params['{attr}'] = isset($labels[$attrName]) ? $labels[$attrName] : $attrName;
 
@@ -283,31 +344,20 @@ trait ValidatorTrait
     }
 
     /**
-     * 属性字段对应说明定义
      * @return array
      */
-    public function attrLabels()
+    public function getAttrTrans()
     {
-        return [
-            // 'name'=>'名称',
-        ];
+        return array_merge($this->attrTrans(), $this->_attrTrans);
     }
 
     /**
-     * @return array
-     */
-    public function getAttrLabels()
-    {
-        return array_merge($this->attrLabels(), $this->_attrLabels);
-    }
-
-    /**
-     * @param array $labels
+     * @param array $attrTrans
      * @return $this
      */
-    public function setAttrLabels(array $labels)
+    public function setAttrTrans(array $attrTrans)
     {
-        $this->_attrLabels = array_merge($this->_attrLabels, $labels);
+        $this->_attrTrans = array_merge($this->_attrTrans, $attrTrans);
 
         return $this;
     }
@@ -339,6 +389,24 @@ trait ValidatorTrait
         return $this;
     }
 
+    /**
+     * @return string
+     */
+    public function getScene()
+    {
+        return $this->scene;
+    }
+
+    /**
+     * @param string $scene
+     * @return static
+     */
+    public function setScene($scene)
+    {
+        $this->scene = $scene;
+
+        return $this;
+    }
 
     /**
      * Get all items in collection
@@ -363,18 +431,21 @@ trait ValidatorTrait
     }
 
     /**
-     * Set collection item
+     * Set data item
      *
-     * @param string $key   The data key
-     * @param mixed  $value The data value
+     * @param string $key The data key
+     * @param mixed $value The data value
+     * @return $this
      */
     public function set($key, $value)
     {
         $this->data[$key] = $value;
+
+        return $this;
     }
 
     /**
-     * Get collection item for key
+     * Get data item for key
      *
      * @param string $key     The data key
      * @param mixed  $default The default value to return if data key does not exist

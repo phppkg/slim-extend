@@ -9,6 +9,7 @@
 
 namespace slimExtend;
 
+use slimExtend\validate\Validator;
 use slimExtend\validate\ValidatorTrait;
 use Slim\Http\Request;
 
@@ -16,21 +17,9 @@ use Slim\Http\Request;
  * Class ValidateRequest
  * @package slimExtend
  *
+ * @property array $scene 当前验证的场景 通常是根据 controller 的 action name 来区分 e.g. add, edit, register
  */
-abstract class ValidateRequest
+abstract class ValidateRequest extends Validator
 {
-    use ValidatorTrait;
 
-    /**
-     * @var array
-     */
-    protected $data = [];
-
-    /**
-     * @param Request|null $request
-     */
-    public function __construct(Request $request=null)
-    {
-        $this->data = $request->getParams();
-    }
 }

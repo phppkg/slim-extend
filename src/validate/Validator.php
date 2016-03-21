@@ -27,13 +27,14 @@ class Validator
     /**
      * @param array $data
      * @param array $rules
-     * @param array $attrLabels
+     * @param array $attrTrans
+     * @param string $scene
      * @param bool $startValidate 立即开始验证
      */
-    public function __construct(array $data=[], array $rules = [], array $attrLabels = [], $startValidate=true)
+    public function __construct(array $data=[], array $rules = [], array $attrTrans = [], $scene='', $startValidate=true)
     {
         $this->data = $data;
-        $this->setRules($rules)->setAttrLabels($attrLabels);
+        $this->setRules($rules)->setScene($scene)->setAttrTrans($attrTrans);
 
         if ( $startValidate ) {
             $this->validate();
@@ -43,13 +44,14 @@ class Validator
     /**
      * @param array $data
      * @param array $rules
-     * @param array $attrLabels
+     * @param array $attrTrans
+     * @param string $scene
      * @param bool $startValidate 立即开始验证
      * @return static
      */
-    public static function make(array $data, array $rules, array $attrLabels = [], $startValidate=true)
+    public static function make(array $data, array $rules, array $attrTrans = [], $scene='', $startValidate=true)
     {
-        return new static($data, $rules, $attrLabels, $startValidate);
+        return new static($data, $rules, $attrTrans, $startValidate);
     }
 
 //    public function get($key, $value=null)
