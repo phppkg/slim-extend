@@ -54,6 +54,6 @@ class App extends SlimApp
      */
     public function __set($id, $value)
     {
-        return $this->getContainer()->$id = $value;
+        return $this->getContainer()[$id] = $value;
     }
 }

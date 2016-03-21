@@ -77,13 +77,22 @@ abstract class Model extends Collection
         return $this->sets($data);
     }
 
+      /**
+     * find record
+     * @return Query
+     */
+    public static function find()
+    {
+        return static::getQuery(true)->from(static::tableName());
+    }
+
     /**
      * find record by primary key
      * @param mixed $priValue
      * @param string $select
-     * @return mixed
+     * @return static
      */
-    public static function find($priValue, $select='*')
+    public static function findByPk($priValue, $select='*')
     {
         if ( is_array($priValue) ) {
             $condition = static::$priKey . ' in (' . implode(',', $priValue) . ')';
@@ -98,7 +107,7 @@ abstract class Model extends Collection
      * find a record by where condition
      * @param $where
      * @param string $select
-     * @return mixed
+     * @return static
      */
     public static function findOne($where, $select='*')
     {
