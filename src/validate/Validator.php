@@ -49,7 +49,7 @@ class Validator
      * @param bool $startValidate 立即开始验证
      * @return static
      */
-    public static function make(array $data, array $rules, array $attrTrans = [], $scene='', $startValidate=true)
+    public static function make(array $data, array $rules=[], array $attrTrans = [], $scene='', $startValidate=true)
     {
         return new static($data, $rules, $attrTrans, $startValidate);
     }
