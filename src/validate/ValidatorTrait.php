@@ -39,7 +39,7 @@ trait ValidatorTrait
 
     /**
      * 出现一个错误即停止验证
-     * 默认 false 即是 全部验证并将错误信息保存到 {@link $_errors}
+     * 默认 false 即是 全部验证并将错误信息保存到 {@see $_errors}
      * @var boolean
      */
     private $_hasErrorStop   = false;
@@ -98,10 +98,19 @@ trait ValidatorTrait
         ];
     }
 
-//    public static function scene()
-//    {
-//        return '';
-//    }
+    /**
+     * custom validator's message
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            // validator name => message string
+            // 'required' => '{attr} 是必填项。',
+        ];
+    }
+
+//////////////////////////////////// Validate ////////////////////////////////////
 
     public function beforeValidate(){}
 
@@ -121,14 +130,13 @@ trait ValidatorTrait
         }
 
         if ( !property_exists($this, 'data') ) {
-            throw new \InvalidArgumentException('Must be defined attributes \'data (array)\' in the classes used.');
+            throw new \InvalidArgumentException('Must be defined property \'data (array)\' in the classes used.');
         }
 
         $data = $this->data;
         $this->beforeValidate();
         $this->clearErrors();
-
-        is_bool($hasErrorStop) && $this->hasErrorStop($hasErrorStop);
+        $this->hasErrorStop($hasErrorStop);
 
         // 循环规则
         foreach ($this->collectRules() as $rule) {
@@ -142,6 +150,16 @@ trait ValidatorTrait
             // 错误提示消息
             $message   = isset($rule['msg']) ? $rule['msg'] : null;
             unset($rule['msg']);
+
+            // 验证的前置条件
+            if ( isset($rule['when']) && ( $when = $rule['when'] ) && $when instanceof \Closure ) {
+                unset($rule['when']);
+
+                // 检查失败 -- 跳过此条规则
+                if ( $when($data, $this) !== true ) {
+                    continue;
+                }
+            }
 
             // 验证设置, 有一些验证器需要设置参数。 e.g. size()
             $copy = $rule;
@@ -158,16 +176,17 @@ trait ValidatorTrait
                     $this->_errors[] = [
                         $name => $this->getMessage($validator, ['{attr}' => $name], $rule, $message)
                     ];
-
-                    if ( $this->_hasErrorStop ) {
-                        break;
-                    }
                 } else {
                     $this->_safeData[$name] = $data[$name];
                 }
             }
 
             $message = null;
+
+            // There is an error an immediate end to verify
+            if ( $this->hasError() && $this->_hasErrorStop ) {
+                break;
+            }
         }
 
         // fix: has error, clear safe data.
@@ -248,11 +267,13 @@ trait ValidatorTrait
     }
 
     /**
-     * @param null $val
+     * @param null|bool $val
      */
     public function hasErrorStop($val)
     {
-        $this->_hasErrorStop = (bool)$val;
+        if ($val !== null ) {
+            $this->_hasErrorStop = (bool)$val;
+        }
     }
 
     /**
@@ -314,7 +335,7 @@ trait ValidatorTrait
      * (过滤器)默认的错误提示信息
      * @return array
      */
-    public function  messages()
+    public function defaultMessages()
     {
         return [
             'int'    => '{attr} must be an integer!',
@@ -338,6 +359,11 @@ trait ValidatorTrait
         ];
     }
 
+    public function getMessages()
+    {
+        return array_merge($this->defaultMessages(), $this->messages());
+    }
+
     /**
      * 各个验证器的提示消息
      * @author inhere
@@ -351,7 +377,8 @@ trait ValidatorTrait
     public function getMessage($name, array $params, $rule = [], $msg=null)
     {
         if ( !$msg ) {
-            $msg = isset($this->messages()[$name]) ? $this->messages()[$name]: $this->messages()['_'];
+            $msgs = $this->getMessages();
+            $msg = isset($msgs[$name]) ? $msgs[$name]: $msgs['_'];
         }
 
         $trans = $this->getAttrTrans();

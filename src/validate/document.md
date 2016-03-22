@@ -4,6 +4,7 @@
 
 - Method 1: create a new class
     e.g.
+    
 ```
 <?php
 
@@ -22,7 +23,8 @@
                 {
                     return isset($data['status']) && $data['status'] > 2;
                 }],
-                ['userId', 'number', 'scene' => 'other' ],
+                ['userId', 'number', 'scene' => 'scene1' ],
+                ['userId', 'int', 'scene'    => 'scene2' ],
                 ['status', function($status)
                 { 
 
@@ -50,9 +52,21 @@
             ];
         }
     }
+
+//
+//  use, at other class
+
+$valid = Validator::make($_POST,)->validate();
+if ( $valid->fail() ) {
+    return $valid->getErrors();
+}
+...
+    
 ```
 
+
 - Method 2: direct use
+
 ```
 <?php
     use slimExtend\validate\Validator;
@@ -79,9 +93,58 @@
 
 ### keywords 
 
-- scene 
+- scene -- 设置验证场景
+> 如果需要让一个验证器在多个类似情形下使用,在验证时也表明要验证的场景
 
-- when
+```
+// at validator class
+<?php 
+    
+    '''
+    public function rules() 
+    {
+         return [
+            ['title', 'required' ],
+            ['userId', 'number', 'scene' => 'scene1' ],
+            ['userId', 'int',    'scene' => 'scene2' ],
+        ];
+    }
+```
+> 在下面设置了场景时，将只会使用上面的第 1 3 条规则. (第 1 条没有限制规则使用场景的，在所有场景都可用)
+
+```
+// at logic 
+<?php
+
+    ...
+    $valid = ValidatorClass::make($_POST)->setScene('scene2')->validate();
+    ...
+
+```
+
+- when -- 规则的前置条件
+> 只有在先满足了(`when`)前置条件时才会验证这条规则
+如在下面的例子中，检查到第二条规则时，会先执行闭包(`when`)，
+当其返回 `true` 验证此条规则，
+否则不会验证此条规则
+
+```
+// at validator class
+<?php 
+    
+    '''
+    public function rules() 
+    {
+         return [
+            ['title', 'required' ],
+            ['tagId', 'number', 'when' => function($data, $validator) 
+            {
+               return isset($data['status']) && $data['status'] > 2;
+            }],
+        ];
+    }
+```
+
 
 ### Existing validators 
 
