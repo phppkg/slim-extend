@@ -35,7 +35,7 @@
     }
   },
   "suggest": {
-    "symfony/yaml": "Allow support parse yml file"
+    "symfony/yaml": "Allow support parse yml file."
   },
   "repositories": [
     {

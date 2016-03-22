@@ -4,7 +4,7 @@
 
 ## Install
 
-- use composer
+- Use composer
 
 edit `composer.json`
 
