@@ -179,7 +179,7 @@ abstract class ValidatorList
      */
     public static function min($var, $minRange)
     {
-        return self::range($var, (int)$minRange);
+        return self::size($var, (int)$minRange);
     }
 
     /**
@@ -190,7 +190,7 @@ abstract class ValidatorList
      */
     public static function max($var, $maxRange)
     {
-        return self::range($var, null, (int)$maxRange);
+        return self::size($var, null, (int)$maxRange);
     }
 
     /**
@@ -211,7 +211,7 @@ abstract class ValidatorList
         }
 
 
-        return self::range($length, $minLength, $maxLength);
+        return self::size($length, $minLength, $maxLength);
     }
 
     /**

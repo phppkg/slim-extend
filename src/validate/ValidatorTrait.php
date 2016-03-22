@@ -130,8 +130,6 @@ trait ValidatorTrait
 
         is_bool($hasErrorStop) && $this->hasErrorStop($hasErrorStop);
 
-//        $requireChecked = [];
-
         // 循环规则
         foreach ($this->collectRules() as $rule) {
             // 要检查的属性(字段)名称
@@ -200,7 +198,7 @@ trait ValidatorTrait
         if ($result && $validator !== 'required') {
             array_unshift($copy, $data[$name]);// 压入当前属性值
 
-            if ( is_callable($validator) ) {
+            if ( is_callable($validator) && $validator instanceof \Closure) {
                 $result = call_user_func_array($validator, $copy);
                 $validator = 'callback';
             } elseif ( is_string($validator) && method_exists($this, $validator) ) {
@@ -313,31 +311,32 @@ trait ValidatorTrait
     }
 
     /**
-     * 默认的错误提示信息
-     * @var array
+     * (过滤器)默认的错误提示信息
+     * @return array
      */
-    public static $errMsgs = [
-        'int'       => '{attr} must is integer!',
-        'number'    => '{attr} must be an integer greater than 0!',
-        'bool'      => '{attr} must is boolean!',
-        'float'     => '{attr} must is float!',
-        'regexp'    => '{attr} Does not meet the conditions',
-        'url'       => '{attr} not is url address!',
-        'email'     => '{attr} not is email address!',
-        'ip'        => '{attr} not is ip address!',
-        'required'  => '{attr} is not block!',
-        'length'    => '{attr} length must at rang {min} ~ {max}',
-        'minLength' => '{attr} min length is {min}',
-        'maxLength' => '{attr} max length is {max}',
-        'size'      => '{attr} must is integer and at rang {min} ~ {max}',
-        'min'       => '{attr} min value is {min}',
-        'max'       => '{attr} max value is {max}',
-        'in'        => '{attr} must in {range}',
-        'string'    => '{attr} must is string',
-        'isArray'   => '{attr} must is array',
-        'callback'  => '{attr} validation is not through!',
-        '_' => '{attr} validation is not through!',
-    ];
+    public function  messages()
+    {
+        return [
+            'int'    => '{attr} must be an integer!',
+            'number' => '{attr} must be an integer greater than 0!',
+            'bool'   => '{attr} must be is boolean!',
+            'float'  => '{attr} must be is float!',
+            'regexp' => '{attr} does not meet the conditions',
+            'url'    => '{attr} not is url address!',
+            'email'  => '{attr} not is email address!',
+            'ip'     => '{attr} not is ip address!',
+            'required' => '{attr} is not block!',
+            'length' => '{attr} length must at rang {min} ~ {max}',
+            'size'  => '{attr} must be an integer and at rang {min} ~ {max}',
+            'min'   => '{attr} minimum boundary is {min}',
+            'max'   => '{attr} maximum boundary is {max}',
+            'in'    => '{attr} must in {range}',
+            'string' => '{attr} must be a string',
+            'array' => '{attr} must be an array',
+            'callback' => 'The custom callback validation fails of the [{attr}]!',
+            '_' => '{attr} validation is not through!',
+        ];
+    }
 
     /**
      * 各个验证器的提示消息
@@ -352,12 +351,12 @@ trait ValidatorTrait
     public function getMessage($name, array $params, $rule = [], $msg=null)
     {
         if ( !$msg ) {
-            $msg = isset(self::$errMsgs[$name]) ? self::$errMsgs[$name]: self::$errMsgs['_'];
+            $msg = isset($this->messages()[$name]) ? $this->messages()[$name]: $this->messages()['_'];
         }
 
-        $labels = $this->getAttrTrans();
+        $trans = $this->getAttrTrans();
         $attrName = $params['{attr}'];
-        $params['{attr}'] = isset($labels[$attrName]) ? $labels[$attrName] : $attrName;
+        $params['{attr}'] = isset($trans[$attrName]) ? $trans[$attrName] : $attrName;
 
         foreach ($rule as $key => $value) {
             $params['{' . $key . '}'] = $value;
