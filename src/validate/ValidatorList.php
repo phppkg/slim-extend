@@ -124,6 +124,18 @@ abstract class ValidatorList
     }
 
     /**
+     * a integer and greater than 0
+     * @param $int
+     * @param array $options
+     * @param int $flags
+     * @return mixed
+     */
+    public static function number($int, array $options=[], $flags=0)
+    {
+        return self::integer($int, $options, $flags) && self::size($int, 1);
+    }
+
+    /**
      * 范围检查
      * @param  int|string|array  $var 检查数字范围； 字符串、数组则检查长度
      * @param  null|integer $min
@@ -387,12 +399,12 @@ abstract class ValidatorList
 
 /////////////////////////////// extension validator ///////////////////////////////
 
-    public static function isPhoneNumber($value='')
+    public static function phoneNumber($value='')
     {
         # code...
     }
 
-    public static function isTelNumber($value='')
+    public static function telNumber($value='')
     {
         # code...
     }
@@ -403,7 +415,7 @@ abstract class ValidatorList
      * @param string $price Price to validate
      * @return bool Validity is ok or not
      */
-    public static function isPrice($price)
+    public static function price($price)
     {
         return preg_match('/^[\d]{1,10}(\.[\d]{1,9})?$/', $price);
     }
@@ -414,7 +426,7 @@ abstract class ValidatorList
     * @param string $price Price to validate
     * @return bool Validity is ok or not
     */
-    public static function isNegativePrice($price)
+    public static function negativePrice($price)
     {
         return preg_match('/^[-]?[\d]{1,10}(\.[\d]{1,9})?$/', $price);
     }
@@ -425,7 +437,7 @@ abstract class ValidatorList
      * @param string $date Date to validate
      * @return bool Validity is ok or not
      */
-    public static function isDateFormat($date)
+    public static function dateFormat($date)
     {
         return (bool)preg_match('/^([\d]{4})-((0?[\d])|(1[0-2]))-((0?[\d])|([1-2][\d])|(3[01]))( [\d]{2}:[\d]{2}:[\d]{2})?$/', $date);
     }
@@ -436,7 +448,7 @@ abstract class ValidatorList
      * @param string $date Date to validate
      * @return bool Validity is ok or not
      */
-    public static function isDate($date)
+    public static function date($date)
     {
         if (!preg_match('/^([\d]{4})-((?:0?[\d])|(?:1[0-2]))-((?:0?[\d])|(?:[1-2][\d])|(?:3[01]))( [\d]{2}:[\d]{2}:[\d]{2})?$/', $date, $matches)) {
             return false;
@@ -513,7 +525,7 @@ abstract class ValidatorList
      * @param string $md5 MD5 string to validate
      * @return bool Validity is ok or not
      */
-    public static function isMd5($md5)
+    public static function md5($md5)
     {
         return preg_match('/^[a-f0-9A-F]{32}$/', $md5);
     }
@@ -524,7 +536,7 @@ abstract class ValidatorList
      * @param string $sha1 SHA1 string to validate
      * @return bool Validity is ok or not
      */
-    public static function isSha1($sha1)
+    public static function sha1($sha1)
     {
         return preg_match('/^[a-fA-F0-9]{40}$/', $sha1);
     }
@@ -535,7 +547,7 @@ abstract class ValidatorList
      * @param $color
      * @return bool Validity is ok or not
      */
-    public static function isColor($color)
+    public static function color($color)
     {
         return preg_match('/^(#[0-9a-fA-F]{6}|[a-zA-Z0-9-]*)$/', $color);
     }
@@ -551,7 +563,7 @@ abstract class ValidatorList
      * @param string $url URL to validate
      * @return bool Validity is ok or not
      */
-    public static function isAbsoluteUrl($url)
+    public static function absoluteUrl($url)
     {
         if (!empty($url)) {
             return preg_match('/^(https?:)?\/\/[$~:;#,%&_=\(\)\[\]\.\? \+\-@\/a-zA-Z0-9]+$/', $url);
@@ -566,7 +578,7 @@ abstract class ValidatorList
      * @param string $name Name to validate
      * @return bool Validity is ok or not
      */
-    public static function isFileName($name)
+    public static function fileName($name)
     {
         return preg_match('/^[a-zA-Z0-9_.-]+$/', $name);
     }
@@ -577,7 +589,7 @@ abstract class ValidatorList
      * @param string $dir Directory to validate
      * @return bool Validity is ok or not
      */
-    public static function isDirName($dir)
+    public static function dirName($dir)
     {
         return (bool)preg_match('/^[a-zA-Z0-9_.-]*$/', $dir);
     }

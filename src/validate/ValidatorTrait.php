@@ -56,10 +56,10 @@ trait ValidatorTrait
     private $_attrTrans = [];
 
     /**
-     * backup for the property data
+     * Through the validation of the data
      * @var array
      */
-    private $_rawData = [];
+    private $_safeData = [];
 
     /**
      * @var bool
@@ -111,7 +111,7 @@ trait ValidatorTrait
      * @date   2015-08-11
      * @param array $onlyChecked 只检查一部分属性
      * @param  boolean $hasErrorStop
-     * @return bool
+     * @return static
      * @throws \RuntimeException
      */
     public function validate(array $onlyChecked = [],$hasErrorStop=null)
@@ -120,11 +120,11 @@ trait ValidatorTrait
             return $this;
         }
 
-        if ( property_exists($this, 'data') ) {
+        if ( !property_exists($this, 'data') ) {
             throw new \InvalidArgumentException('Must be defined attributes \'data (array)\' in the classes used.');
         }
 
-        $data = $this->_rawData = $this->data;
+        $data = $this->data;
         $this->beforeValidate();
         $this->clearErrors();
 
@@ -145,7 +145,7 @@ trait ValidatorTrait
             $message   = isset($rule['msg']) ? $rule['msg'] : null;
             unset($rule['msg']);
 
-            // 验证设置, 有一些验证器需要设置。 e.g. size()
+            // 验证设置, 有一些验证器需要设置参数。 e.g. size()
             $copy = $rule;
 
             // 循环检查属性
@@ -154,39 +154,27 @@ trait ValidatorTrait
                      continue;
                 }
 
-                $result = ValidatorList::required($data, $name);
-
-                if ($result && $validator !== 'required') {
-                    array_unshift($copy, $data[$name]);// 压入当前属性值
-
-                    if ( is_callable($validator) ) {
-                        $result = call_user_func_array($validator, $copy);
-                        $validator = 'callback';
-                    } elseif ( is_string($validator) && method_exists($this, $validator) ) {
-
-                        $result = call_user_func_array( [ $this, $validator ] , $copy);
-                    } elseif ( is_callable([ValidatorList::class, $validator]) ) {
-
-                        $result = call_user_func_array( [ ValidatorList::class, $validator ] , $copy);
-                    } else {
-                        throw new \RuntimeException("validator [$validator] don't exists!");
-                    }
-                }
+                list($result,$validator) = $this->doValidate($data, $name, $validator, $copy);
 
                 if ($result === false) {
                     $this->_errors[] = [
-                        $name => $this->getMessage($validator, [ '{attr}' => $name ], $rule, $message)
+                        $name => $this->getMessage($validator, ['{attr}' => $name], $rule, $message)
                     ];
-
-                    $this->afterValidate();
 
                     if ( $this->_hasErrorStop ) {
                         break;
                     }
+                } else {
+                    $this->_safeData[$name] = $data[$name];
                 }
             }
 
             $message = null;
+        }
+
+        // fix: has error, clear safe data.
+        if ( $this->hasError() ) {
+            $this->_safeData = [];
         }
 
         $this->afterValidate();
@@ -195,6 +183,38 @@ trait ValidatorTrait
         $this->_hasValidated = true;
 
         return $this;
+    }
+
+    /**
+     * do Validate
+     * @param $data
+     * @param $name
+     * @param $validator
+     * @param $copy
+     * @return array
+     */
+    protected function doValidate($data, $name, $validator, $copy)
+    {
+        $result = ValidatorList::required($data, $name);
+
+        if ($result && $validator !== 'required') {
+            array_unshift($copy, $data[$name]);// 压入当前属性值
+
+            if ( is_callable($validator) ) {
+                $result = call_user_func_array($validator, $copy);
+                $validator = 'callback';
+            } elseif ( is_string($validator) && method_exists($this, $validator) ) {
+
+                $result = call_user_func_array( [ $this, $validator ] , $copy);
+            } elseif ( is_callable([ValidatorList::class, $validator]) ) {
+
+                $result = call_user_func_array( [ ValidatorList::class, $validator ] , $copy);
+            } else {
+                throw new \InvalidArgumentException("validator [$validator] don't exists!");
+            }
+        }
+
+        return [$result,$validator];
     }
 
     public function afterValidate(){}
@@ -209,11 +229,13 @@ trait ValidatorTrait
 
         // 循环规则, 搜集当前场景的规则
         foreach ($this->getRules() as $rule) {
-            if ( isset($rule['scene']) && $rule['scene'] == $scene ) {
-                unset($rule['scene']);
+            if ( empty($rule['scene']) ) {
                 $availableRules[] = $rule;
             } else {
-                $availableRules[] = $rule;
+                if ( $rule['scene'] == $scene ) {
+                    unset($rule['scene']);
+                    $availableRules[] = $rule;
+                }
             }
         }
 
@@ -296,6 +318,7 @@ trait ValidatorTrait
      */
     public static $errMsgs = [
         'int'       => '{attr} must is integer!',
+        'number'    => '{attr} must be an integer greater than 0!',
         'bool'      => '{attr} must is boolean!',
         'float'     => '{attr} must is float!',
         'regexp'    => '{attr} Does not meet the conditions',
@@ -343,6 +366,8 @@ trait ValidatorTrait
         return strtr($msg, $params);
     }
 
+//////////////////////////////////// getter/setter ////////////////////////////////////
+
     /**
      * @return array
      */
@@ -375,7 +400,11 @@ trait ValidatorTrait
      */
     public function getRules()
     {
-        return $this->_rules ?: $this->rules();
+        if ( !$this->_rules ) {
+            $this->_rules = $this->rules();
+        }
+
+        return $this->_rules;
     }
 
     /**
@@ -457,5 +486,26 @@ trait ValidatorTrait
         return $this->has($key) ? $this->data[$key] : $default;
     }
 
+    /**
+     * get safe attribute
+     * @param $key
+     * @param null $default
+     * @return null
+     */
+    public function getSafe($key, $default = null)
+    {
+        return $this->getValid($key, $default);
+    }
+    public function getValid($key, $default = null)
+    {
+        return array_key_exists($key, $this->_safeData) ? $this->_safeData[$key] : $default;
+    }
 
+    /**
+     * @return array
+     */
+    public function getSafeData()
+    {
+        return $this->_safeData;
+    }
 }
