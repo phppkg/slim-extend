@@ -11,7 +11,7 @@ namespace slimExtend\base;
 
 use Slim;
 use slimExtend\database\AbstractDriver;
-use slimExtend\validate\ValidatorTrait;
+use inhere\validate\ValidatorTrait;
 use Windwalker\Query\Query;
 
 /**

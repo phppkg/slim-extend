@@ -3,7 +3,7 @@
   "type": "library",
   "description": "A Slim Framework extension",
   "keywords": ["Slim","extensions"],
-  "homepage": "http://github.com/inhere/slim-extensions",
+  "homepage": "http://github.com/inhere/slim-extend",
   "license": "MIT",
   "authors": [
     {
@@ -16,7 +16,8 @@
     "php": ">=5.5.0",
     "slim/slim": "^3.1",
     "symfony/yaml": "^3.0",
-    "windwalker/query": "^2.1"
+    "windwalker/query": "^2.1",
+    "inhere/php-validate": "dev-master"
   },
   "require-dev": {
       "filp/whoops": "2.*",
@@ -44,6 +45,10 @@
     {
       "type": "git",
       "url": "https://git.oschina.net/inhere/slim-whoops"
+    },
+    {
+      "type": "git",
+      "url": "https://git.oschina.net/inhere/php-validate"
     }
   ]
 }

@@ -9,8 +9,7 @@
 
 namespace slimExtend;
 
-use slimExtend\validate\Validator;
-use slimExtend\validate\ValidatorTrait;
+use inhere\validate\Validator;
 use Slim\Http\Request;
 
 /**
