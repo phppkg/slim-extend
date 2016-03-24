@@ -209,7 +209,7 @@ abstract class Model extends Collection
         // only update some columns
         if ( $updateColumns ) {
             foreach ($data as $column => $value) {
-                if ( !isset($updateColumns[$column]) ) {
+                if ( !in_array($column,$updateColumns)  ) {
                     unset($data[$column]);
                 }
             }
