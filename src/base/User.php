@@ -14,8 +14,7 @@ namespace slimExtend\base;
  * Class User
  * @package slimExtend\base
  *
- * @property bool isLogin
- * @property bool isGuest
+ * @property int id
  */
 class User extends Collection
 {

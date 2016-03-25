@@ -156,39 +156,48 @@ class Language extends DataCollector
      * ```
      *
      * @param $key
+     * @param array $args
+     * @param string $default
      * @return string
      */
-    public function translate($key)
+    public function translate($key, $args = [], $default = 'No translate.')
     {
         if ( !$key ) {
             throw new \InvalidArgumentException('A lack of parameters or error.');
         }
 
-        $args    = func_get_args();
-        $args[0] = $this->get($key);
-
         // if use multifile.
         if ( $this->type === static::TYPE_MULTIFILE ) {
-           $this->handleMultiFile($key, $args);
+            $value = $this->handleMultiFile($key, $default);
+        } else {
+            $value = $this->get($key, $default);
         }
 
-        if ( !$args[0] ) {
-            throw new \InvalidArgumentException('No corresponding configuration of the translator. KEY: ' . $key);
+        $args = $args ? (array)$args : [];
+
+        if ( $hasArgs = count($args) ) {
+            array_unshift($args, $value);
         }
 
-        // There are multiple parameters?
-        return func_num_args()>1 ? call_user_func_array('sprintf', $args) : $args[0];
+//        if ( !$args[0] ) {
+//            throw new \InvalidArgumentException('No corresponding configuration of the translator. KEY: ' . $key);
+//        }
+
+        // $args is not empty?
+        return $hasArgs ? call_user_func_array('sprintf', $args) : $value;
     }
-    public function tran($key)
+    public function tran($key, $args = [], $default = 'No translate.')
     {
-        return call_user_func_array([$this,'translate'], func_get_args());
+        return $this->translate($key, $args, $default);
     }
 
     /**
      * @param $key
      * @param array $args
+     * @param string $default
+     * @return mixed|string
      */
-    protected function handleMultiFile($key, array &$args)
+    protected function handleMultiFile($key, $default = '')
     {
         $key = trim($key, $this->fileSeparator);
 
@@ -199,9 +208,11 @@ class Language extends DataCollector
 
             // check exists
             if ( $collector = $this->getOther($name) ) {
-                $args[0] = $collector->get($realKey);
+                return $collector->get($realKey, $default);
             }
         }
+
+        return $default;
     }
 
     /**
