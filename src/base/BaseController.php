@@ -260,6 +260,7 @@ EOF;
             $action = $args['action'];
         }
 
+        Slim::get('pageSet')->action = $action;
         $action .= ucfirst($this->actionSuffix);
 
         if ( method_exists($this, $action) ) {
