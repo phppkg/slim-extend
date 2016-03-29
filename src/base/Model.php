@@ -178,7 +178,11 @@ abstract class Model extends Collection
     {
         $this->beforeSave();
 
-        return static::getDb()->save( static::tableName(), $this->data, static::$priKey, $updateNulls);
+        $result = static::getDb()->save( static::tableName(), $this->data, static::$priKey, $updateNulls);
+
+        $this->afterSave($result);
+
+        return $result;
     }
 
     /**
@@ -191,6 +195,8 @@ abstract class Model extends Collection
         $priValue = static::getDb()->insert( static::tableName(), $this->all());
 
         $this->set(static::$priKey, $priValue);
+
+        $this->afterInsert($priValue);
 
         return $priValue;
     }
@@ -221,7 +227,11 @@ abstract class Model extends Collection
 
         $this->beforeUpdate();
 
-        return static::getDb()->update( static::tableName(), $data, $priKey, $updateNulls);
+        $result = static::getDb()->update( static::tableName(), $data, $priKey, $updateNulls);
+
+        $this->afterUpdate($result);
+
+        return $result;
     }
 
     /**
@@ -244,7 +254,20 @@ abstract class Model extends Collection
         $this->beforeSave();
     }
 
+    protected function afterInsert($result)
+    {
+        $this->afterSave($result);
+    }
+
+    protected function afterUpdate($result)
+    {
+        $this->afterSave($result);
+    }
+
     protected function beforeSave()
+    {}
+
+    protected function afterSave($result)
     {}
 
     /**
