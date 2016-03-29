@@ -23,6 +23,8 @@ abstract class Model extends Collection
 {
     use ValidatorTrait;
 
+    protected $enableValidate = true;
+
     /**
      * @var array
      */
@@ -46,6 +48,9 @@ abstract class Model extends Collection
     protected static $callableList = [
         'insert', 'update', 'save', 'updateBatch'
     ];
+
+    const SCENE_CREATE = 'create';
+    const SCENE_UPDATE = 'update';
 
     /**
      * format column's data type
@@ -192,6 +197,10 @@ abstract class Model extends Collection
     {
         $this->beforeInsert();
 
+        if ( $this->validate && $this->validate()->fail() ) {
+            return false;
+        }
+
         $priValue = static::getDb()->insert( static::tableName(), $this->all());
 
         $this->set(static::$priKey, $priValue);
@@ -226,6 +235,11 @@ abstract class Model extends Collection
         }
 
         $this->beforeUpdate();
+
+        // validate data
+        if ($this->validate && $this->validate(array_keys($data))->fail() ) {
+            return false;
+        }
 
         $result = static::getDb()->update( static::tableName(), $data, $priKey, $updateNulls);
 
@@ -269,6 +283,15 @@ abstract class Model extends Collection
 
     protected function afterSave($result)
     {}
+
+    public function enableValidate($value=null)
+    {
+        if ( is_bool($value) ) {
+            $this->enableValidate = $value;
+        }
+
+        return $this->enableValidate;
+    }
 
     /**
      * @return array
