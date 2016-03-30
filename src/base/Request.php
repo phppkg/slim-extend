@@ -9,7 +9,7 @@
 namespace slimExtend\base;
 
 use slimExtend\DataConst;
-use slimExtend\validate\StrainerList;
+use inhere\validate\StrainerList;
 use Slim;
 use Slim\Http\Request as SlimRequest;
 
@@ -161,7 +161,7 @@ class Request extends SlimRequest
      */
     protected function doFilter($var, $filter, $default = null)
     {
-        if ( $filter === static::FILTER_RAW ) {
+        if ( $filter === static::FILTER_RAW || !is_scalar($var)) {
             return $var;
         }
 

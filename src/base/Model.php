@@ -166,7 +166,7 @@ abstract class Model extends Collection
      * @param bool $forceNew
      * @return Query
      */
-    public static function getQuery($forceNew=false)
+    final public static function getQuery($forceNew=false)
     {
         return static::getDb()->newQuery($forceNew);
     }
@@ -179,6 +179,20 @@ abstract class Model extends Collection
         return !($this->has(static::$priKey) && $this->get(static::$priKey, false));
     }
 
+    /**
+     * `self::setQuery($query)->loadAll(null, self::class);`
+     * @param string|Query $query
+     * @return AbstractDriver
+     */
+    final public static function setQuery($query)
+    {
+        return static::getDb()->setQuery($query);
+    }
+
+    /**
+     * @param bool|false $updateNulls
+     * @return bool|static
+     */
     public function save($updateNulls = false)
     {
         $this->beforeSave();
@@ -197,7 +211,7 @@ abstract class Model extends Collection
     {
         $this->beforeInsert();
 
-        if ( $this->validate && $this->validate()->fail() ) {
+        if ( $this->enableValidate && $this->validate()->fail() ) {
             return false;
         }
 
@@ -237,7 +251,7 @@ abstract class Model extends Collection
         $this->beforeUpdate();
 
         // validate data
-        if ($this->validate && $this->validate(array_keys($data))->fail() ) {
+        if ($this->enableValidate && $this->validate(array_keys($data))->fail() ) {
             return false;
         }
 
@@ -257,6 +271,62 @@ abstract class Model extends Collection
     {
         return static::getDb()->updateBatch( static::tableName(), $data, $conditions);
     }
+
+    /**
+     * @param $column
+     * @param int $step
+     * @return bool
+     */
+    public function increment($column, $step=1)
+    {
+        $priKey = static::$priKey;
+
+        if ( !is_integer($this->$column) ) {
+            throw new \InvalidArgumentException('The method only can be used in the column of type integer');
+        }
+
+        $data = [
+            $priKey => $this->get($priKey),
+            $column => ( $this->$column + (int)$step ),
+        ];
+
+        $result = static::getDb()->update(static::tableName(), $data, $priKey);
+
+        return $result;
+    }
+    public function incre($column, $step=1)
+    {
+        return $this->increment($column, $step);
+    }
+
+    /**
+     * @param $column
+     * @param int $step
+     * @return bool
+     */
+    public function decrement($column, $step=-1)
+    {
+        $priKey = static::$priKey;
+
+        if ( !is_integer($this->$column) ) {
+            throw new \InvalidArgumentException('The method only can be used in the column of type integer');
+        }
+
+        $data = [
+            $priKey => $this->get($priKey),
+            $column => ( $this->$column + (int)$step ),
+        ];
+
+        $result = static::getDb()->update(static::tableName(), $data, $priKey);
+
+        return $result;
+    }
+    public function decre($column, $step=-1)
+    {
+        return $this->decrement($column, $step);
+    }
+
+
 
     protected function beforeInsert()
     {

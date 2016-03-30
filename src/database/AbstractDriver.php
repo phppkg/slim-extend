@@ -11,7 +11,7 @@ namespace slimExtend\database;
 use Slim;
 use PDO;
 use PDOStatement;
-use Windwalker\Database\Query\QueryHelper;
+use slimExtend\database\query\QueryHelper;
 use Windwalker\Query\Query;
 
 /**
@@ -537,6 +537,45 @@ abstract class AbstractDriver
         return $this->setQuery($query)->execute();
     }
 
+////////////////////////////////////// extra method //////////////////////////////////////
+
+    /**
+     * count
+     *
+     * ```
+     * $db->setQuery($query)->count();
+     * ```
+     * @return int
+     */
+    public function count()
+    {
+        $this->query->select('count(*) as total');
+
+        $result = $this->execute()->loadOne();
+
+        return $result ? $result->total : 0;
+    }
+
+    /**
+     * exists
+     *
+     * ```
+     * $db->setQuery($query)->exists();
+     *
+     * // SQL: select exists(select * from `table` where (`phone` = 152xxx)) as `exists`;
+     * ```
+     * @return int
+     */
+    public function exists()
+    {
+        $this->query = sprintf('select exists(%s) as `exists`',$this->query);
+
+        $result = $this->execute()->loadOne();
+
+        return $result ? $result->exists : 0;
+    }
+
+
 ////////////////////////////////////// helper method //////////////////////////////////////
 
     /**
@@ -631,15 +670,6 @@ abstract class AbstractDriver
         }
 
         return $this;
-    }
-
-    /**
-     * count
-     * @return  integer
-     */
-    public function count()
-    {
-        return $this->getCursor()->rowCount();
     }
 
     /**
