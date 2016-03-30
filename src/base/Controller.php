@@ -133,7 +133,6 @@ abstract class Controller extends RestFulController
     {
         return [
             'user'     => Slim::$app->user,
-            'page'     => Slim::get('pageSet')->loadObject(Slim::get('pageAttr')),
             'config'   => Slim::get('config'),
             'lang'     => Slim::get('language'),
             'helper'   => new TplHelper,
@@ -260,7 +259,7 @@ EOF;
             $action = $args['action'];
         }
 
-        Slim::get('pageSet')->action = $action;
+        Slim::config()->set('action',$action);
         $action .= ucfirst($this->actionSuffix);
 
         if ( method_exists($this, $action) ) {
