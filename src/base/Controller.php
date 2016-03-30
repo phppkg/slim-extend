@@ -6,10 +6,10 @@ use Slim;
 use slimExtend\helpers\TplHelper;
 
 /**
- * Class BaseController
+ * Class Controller
  * @package slimExtend\base
  */
-abstract class BaseController extends RestFulController
+abstract class Controller extends RestFulController
 {
     /**
      * @var string

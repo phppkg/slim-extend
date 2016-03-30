@@ -12,6 +12,7 @@ namespace slimExtend\base;
 use Slim;
 use slimExtend\database\AbstractDriver;
 use inhere\validate\ValidatorTrait;
+use slimExtend\DataConst;
 use Windwalker\Query\Query;
 
 /**
@@ -24,16 +25,6 @@ abstract class Model extends Collection
     use ValidatorTrait;
 
     protected $enableValidate = true;
-
-    /**
-     * @var array
-     */
-    protected $columns = [
-        // 'id'          => 'int',
-        // 'title'       => 'string',
-        // 'createTime'  => 'int',
-        // 'updateTime'  => 'int',
-    ];
 
     /**
      * the table primary key name
@@ -53,6 +44,27 @@ abstract class Model extends Collection
     const SCENE_UPDATE = 'update';
 
     /**
+     * define model field list
+     * e.g:
+     * in sub class
+     * ```
+     * public function columns()
+     * {
+     *    return [
+     *          // column => type
+     *          'id'          => 'int',
+     *          'title'       => 'string',
+     *          'createTime'  => 'int',
+     *          'updateTime'  => 'int',
+     *    ];
+     * }
+     * ```
+     *
+     * @return array
+     */
+    abstract public function columns();
+
+    /**
      * format column's data type
      * @param string $key
      * @param mixed $value
@@ -60,10 +72,10 @@ abstract class Model extends Collection
      */
     public function set($key, $value)
     {
-        if ( isset($this->columns[$key]) ) {
-            $type = $this->columns[$key];
+        if ( isset($this->columns()[$key]) ) {
+            $type = $this->columns()[$key];
 
-            if ($type === 'int') {
+            if ($type === DataConst::TYPE_INT ) {
                 $value = (int)$value;
             }
 
@@ -116,10 +128,9 @@ abstract class Model extends Collection
      */
     public static function findOne($where, $select='*')
     {
-        $query = static::getQuery(true)
+        $query = static::handleWhere($where, static::getQuery(true) )
                 ->select($select)
-                ->from(static::tableName())
-                ->where($where);
+                ->from(static::tableName());
 
         return static::getDb()->setQuery($query)->loadOne(static::class);
     }
@@ -127,16 +138,16 @@ abstract class Model extends Collection
     /**
      * @param $where
      * @param string $select
+     * @param null|string $indexKey
      * @return array
      */
-    public static function findAll($where, $select='*')
+    public static function findAll($where, $select='*', $indexKey=null)
     {
-        $query = static::getQuery(true)
+        $query = static::handleWhere( $where, static::getQuery(true) )
                 ->select($select)
-                ->from(static::tableName())
-                ->where($where);
+                ->from(static::tableName());
 
-        return static::getDb()->setQuery($query)->loadAll(null, static::class);
+        return static::getDb()->setQuery($query)->loadAll($indexKey, static::class);
     }
 
     /**
@@ -361,6 +372,32 @@ abstract class Model extends Collection
         }
 
         return $this->enableValidate;
+    }
+
+    /**
+     * @param string|array|\Closure $where
+     * @param Query $query
+     * @return Query
+     */
+    protected static function handleWhere($where, Query $query)
+    {
+        if (is_object($where) and $where instanceof \Closure) {
+            $where($query);
+        } elseif ( is_array($where) ) {
+            foreach ($where as $key => $subWhere) {
+                if (is_object($where) and $where instanceof \Closure) {
+                    $where($query);
+                } elseif ( is_string($key) && in_array(strtoupper($key), ['AND', 'OR']) ) {
+                    $query->where($subWhere, strtoupper($key));
+                } else {
+                    $query->where($subWhere);
+                }
+            }
+        } else {
+            $query->where($where);
+        }
+
+        return $query;
     }
 
     /**
