@@ -137,17 +137,18 @@ abstract class Model extends Collection
 
     /**
      * @param $where
-     * @param string $select
+     * @param string|array $select
      * @param null|string $indexKey
+     * @param string $class
      * @return array
      */
-    public static function findAll($where, $select='*', $indexKey=null)
+    public static function findAll($where, $select='*', $indexKey=null, $class= 'model')
     {
         $query = static::handleWhere( $where, static::getQuery(true) )
                 ->select($select)
                 ->from(static::tableName());
 
-        return static::getDb()->setQuery($query)->loadAll($indexKey, static::class);
+        return static::getDb()->setQuery($query)->loadAll($indexKey, $class === 'model' ? static::class : $class);
     }
 
     /**
@@ -296,9 +297,11 @@ abstract class Model extends Collection
             throw new \InvalidArgumentException('The method only can be used in the column of type integer');
         }
 
+        $this->$column += (int)$step;
+
         $data = [
             $priKey => $this->get($priKey),
-            $column => ( $this->$column + (int)$step ),
+            $column => $this->$column,
         ];
 
         $result = static::getDb()->update(static::tableName(), $data, $priKey);
@@ -323,9 +326,11 @@ abstract class Model extends Collection
             throw new \InvalidArgumentException('The method only can be used in the column of type integer');
         }
 
+        $this->$column += (int)$step;
+
         $data = [
             $priKey => $this->get($priKey),
-            $column => ( $this->$column + (int)$step ),
+            $column => $this->$column,
         ];
 
         $result = static::getDb()->update(static::tableName(), $data, $priKey);

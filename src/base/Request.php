@@ -12,6 +12,7 @@ use slimExtend\DataConst;
 use inhere\validate\StrainerList;
 use Slim;
 use Slim\Http\Request as SlimRequest;
+use Slim\Http\Uri;
 
 /**
  * extension Slim's Request class
@@ -28,6 +29,7 @@ use Slim\Http\Request as SlimRequest;
  * @method      string   getEmail()     getEmail($name, $default = null)
  * @method      string   getUrl()       getUrl($name, $default = null)      Get URL
  *
+ * @property  Uri $uri;
  */
 class Request extends SlimRequest
 {
@@ -130,6 +132,25 @@ class Request extends SlimRequest
         }
 
         return $needKeys ? $needed : $this->getParams();
+    }
+
+    /**
+     * e.g: `http://xxx.com`
+     * @return string
+     */
+    public function getBaseUrl()
+    {
+        return $this->uri->getBaseUrl();
+    }
+
+    /**
+     * path + queryString
+     * e.g. `/content/add?type=blog`
+     * @return string
+     */
+    public function getRequestUri()
+    {
+        return $this->getRequestTarget();
     }
 
     /**
