@@ -64,92 +64,6 @@ abstract class Model extends Collection
      */
     abstract public function columns();
 
-    /**
-     * format column's data type
-     * @param string $key
-     * @param mixed $value
-     * @return $this|void
-     */
-    public function set($key, $value)
-    {
-        if ( isset($this->columns()[$key]) ) {
-            $type = $this->columns()[$key];
-
-            if ($type === DataConst::TYPE_INT ) {
-                $value = (int)$value;
-            }
-
-            return parent::set($key, $value);
-        }
-
-        return false;
-    }
-
-    /**
-     * @param $data
-     * @return $this
-     */
-    public function load($data)
-    {
-        return $this->sets($data);
-    }
-
-      /**
-     * find record
-     * @return Query
-     */
-    public static function find()
-    {
-        return static::getQuery(true)->from(static::tableName());
-    }
-
-    /**
-     * find record by primary key
-     * @param mixed $priValue
-     * @param string $select
-     * @return static
-     */
-    public static function findByPk($priValue, $select='*')
-    {
-        if ( is_array($priValue) ) {
-            $condition = static::$priKey . ' in (' . implode(',', $priValue) . ')';
-        } else {
-            $condition = static::$priKey . '=' . $priValue;
-        }
-
-        return static::findOne($condition, $select);
-    }
-
-    /**
-     * find a record by where condition
-     * @param $where
-     * @param string $select
-     * @return static
-     */
-    public static function findOne($where, $select='*')
-    {
-        $query = static::handleWhere($where, static::getQuery(true) )
-                ->select($select)
-                ->from(static::tableName());
-
-        return static::getDb()->setQuery($query)->loadOne(static::class);
-    }
-
-    /**
-     * @param $where
-     * @param string|array $select
-     * @param null|string $indexKey
-     * @param string $class
-     * @return array
-     */
-    public static function findAll($where, $select='*', $indexKey=null, $class= 'model')
-    {
-        $query = static::handleWhere( $where, static::getQuery(true) )
-                ->select($select)
-                ->from(static::tableName());
-
-        return static::getDb()->setQuery($query)->loadAll($indexKey, $class === 'model' ? static::class : $class);
-    }
 
     /**
      * @return string
@@ -175,31 +89,98 @@ abstract class Model extends Collection
     }
 
     /**
-     * @param bool $forceNew
+     * format column's data type
+     * @param string $key
+     * @param mixed $value
+     * @return $this|void
+     */
+    public function set($key, $value)
+    {
+        if ( isset($this->columns()[$key]) ) {
+            $type = $this->columns()[$key];
+
+            if ($type === DataConst::TYPE_INT ) {
+                $value = (int)$value;
+            }
+
+            return parent::set($key, $value);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param $data
+     * @return $this
+     */
+    public function load($data)
+    {
+        return $this->sets($data);
+    }
+
+      /**
+     * find record
      * @return Query
      */
-    final public static function getQuery($forceNew=false)
+    public static function find()
     {
-        return static::getDb()->newQuery($forceNew);
+        return static::getQuery(true)->from(static::tableName());
     }
 
     /**
-     * @return bool
+     * find record by primary key
+     * @param mixed $priValue
+     * @param string $select
+     * @param string $class
+     * @return static
      */
-    public function isNew()
+    public static function findByPk($priValue, $select='*', $class= 'model')
     {
-        return !($this->has(static::$priKey) && $this->get(static::$priKey, false));
+        if ( is_array($priValue) ) {
+            $condition = static::$priKey . ' in (' . implode(',', $priValue) . ')';
+        } else {
+            $condition = static::$priKey . '=' . $priValue;
+        }
+
+        return static::findOne($condition, $select, $class);
     }
 
     /**
-     * `self::setQuery($query)->loadAll(null, self::class);`
-     * @param string|Query $query
-     * @return AbstractDriver
+     * find a record by where condition
+     * @param $where
+     * @param string $select
+     * @param string $class
+     * @return static|\stdClass|array
      */
-    final public static function setQuery($query)
+    public static function findOne($where, $select='*', $class= 'model')
     {
-        return static::getDb()->setQuery($query);
+        $query = static::handleWhere($where, static::getQuery(true) )
+                ->select($select)
+                ->from(static::tableName());
+
+        return static::getDb()->setQuery($query)->loadOne($class === 'model' ? static::class : $class);
     }
+
+    /**
+     * @param mixed $where {@see self::handleWhere() }
+     * @param string|array $select
+     * @param null|string $indexKey
+     * @param string $class data type, in :
+     *  'model'      -- return object, instanceof `self`
+     *  '\\stdClass' -- return object, instanceof `stdClass`
+     *  'array'      -- return array, only  [ column's value ]
+     *  'assoc'      -- return array, Contain  [ column's name => column's value]
+     * @return array
+     */
+    public static function findAll($where, $select='*', $indexKey=null, $class= 'model')
+    {
+        $query = static::handleWhere( $where, static::getQuery(true) )
+                ->select($select)
+                ->from(static::tableName());
+
+        return static::getDb()->setQuery($query)->loadAll($indexKey, $class === 'model' ? static::class : $class);
+    }
+
 
     /**
      * @param bool|false $updateNulls
@@ -342,8 +323,6 @@ abstract class Model extends Collection
         return $this->decrement($column, $step);
     }
 
-
-
     protected function beforeInsert()
     {
         $this->beforeSave();
@@ -380,24 +359,99 @@ abstract class Model extends Collection
     }
 
     /**
+     * @param bool $forceNew
+     * @return Query
+     */
+    final public static function getQuery($forceNew=false)
+    {
+        return static::getDb()->newQuery($forceNew);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isNew()
+    {
+        return !($this->has(static::$priKey) && $this->get(static::$priKey, false));
+    }
+
+    /**
+     * `self::setQuery($query)->loadAll(null, self::class);`
+     * @param string|Query $query
+     * @return AbstractDriver
+     */
+    final public static function setQuery($query)
+    {
+        return static::getDb()->setQuery($query);
+    }
+
+    /**
      * @param string|array|\Closure $where
      * @param Query $query
+     * @example
+     * ```
+     * ...
+     * $result = XxModel::findAll([
+     *      'userId = 23',
+     *      'publishTime > 0',
+     *      'title' => 'test', // equal to "title = 'test'"
+     *      'status' => [3, 'or'], // equal to "OR status = 3"
+     *      ['categoryId > 23', 'or'], // equal to "OR categoryId > 23"
+     * ]);
+     *
+     * ```
      * @return Query
      */
     protected static function handleWhere($where, Query $query)
     {
+        /* e.g:
+        Closure function(Query $q) use ($value) {
+            $q->where( 'column = ' . $q->q($value) );
+        }
+        */
         if (is_object($where) and $where instanceof \Closure) {
             $where($query);
-        } elseif ( is_array($where) ) {
+
+            return $query;
+        }
+
+        if ( is_array($where) ) {
+            $glue = 'AND';
+
             foreach ($where as $key => $subWhere) {
                 if (is_object($where) and $where instanceof \Closure) {
                     $where($query);
-                } elseif ( is_string($key) && in_array(strtoupper($key), ['AND', 'OR']) ) {
-                    $query->where($subWhere, strtoupper($key));
-                } else {
-                    $query->where($subWhere);
+                    continue;
                 }
-            }
+
+                // natural int key
+                if ( is_integer($key) ) {
+
+                    // e.g: $subWhere = [ "column = 'value'", 'OR' ];
+                    if ( is_array($subWhere) ) {
+                        list($subWhere, $glue) = $subWhere;
+                        $glue = in_array(strtoupper($glue), ['AND', 'OR']) ? strtoupper($glue) : 'AND';
+                    }
+
+                    // $subWhere is string, e.g: $subWhere = "column = 'value'"; go on ...
+
+                // string key, $key is a column name
+                } elseif ( is_string($key) ) {
+
+                    // e.g: $subWhere = [ 'value', 'OR' ];
+                    if ( is_array($subWhere) ) {
+                        list($subWhere, $glue) = $subWhere;
+
+                        $glue = in_array(strtoupper($glue), ['AND', 'OR']) ? strtoupper($glue) : 'AND';
+                    }
+
+                    // $subWhere is a column value. e.g: $subWhere = 'value'; go on ...
+
+                    $subWhere = $key . ' = ' . $query->q($subWhere);
+                }
+
+                $query->where($subWhere, $glue);
+            }// end foreach
         } else {
             $query->where($where);
         }
