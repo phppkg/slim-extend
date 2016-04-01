@@ -45,9 +45,11 @@ more method please see `src/database/AbstractDriver.php`
 - create a model class
 
 ```
-...
+<?php
+
 use Slim;
 use slimExtend\base\Model;
+use slimExtend\DataConst;
 
 /**
  * Class BaseModel
@@ -58,6 +60,16 @@ use slimExtend\base\Model;
 class TestModel extends Model
 {
     protected $autoAddTime = true;
+    
+    // must define 'columns()' method. define all columns of the table.
+    public function columns()
+    {
+        return [
+            'id'         => DataConst::TYPE_INT,
+            'contentId'  => DataConst::TYPE_INT,
+            'tagId'      => DataConst::TYPE_INT,
+        ];
+    }
 
     /**
      * @inheritdoc
@@ -78,6 +90,8 @@ class TestModel extends Model
 - how to use
 
 ```
+<?php
+
 // ---------- find record --------
 // one. $model default is object and instance of TestModel.
 $model = TestModel::findOne(['name' => 'test']);
@@ -110,7 +124,7 @@ if ( ! $priValue = $model->insert() ) {
 // ---------- update record --------
 $model = TestModel::findByPk($id);
 $model->updateTime = time();
-if ( ! $model->update() ) {
+if ( !$model->update() ) {
     $errmsg = $model->hasError() ? $model->firstError() : 'update failure!!';
 }
 

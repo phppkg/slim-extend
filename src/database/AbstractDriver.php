@@ -17,6 +17,7 @@ use Windwalker\Query\Query;
 /**
  * Class AbstractDriver
  * @package slimExtend\database
+ * @link https://github.com/ventoviro/windwalker-database
  */
 abstract class AbstractDriver
 {
@@ -614,7 +615,7 @@ abstract class AbstractDriver
      */
     public function count()
     {
-        $this->query->select('count(*) as total');
+        $this->query->select('count(*) AS total');
 
         $result = $this->execute()->loadOne();
 

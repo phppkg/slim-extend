@@ -508,7 +508,7 @@ abstract class Model extends Collection
 
                 $query->where($subWhere, $glue);
             }// end foreach
-        } else {
+        } elseif ( is_string($where) ) {
             $query->where($where);
         }
 
