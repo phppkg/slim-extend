@@ -89,40 +89,19 @@ abstract class Model extends Collection
     }
 
     /**
-     * format column's data type
-     * @param string $key
-     * @param mixed $value
-     * @return $this|void
+     * @param $data
+     * @return static
      */
-    public function set($key, $value)
+    public static function load($data)
     {
-        if ( isset($this->columns()[$key]) ) {
-            $type = $this->columns()[$key];
-
-            if ($type === DataConst::TYPE_INT ) {
-                $value = (int)$value;
-            }
-
-            return parent::set($key, $value);
-        }
-
-        return $this;
+        return new static($data);
     }
 
     /**
-     * @param $data
-     * @return $this
-     */
-    public function load($data)
-    {
-        return $this->sets($data);
-    }
-
-      /**
-     * find record
+     * init query
      * @return Query
      */
-    public static function find()
+    public static function query()
     {
         return static::getQuery(true)->from(static::tableName());
     }
@@ -218,6 +197,21 @@ abstract class Model extends Collection
     }
 
     /**
+     * insert multiple
+     * @param array $dataSet
+     * @return array
+     */
+    public static function insertMulti(array $dataSet)
+    {
+        // return static::getDb()->insertMulti($table, $dataSet, $priKey);
+        foreach ($dataSet as $k => $data) {
+            $dataSet[$k] = static::load($data)->insert();
+        }
+
+        return $dataSet;
+    }
+
+    /**
      * update by primary key
      * @param array $updateColumns only update some columns
      * @param bool|false $updateNulls
@@ -256,11 +250,26 @@ abstract class Model extends Collection
     }
 
     /**
+     * @param $dataSet
+     * @param array $updateColumns
+     * @param bool|false $updateNulls
+     * @return mixed
+     */
+    public static function updateMulti($dataSet, $updateColumns = [], $updateNulls = false)
+    {
+        foreach ($dataSet as $k => $data) {
+            $dataSet[$k] = static::load($data)->update($updateColumns, $updateNulls);
+        }
+
+        return $dataSet;
+    }
+
+    /**
      * @param $data
      * @param array $conditions
      * @return bool
      */
-    public function updateBatch($data, $conditions = [])
+    public static function updateBatch($data, $conditions = [])
     {
         return static::getDb()->updateBatch( static::tableName(), $data, $conditions);
     }
@@ -457,6 +466,28 @@ abstract class Model extends Collection
         }
 
         return $query;
+    }
+
+
+    /**
+     * format column's data type
+     * @param string $key
+     * @param mixed $value
+     * @return $this|void
+     */
+    public function set($key, $value)
+    {
+        if ( isset($this->columns()[$key]) ) {
+            $type = $this->columns()[$key];
+
+            if ($type === DataConst::TYPE_INT ) {
+                $value = (int)$value;
+            }
+
+            return parent::set($key, $value);
+        }
+
+        return $this;
     }
 
     /**

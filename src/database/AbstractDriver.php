@@ -392,9 +392,7 @@ abstract class AbstractDriver
             ->values(array($values));
 
         // Set the query and execute the insert.
-        if (!$this->setQuery($query)->execute()) {
-            return false;
-        }
+        $this->setQuery($query)->execute();
 
         // Update the primary key if it exists.
         $id = $this->pdo->lastInsertId();
@@ -409,6 +407,29 @@ abstract class AbstractDriver
         }
 
         return $id;
+    }
+
+    /**
+     * insertMultiple
+     *
+     * @param   string $table    The name of the database table to update.
+     * @param   array  &$dataSet A reference to an object whose public properties match the table fields.
+     * @param   array  $key      The name of the primary key.
+     *
+     * @throws \InvalidArgumentException
+     * @return  mixed
+     */
+    public function insertMulti($table, &$dataSet, $key = null)
+    {
+        if (!is_array($dataSet) && !($dataSet instanceof \Traversable)) {
+            throw new \InvalidArgumentException('The data set to store should be array or \Traversable');
+        }
+
+        foreach ($dataSet as $k => $data) {
+            $dataSet[$k] = $this->insert($table, $data, $key);
+        }
+
+        return $dataSet;
     }
 
 ////////////////////////////////////// update record //////////////////////////////////////
@@ -476,31 +497,27 @@ abstract class AbstractDriver
     }
 
     /**
-     * save
-     * @param   string  $table        The name of the database table to update.
-     * @param   array   &$data        A reference to an object whose public properties match the table fields.
-     * @param   string  $key          The name of the primary key.
-     * @param   boolean $updateNulls  True to update null fields or false to ignore them.
-     * @return  bool|static
+     * updateMultiple
+     *
+     * @param   string  $table       The name of the database table to update.
+     * @param   array   $dataSet     A reference to an object whose public properties match the table fields.
+     * @param   array   $key         The name of the primary key.
+     * @param   boolean $updateNulls True to update null fields or false to ignore them.
+     *
      * @throws \InvalidArgumentException
+     * @return  mixed
      */
-    public function save($table, &$data, $key, $updateNulls = false)
+    public function updateMulti($table, $dataSet, $key, $updateNulls = false)
     {
-        if ( !is_scalar($key) ) {
-            throw new \InvalidArgumentException(__NAMESPACE__ . '::save() dose not support multiple keys, please give me only one key.');
+        if (!is_array($dataSet) && !($dataSet instanceof \Traversable)) {
+            throw new \InvalidArgumentException('The data set to store should be array or \Traversable');
         }
 
-        if (is_array($data)) {
-            $id = isset($data[$key]) ? $data[$key] : null;
-        } else {
-            $id = isset($data->$key) ? $data->$key : null;
+        foreach ($dataSet as $data) {
+            $this->update($table, $data, $key, $updateNulls);
         }
 
-        if ($id) {
-            return $this->update($table, $data, $key, $updateNulls);
-        }
-
-        return $this->insert($table, $data, $key);
+        return $dataSet;
     }
 
     /**
@@ -537,6 +554,53 @@ abstract class AbstractDriver
         return $this->setQuery($query)->execute();
     }
 
+    /**
+     * save
+     * @param   string  $table        The name of the database table to update.
+     * @param   array   &$data        A reference to an object whose public properties match the table fields.
+     * @param   string  $key          The name of the primary key.
+     * @param   boolean $updateNulls  True to update null fields or false to ignore them.
+     * @return  bool|static
+     * @throws \InvalidArgumentException
+     */
+    public function save($table, &$data, $key, $updateNulls = false)
+    {
+        if ( !is_scalar($key) ) {
+            throw new \InvalidArgumentException(__NAMESPACE__ . '::save() dose not support multiple keys, please give me only one key.');
+        }
+
+        if (is_array($data)) {
+            $id = isset($data[$key]) ? $data[$key] : null;
+        } else {
+            $id = isset($data->$key) ? $data->$key : null;
+        }
+
+        if ($id) {
+            return $this->update($table, $data, $key, $updateNulls);
+        }
+
+        return $this->insert($table, $data, $key);
+    }
+
+    /**
+     * @param string $table
+     * @param $dataSet
+     * @param string $key
+     * @param bool|false $updateNulls
+     * @return mixed
+     */
+    public function saveMulti($table, $dataSet, $key, $updateNulls = false)
+    {
+        if (!is_array($dataSet) && !($dataSet instanceof \Traversable)) {
+            throw new \InvalidArgumentException('The data set to store should be array or \Traversable');
+        }
+
+        foreach ($dataSet as $data) {
+            $this->save($table, $data, $key, $updateNulls);
+        }
+
+        return $dataSet;
+    }
 ////////////////////////////////////// extra method //////////////////////////////////////
 
     /**
