@@ -33,6 +33,13 @@ abstract class Model extends Collection
     protected static $priKey = 'id';
 
     /**
+     * current table name alias
+     * 'mt' -- main table
+     * @var string
+     */
+    protected static $aliasName = 'mt';
+
+    /**
      * callable method List at Sqlite
      * @var array
      */
@@ -64,7 +71,6 @@ abstract class Model extends Collection
      */
     abstract public function columns();
 
-
     /**
      * @return string
      */
@@ -81,11 +87,29 @@ abstract class Model extends Collection
     }
 
     /**
+     * if {@see static::$aliasName} not empty, return `tableName AS aliasName`
+     * @return string
+     */
+    public static function queryName()
+    {
+        return static::$aliasName ? static::tableName() . ' AS ' . static::$aliasName : static::tableName();
+    }
+
+    /**
      * @return AbstractDriver
      */
     public static function getDb()
     {
         return Slim::get('db');
+    }
+
+    /**
+     * @param array $data
+     * @return static
+     */
+    public static function me($data=[])
+    {
+        return new static($data);
     }
 
     /**
@@ -99,11 +123,12 @@ abstract class Model extends Collection
 
     /**
      * init query
+     * @param mixed $where
      * @return Query
      */
-    public static function query()
+    public static function query($where=null)
     {
-        return static::getQuery(true)->from(static::tableName());
+        return static::handleWhere($where, static::getQuery(true))->from(static::queryName());
     }
 
     /**
@@ -129,13 +154,13 @@ abstract class Model extends Collection
      * @param $where
      * @param string $select
      * @param string $class
-     * @return static|\stdClass|array
+     * @return static|\stdClass|array|false if not exists return false;
      */
     public static function findOne($where, $select='*', $class= 'model')
     {
         $query = static::handleWhere($where, static::getQuery(true) )
                 ->select($select)
-                ->from(static::tableName());
+                ->from(static::queryName());
 
         return static::getDb()->setQuery($query)->loadOne($class === 'model' ? static::class : $class);
     }
@@ -155,11 +180,33 @@ abstract class Model extends Collection
     {
         $query = static::handleWhere( $where, static::getQuery(true) )
                 ->select($select)
-                ->from(static::tableName());
+                ->from(static::queryName());
 
         return static::getDb()->setQuery($query)->loadAll($indexKey, $class === 'model' ? static::class : $class);
     }
 
+    /**
+     * simple count
+     * @param $where
+     * @return int
+     */
+    public static function counts($where)
+    {
+        $query = static::query($where);
+
+        return static::setQuery($query)->count();
+    }
+
+    /**
+     * @param $where
+     * @return int
+     */
+    public static function exists($where)
+    {
+        $query = static::query($where);
+
+        return static::setQuery($query)->exists();
+    }
 
     /**
      * @param bool|false $updateNulls

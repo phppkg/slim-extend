@@ -117,4 +117,11 @@ if ( ! $model->update() ) {
 // ---------- delete record --------
 
 // ---------- other --------
+
+$query = TestModel::query(['contentId' => $contentId])
+    ->select('mt.contentId, t1.id, t1.name')
+    ->leftJoin(Tags::tableName() . ' AS t1 ON mt.tagId = t1.id');
+
+$list = TestModel::setQuery($query)->loadAll();
+
 ```
