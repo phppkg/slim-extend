@@ -634,7 +634,7 @@ abstract class AbstractDriver
      */
     public function exists()
     {
-        $this->query = sprintf('select exists(%s) as `exists`',$this->query);
+        $this->query = sprintf('select exists(%s) as `exists`', $this->query->select('*'));
 
         $result = $this->execute()->loadOne();
 

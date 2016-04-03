@@ -140,13 +140,15 @@ abstract class Model extends Collection
      */
     public static function findByPk($priValue, $select='*', $class= 'model')
     {
+        // only one
+        $where = [static::$priKey => $priValue];
+
+        // many
         if ( is_array($priValue) ) {
-            $condition = static::$priKey . ' in (' . implode(',', $priValue) . ')';
-        } else {
-            $condition = static::$priKey . '=' . $priValue;
+            $where = static::$priKey . ' in (' . implode(',', $priValue) . ')';
         }
 
-        return static::findOne($condition, $select, $class);
+        return static::findOne($where, $select, $class);
     }
 
     /**
@@ -209,26 +211,30 @@ abstract class Model extends Collection
     }
 
     /**
+     * @param array $updateColumns
      * @param bool|false $updateNulls
-     * @return bool|static
+     * @return bool|int
      */
-    public function save($updateNulls = false)
+    public function save($updateColumns = [], $updateNulls = false)
     {
         $this->beforeSave();
 
-        $result = static::getDb()->save( static::tableName(), $this->data, static::$priKey, $updateNulls);
+        $result = $this->isNew() ? $this->insert()->priValue() : $this->update($updateColumns, $updateNulls);
 
-        $this->afterSave($result);
+        if ($result) {
+            $this->afterSave();
+        }
 
         return $result;
     }
 
     /**
-     * @return array|bool|int
+     * @return static
      */
     public function insert()
     {
         $this->beforeInsert();
+        $this->beforeSave();
 
         if ( $this->enableValidate && $this->validate()->fail() ) {
             return false;
@@ -236,11 +242,15 @@ abstract class Model extends Collection
 
         $priValue = static::getDb()->insert( static::tableName(), $this->all());
 
-        $this->set(static::$priKey, $priValue);
+        // when insert successful.
+        if ($priValue) {
+            $this->set(static::$priKey, $priValue);
 
-        $this->afterInsert($priValue);
+            $this->afterInsert();
+            $this->afterSave();
+        }
 
-        return $priValue;
+        return $this;
     }
 
     /**
@@ -250,12 +260,14 @@ abstract class Model extends Collection
      */
     public static function insertMulti(array $dataSet)
     {
+        $pris = [];
+
         // return static::getDb()->insertMulti($table, $dataSet, $priKey);
         foreach ($dataSet as $k => $data) {
-            $dataSet[$k] = static::load($data)->insert();
+            $pris[$k] = static::load($data)->insert()->priValue();
         }
 
-        return $dataSet;
+        return $pris;
     }
 
     /**
@@ -291,7 +303,9 @@ abstract class Model extends Collection
 
         $result = static::getDb()->update( static::tableName(), $data, $priKey, $updateNulls);
 
-        $this->afterUpdate($result);
+        if ($result) {
+            $this->afterUpdate();
+        }
 
         return $result;
     }
@@ -304,11 +318,13 @@ abstract class Model extends Collection
      */
     public static function updateMulti($dataSet, $updateColumns = [], $updateNulls = false)
     {
+        $res = [];
+
         foreach ($dataSet as $k => $data) {
-            $dataSet[$k] = static::load($data)->update($updateColumns, $updateNulls);
+            $res[$k] = static::load($data)->update($updateColumns, $updateNulls);
         }
 
-        return $dataSet;
+        return $res;
     }
 
     /**
@@ -322,6 +338,61 @@ abstract class Model extends Collection
     }
 
     /**
+     * delete by model
+     * @return int
+     */
+    public function delete()
+    {
+        $this->beforeDelete();
+        $query = static::getQuery(true)->where(static::$priKey . ' = ' . $this->priValue())->delete(static::tableName());
+
+        if ($affected = static::setQuery($query)->execute()->countAffected() ) {
+            $this->afterDelete();
+        }
+
+        return $affected;
+    }
+
+    /**
+     * @param int|array $priValue
+     * @return int
+     */
+    public static function deleteByPk($priValue)
+    {
+        // only one
+        $where = [static::$priKey => $priValue];
+
+        // many
+        if ( is_array($priValue) ) {
+            $where = static::$priKey . ' in (' . implode(',', $priValue) . ')';
+        }
+
+        $query = static::handleWhere($where, static::getQuery(true))->from(static::tableName());
+
+        return static::setQuery($query)->execute()->countAffected();
+    }
+
+    /**
+     * @param $where
+     * @return int
+     */
+    public static function deleteBy($where)
+    {
+        $query = static::handleWhere($where, static::getQuery(true))->from(static::tableName());
+
+        return static::setQuery($query)->execute()->countAffected();
+    }
+
+    protected function beforeInsert(){}
+    protected function afterInsert(){}
+    protected function beforeUpdate(){}
+    protected function afterUpdate(){}
+    protected function beforeSave(){}
+    protected function afterSave(){}
+    protected function beforeDelete(){}
+    protected function afterDelete(){}
+
+    /**
      * @param $column
      * @param int $step
      * @return bool
@@ -330,7 +401,7 @@ abstract class Model extends Collection
     {
         $priKey = static::$priKey;
 
-        if ( !is_integer($this->$column) ) {
+        if ( !is_int($this->$column) ) {
             throw new \InvalidArgumentException('The method only can be used in the column of type integer');
         }
 
@@ -341,9 +412,7 @@ abstract class Model extends Collection
             $column => $this->$column,
         ];
 
-        $result = static::getDb()->update(static::tableName(), $data, $priKey);
-
-        return $result;
+        return static::getDb()->update(static::tableName(), $data, $priKey);
     }
     public function incre($column, $step=1)
     {
@@ -359,7 +428,7 @@ abstract class Model extends Collection
     {
         $priKey = static::$priKey;
 
-        if ( !is_integer($this->$column) ) {
+        if ( !is_int($this->$column) ) {
             throw new \InvalidArgumentException('The method only can be used in the column of type integer');
         }
 
@@ -370,41 +439,17 @@ abstract class Model extends Collection
             $column => $this->$column,
         ];
 
-        $result = static::getDb()->update(static::tableName(), $data, $priKey);
-
-        return $result;
+        return static::getDb()->update(static::tableName(), $data, $priKey);
     }
     public function decre($column, $step=-1)
     {
         return $this->decrement($column, $step);
     }
 
-    protected function beforeInsert()
-    {
-        $this->beforeSave();
-    }
-
-    protected function beforeUpdate()
-    {
-        $this->beforeSave();
-    }
-
-    protected function afterInsert($result)
-    {
-        $this->afterSave($result);
-    }
-
-    protected function afterUpdate($result)
-    {
-        $this->afterSave($result);
-    }
-
-    protected function beforeSave()
-    {}
-
-    protected function afterSave($result)
-    {}
-
+    /**
+     * @param null|bool $value
+     * @return bool
+     */
     public function enableValidate($value=null)
     {
         if ( is_bool($value) ) {
@@ -478,10 +523,9 @@ abstract class Model extends Collection
                 if (is_object($where) and $where instanceof \Closure) {
                     $where($query);
                     continue;
-                }
 
                 // natural int key
-                if ( is_integer($key) ) {
+                } else if ( is_int($key) ) {
 
                     // e.g: $subWhere = [ "column = 'value'", 'OR' ];
                     if ( is_array($subWhere) ) {
@@ -535,6 +579,14 @@ abstract class Model extends Collection
         }
 
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function priValue()
+    {
+        return $this->get(static::$priKey);
     }
 
     /**
