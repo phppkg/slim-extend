@@ -344,7 +344,7 @@ abstract class Model extends Collection
     public function delete()
     {
         $this->beforeDelete();
-        $query = static::getQuery(true)->where(static::$priKey . ' = ' . $this->priValue())->delete(static::tableName());
+        $query = static::getQuery(true)->where([static::$priKey => $this->priValue()])->delete(static::tableName());
 
         if ($affected = static::setQuery($query)->execute()->countAffected() ) {
             $this->afterDelete();
@@ -367,7 +367,7 @@ abstract class Model extends Collection
             $where = static::$priKey . ' in (' . implode(',', $priValue) . ')';
         }
 
-        $query = static::handleWhere($where, static::getQuery(true))->from(static::tableName());
+        $query = static::handleWhere($where, static::getQuery(true))->delete(static::tableName());
 
         return static::setQuery($query)->execute()->countAffected();
     }
@@ -378,7 +378,7 @@ abstract class Model extends Collection
      */
     public static function deleteBy($where)
     {
-        $query = static::handleWhere($where, static::getQuery(true))->from(static::tableName());
+        $query = static::handleWhere($where, static::getQuery(true))->delete(static::tableName());
 
         return static::setQuery($query)->execute()->countAffected();
     }
