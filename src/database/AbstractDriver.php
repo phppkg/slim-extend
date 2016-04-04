@@ -617,9 +617,9 @@ abstract class AbstractDriver
     {
         $this->query->select('count(*) AS total');
 
-        $result = $this->execute()->loadOne();
+        $result = $this->loadOne();
 
-        return $result ? $result->total : 0;
+        return $result ? (int)$result->total : 0;
     }
 
     /**
@@ -636,7 +636,7 @@ abstract class AbstractDriver
     {
         $this->query = sprintf('select exists(%s) as `exists`', $this->query->select('*'));
 
-        $result = $this->execute()->loadOne();
+        $result = $this->loadOne();
 
         return $result ? $result->exists : 0;
     }
