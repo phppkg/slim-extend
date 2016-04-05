@@ -11,7 +11,7 @@ namespace slimExtend\base;
 
 use Slim;
 use slimExtend\database\AbstractDriver;
-use inhere\validate\ValidatorTrait;
+use inhere\validate\ValidationTrait;
 use slimExtend\DataConst;
 use Windwalker\Query\Query;
 
@@ -22,7 +22,7 @@ use Windwalker\Query\Query;
  */
 abstract class Model extends Collection
 {
-    use ValidatorTrait;
+    use ValidationTrait;
 
     protected $enableValidate = true;
 

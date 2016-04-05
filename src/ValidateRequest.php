@@ -9,8 +9,7 @@
 
 namespace slimExtend;
 
-use inhere\validate\Validator;
-use Slim\Http\Request;
+use inhere\validate\Validation;
 
 /**
  * Class ValidateRequest
@@ -18,7 +17,7 @@ use Slim\Http\Request;
  *
  * @property array $scene 当前验证的场景 通常是根据 controller 的 action name 来区分 e.g. add, edit, register
  */
-abstract class ValidateRequest extends Validator
+abstract class ValidateRequest extends Validation
 {
 
 }
