@@ -92,7 +92,7 @@ abstract class Controller extends RestFulController
      * @param int $return
      * @return Response
      */
-    protected function renderTwig($view, Response $response, array $args = [], $return= 2)
+    protected function renderTwig($view, Response $response, array $args = [], $return= self::RETURN_RESPONSE)
     {
         $settings = Slim::get('settings')['twigRenderer'];
         $view  = $this->getViewPath($view, $settings);
