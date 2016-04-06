@@ -27,6 +27,11 @@ abstract class Model extends Collection
     protected $enableValidate = true;
 
     /**
+     * @var array
+     */
+    private $_oldData = [];
+
+    /**
      * the table primary key name
      * @var string
      */
@@ -559,23 +564,27 @@ abstract class Model extends Collection
         return $query;
     }
 
-
     /**
      * format column's data type
-     * @param string $key
+     * @param string $column
      * @param mixed $value
      * @return $this|void
      */
-    public function set($key, $value)
+    public function set($column, $value)
     {
-        if ( isset($this->columns()[$key]) ) {
-            $type = $this->columns()[$key];
+        if ( isset($this->columns()[$column]) ) {
+            $type = $this->columns()[$column];
 
             if ($type === DataConst::TYPE_INT ) {
                 $value = (int)$value;
             }
 
-            return parent::set($key, $value);
+            // backup old value.
+            if ( !$this->isNew() ) {
+                $this->_oldData[$column] = $this->get($column);
+            }
+
+            return parent::set($column, $value);
         }
 
         return $this;
@@ -587,6 +596,37 @@ abstract class Model extends Collection
     public function priValue()
     {
         return $this->get(static::$priKey);
+    }
+
+    /**
+     * Check whether the column's value is changed, the update.
+     * @param $column
+     * @return bool
+     */
+    protected function valueIsChanged($column)
+    {
+        if ( $this->isNew() ) {
+            return true;
+        }
+
+        return $this->get($column) !== $this->getOld($column);
+    }
+
+    /**
+     * @return array
+     */
+    public function getOldData()
+    {
+        return $this->_oldData;
+    }
+
+    /**
+     * @param $column
+     * @return mixed
+     */
+    public function getOld($column)
+    {
+        return isset($this->_oldData[$column]) ? $this->_oldData[$column] : null;
     }
 
     /**
