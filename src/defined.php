@@ -15,4 +15,3 @@ define('PDT_RUNTIME_ENV', 'pdt');
 define('DEV_RUNTIME_ENV', 'dev');
 define('LOC_RUNTIME_ENV', 'loc');
 
-defined('RUNTIME_ENV') || define('RUNTIME_ENV', 'pdt');

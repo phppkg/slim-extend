@@ -87,6 +87,17 @@ class DataCollector implements \JsonSerializable, \ArrayAccess, \IteratorAggrega
     }
 
     /**
+     * @param $data
+     * @param string $format
+     * @param string $name
+     * @return static
+     */
+    public static function make($data, $format = 'php', $name = 'box1')
+    {
+        return new static($data, $format, $name);
+    }
+
+    /**
      * set
      * @param string $path
      * @param mixed $value

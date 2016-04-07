@@ -4,7 +4,24 @@
  * @desc some helper function
  */
 
-use slimExtend\DataConst;
+/**
+ * @param $key
+ * @param null $default
+ * @return mixed|null
+ */
+function config($key,$default=null)
+{
+    if ($key &&  is_string($key) ) {
+        return \Slim::config()->get($key,$default);
+    }
+
+    // set, when $key is array
+    if ($key && is_array($key) ) {
+        \Slim::config()->loadArray($key);
+    }
+
+    return $default;
+}
 
 function is_loc_env()
 {
