@@ -356,7 +356,7 @@ abstract class Model extends Collection
 
         $query = static::handleWhere([ static::$priKey => $priValue ], static::getQuery(true))
                 ->delete(static::tableName());
-de($query->toString());
+
         if ($affected = static::setQuery($query)->execute()->countAffected() ) {
             $this->afterDelete();
         }
