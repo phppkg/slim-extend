@@ -349,8 +349,14 @@ abstract class Model extends Collection
     public function delete()
     {
         $this->beforeDelete();
-        $query = static::getQuery(true)->where([static::$priKey => $this->priValue()])->delete(static::tableName());
 
+        if ( !$priValue = $this->priValue() ) {
+            return 0;
+        }
+
+        $query = static::handleWhere([ static::$priKey => $priValue ], static::getQuery(true))
+                ->delete(static::tableName());
+de($query->toString());
         if ($affected = static::setQuery($query)->execute()->countAffected() ) {
             $this->afterDelete();
         }
@@ -551,8 +557,7 @@ abstract class Model extends Collection
                     }
 
                     // $subWhere is a column value. e.g: $subWhere = 'value'; go on ...
-
-                    $subWhere = $key . ' = ' . $query->q($subWhere);
+                    $subWhere = $key . ' = ' . (is_numeric($subWhere) ? (int)$subWhere : $query->q($subWhere));
                 }
 
                 $query->where($subWhere, $glue);
