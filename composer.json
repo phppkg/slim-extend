@@ -16,8 +16,7 @@
     "php": ">=5.5.0",
     "slim/slim": "^3.1",
     "symfony/yaml": "^3.0",
-    "windwalker/query": "^2.1",
-    "inhere/php-validate": "^1.0"
+    "windwalker/query": "^2.1"
   },
   "require-dev": {
       "filp/whoops": "2.*",
