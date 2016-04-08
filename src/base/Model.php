@@ -165,11 +165,11 @@ abstract class Model extends Collection
      */
     public static function findOne($where, $select='*', $class= 'model')
     {
-        $query = static::handleWhere($where, static::getQuery(true) )
+        $query = static::handleWhere($where)
                 ->select($select)
                 ->from(static::queryName());
 
-        return static::getDb()->setQuery($query)->loadOne($class === 'model' ? static::class : $class);
+        return static::setQuery($query)->loadOne($class === 'model' ? static::class : $class);
     }
 
     /**
@@ -185,11 +185,11 @@ abstract class Model extends Collection
      */
     public static function findAll($where, $select='*', $indexKey=null, $class= 'model')
     {
-        $query = static::handleWhere( $where, static::getQuery(true) )
+        $query = static::handleWhere($where)
                 ->select($select)
                 ->from(static::queryName());
 
-        return static::getDb()->setQuery($query)->loadAll($indexKey, $class === 'model' ? static::class : $class);
+        return static::setQuery($query)->loadAll($indexKey, $class === 'model' ? static::class : $class);
     }
 
     /**
@@ -354,8 +354,7 @@ abstract class Model extends Collection
             return 0;
         }
 
-        $query = static::handleWhere([ static::$priKey => $priValue ], static::getQuery(true))
-                ->delete(static::tableName());
+        $query = static::handleWhere([ static::$priKey => $priValue ])->delete(static::tableName());
 
         if ($affected = static::setQuery($query)->execute()->countAffected() ) {
             $this->afterDelete();
@@ -378,7 +377,7 @@ abstract class Model extends Collection
             $where = static::$priKey . ' in (' . implode(',', $priValue) . ')';
         }
 
-        $query = static::handleWhere($where, static::getQuery(true))->delete(static::tableName());
+        $query = static::handleWhere($where)->delete(static::tableName());
 
         return static::setQuery($query)->execute()->countAffected();
     }
@@ -514,10 +513,13 @@ abstract class Model extends Collection
      * ```
      * @return Query
      */
-    protected static function handleWhere($where, Query $query)
+    protected static function handleWhere($where, Query $query = null)
     {
+        $query = $query ?: static::getQuery(true);
+
         /* e.g:
-        Closure function(Query $q) use ($value) {
+        a Closure
+        function(Query $q) use ($value) {
             $q->where( 'column = ' . $q->q($value) );
         }
         */
@@ -562,7 +564,8 @@ abstract class Model extends Collection
 
                 $query->where($subWhere, $glue);
             }// end foreach
-        } elseif ( is_string($where) ) {
+
+        } elseif ( $where && is_string($where) ) {
             $query->where($where);
         }
 
