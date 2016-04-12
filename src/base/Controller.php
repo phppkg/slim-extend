@@ -22,6 +22,14 @@ abstract class Controller extends RestFulController
     public $defaultAction = 'index';
 
     /**
+     * template helper class name.
+     * can use `{{ _globals.helper.propertyName }}` OR `{{ _globals.helper.methodName(arg1[, arg2, ...]) }}`
+     * access instance of the $tplHelperClass
+     * @var string
+     */
+    protected $tplHelperClass = '';
+
+    /**
      * current controller's default templates path.
      * tpl file: `$this->tplPath . '/' . $view`
      * @var string
@@ -131,13 +139,19 @@ abstract class Controller extends RestFulController
      */
     protected function addTwigGlobalVar()
     {
-        return [
+        $globalVar = [
             'user'     => Slim::$app->user,
             'config'   => Slim::get('config'),
+            'params'   => Slim::get('config')->get('params', []),
             'lang'     => Slim::get('language'),
-            'helper'   => new TplHelper,
             'messages' => Slim::$app->request->getMessage(),
         ];
+
+        if ( $class = $this->tplHelperClass ) {
+            $globalVar['helper'] = new $class;
+        }
+
+        return $globalVar;
     }
 
     const GLOBAL_VAR_NAME_CONFIG_KEY  = 'global_var_key';
