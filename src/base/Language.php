@@ -35,7 +35,7 @@ class Language extends DataCollector
      * language config file path
      * @var string
      */
-    protected $path = '@src/resources/languages';
+    protected $path = '@resources/languages';
 
     /**
      * type of language config
