@@ -118,11 +118,24 @@ abstract class Slim
     }
 
     /**
-     * @return \slimExtend\DataCollector
+     * @param mixed $key
+     * @param mixed $default
+     * @return \slimExtend\DataCollector|mixed
      */
-    public static function config()
+    public static function config($key=null, $default=null)
     {
-        return static::$app->getContainer()->get('config');
+        $config = static::$app->getContainer()->get('config');
+
+        if ($key &&  is_string($key) ) {
+            return $config->get($key,$default);
+        }
+
+        // set, when $key is array
+        if ($key && is_array($key) ) {
+            return $config->loadArray($key);
+        }
+
+        return $config;
     }
 
     /**

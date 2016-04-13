@@ -190,6 +190,10 @@ class Language extends DataCollector
     {
         return $this->translate($key, $args, $default);
     }
+    public function tl($key, $args = [], $default = 'No translate.')
+    {
+        return $this->translate($key, $args, $default);
+    }
 
     /**
      * @param $key

@@ -11,16 +11,7 @@
  */
 function config($key,$default=null)
 {
-    if ($key &&  is_string($key) ) {
-        return \Slim::config()->get($key,$default);
-    }
-
-    // set, when $key is array
-    if ($key && is_array($key) ) {
-        \Slim::config()->loadArray($key);
-    }
-
-    return $default;
+    return \Slim::config($key,$default);
 }
 
 function is_loc_env()
