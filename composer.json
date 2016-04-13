@@ -15,6 +15,8 @@
   "require": {
     "php": ">=5.5.0",
     "slim/slim": "^3.1",
+    "slim/flash": "^0.1.0",
+    "slim/csrf": "^0.6.0",
     "symfony/yaml": "^3.0",
     "windwalker/query": "^2.1",
     "inhere/php-validate": "~1.0"

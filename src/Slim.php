@@ -30,7 +30,6 @@ abstract class Slim
      */
     protected static $aliases = [
         '@project' => PROJECT_PATH,
-        '@data'    => PROJECT_PATH . DIR_SEP . 'data',
         '@public'  => PROJECT_PATH . DIR_SEP . 'public',
         '@assets'  => PROJECT_PATH . DIR_SEP . 'public' . DIR_SEP . 'assets',
         '@src'     => PROJECT_PATH . DIR_SEP . 'src',
