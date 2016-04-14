@@ -26,6 +26,7 @@ use Slim\Http\Uri;
  * @method      boolean  getBool()      getBool($name, $default = null)     Get a boolean.
  * @method      boolean  getBoolean()   getBoolean($name, $default = null)  Get a boolean.
  * @method      string   getString()    getString($name, $default = null)
+ * @method      string   getTrimmed()   getTrimmed($name, $default = null)
  * @method      string   getEmail()     getEmail($name, $default = null)
  * @method      string   getUrl()       getUrl($name, $default = null)      Get URL
  *
@@ -53,12 +54,15 @@ class Request extends SlimRequest
         'bool'    => 'bool',
         // (bool)$var
         'boolean' => 'bool',
+        // (string)$var
+        'string'  => 'string',
+
         // trim($var)
-        'string'  => 'trim',
+        'trimmed'  => 'trim',
 
         // abs((int)$var)
         'number'  => StrainerList::class . '::abs',
-        // will use filter_var($var ,FILTER_SANITIZE_URL)
+        // will use filter_var($var ,FILTER_SANITIZE_EMAIL)
         'email'   => StrainerList::class . '::email',
         // will use filter_var($var ,FILTER_SANITIZE_URL)
         'url'     => StrainerList::class . '::url',
@@ -113,9 +117,9 @@ class Request extends SlimRequest
             return $default;
         }
 
-        $var = $this->getParams()[$name];
+        $value = $this->getParams()[$name];
 
-        return $this->doFilter($var, $filter, $default);
+        return $this->doFiltering($value, $filter, $default);
     }
 
     /**
@@ -175,62 +179,63 @@ class Request extends SlimRequest
     }
 
     /**
-     * @param $var
+     * @param $value
      * @param $filter
      * @param null $default
      * @return mixed|null
      */
-    protected function doFilter($var, $filter, $default = null)
+    protected function doFiltering($value, $filter, $default = null)
     {
-        if ( $filter === static::FILTER_RAW || !is_scalar($var)) {
-            return $var;
-        }
-
-        if ( !isset($this->filterList[$filter]) ) {
-
-            // is custom callable filter
-            if ( is_callable($filter) ) {
-                $value = call_user_func($filter, $var);
-            } else {
-                $value = $default;
-            }
-
+        if ( $filter === static::FILTER_RAW || !is_scalar($value)) {
             return $value;
         }
 
+        // is a custom filter
+        if ( !is_string($filter) || !isset($this->filterList[$filter]) ) {
+            $result = $default;
+
+            // is custom callable filter
+            if ( is_callable($filter) ) {
+                $result = call_user_func($filter, $value);
+            }
+
+            return $result;
+        }
+
+        // is a defined filter
         $filter = $this->filterList[$filter];
 
         if ( !in_array($filter, DataConst::dataTypes()) ) {
-            $var = call_user_func($filter, $var);
+            $result = call_user_func($filter, $value);
         } else {
             switch ( lcfirst(trim($filter)) ) {
                 case DataConst::TYPE_ARRAY :
-                    $var = (array)$var;
+                    $result = (array)$value;
                     break;
                 case DataConst::TYPE_BOOL :
                 case DataConst::TYPE_BOOLEAN :
-                    $var = (bool)$var;
+                    $result = (bool)$value;
                     break;
                 case DataConst::TYPE_DOUBLE :
                 case DataConst::TYPE_FLOAT :
-                    $var = (float)$var;
+                    $result = (float)$value;
                     break;
                 case DataConst::TYPE_INT :
                 case DataConst::TYPE_INTEGER :
-                    $var = (int)$var;
+                    $result = (int)$value;
                     break;
                 case DataConst::TYPE_OBJECT :
-                    $var = (object)$var;
+                    $result = (object)$value;
                     break;
                 case DataConst::TYPE_STRING :
-                    $var = trim((string)$var);
+                    $result = (string)$value;
                     break;
                 default:
-                    $var = $default;
+                    $result = $default;
                     break;
             }
         }
 
-        return $var;
+        return $result;
     }
 }

@@ -42,36 +42,6 @@ abstract class RestFulController
     }
 
     /**
-     * @param array $data
-     * @param array $required
-     * @return null|string return error msg if has error.
-     */
-    protected function collectData(array &$data, array $required=[])
-    {
-        foreach ( $required as $key => $field ) {
-            // 可以检查子级
-            if ( is_array($field) ) {
-                if ( !isset($data[$key]) ) {
-                    return '缺少必要参数 ' . $key;
-                }
-                $subData = $data[$key];
-
-                foreach ($field as $subField) {
-                    if ( is_string($subField)
-                        && (!isset($subData[$subField]) || $subData[$subField] === '')
-                    ) {
-                        return "缺少必要参数  {$key}[{$subField}]";
-                    }
-                }
-            } else if (!isset($data[$field]) || $data[$field] === '') {
-                return '缺少必要参数 ' . $field;
-            }
-        }
-
-        return null;
-    }
-
-    /**
      * @param Request $request
      * @param Response $response
      * @param array $args

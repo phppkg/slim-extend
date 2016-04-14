@@ -35,6 +35,22 @@ class Response extends SlimResponse
     }
 
     /**
+     * set cookie
+     * ```
+     * $res->withCookie(['name' => 'value']);
+     * ```
+     * @param array $data
+     * @param array $params
+     * @return static
+     */
+    public function withCookie(array $data, array $params = [])
+    {
+        cookie($data, null, $params);
+
+        return $this;
+    }
+
+    /**
      * @param \Psr\Http\Message\UriInterface|string $url
      * @param int $status
      * @return static
@@ -88,7 +104,8 @@ class Response extends SlimResponse
     public function withInput(array $data)
     {
         Slim::$app->flash->addMessage(DataConst::FLASH_OLD_INPUT_KEY, json_encode($data));
-Slim::$app->logger->info('dev-' . session_id(), $_SESSION);
+        Slim::$app->logger->info('dev-' . session_id(), $_SESSION);
+
         return $this;
     }
 }

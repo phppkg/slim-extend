@@ -267,10 +267,12 @@ EOF;
      */
     protected function beforeInvoke(Request $request, Response $response, array $args)
     {
-        $action = $this->defaultAction;
+        $action = !empty($args['action']) ? $args['action'] : $this->defaultAction;
 
-        if ( !empty($args['action']) ) {
-            $action = $args['action'];
+        // convert 'first-second' to 'firstSecond'
+        if ( strpos($action, '-') ) {
+            $action = ucwords(str_replace('-', ' ', $action));
+            $action = str_replace(' ','',lcfirst($action));
         }
 
         Slim::config()->set('action',$action);
