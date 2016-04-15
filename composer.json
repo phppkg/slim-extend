@@ -19,6 +19,7 @@
     "slim/csrf": "^0.6.0",
     "symfony/yaml": "^3.0",
     "windwalker/query": "^2.1",
+    "symfony/console": "^3.0",
     "inhere/php-validate": "~1.0"
   },
   "require-dev": {
