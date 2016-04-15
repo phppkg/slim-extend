@@ -123,7 +123,7 @@ abstract class Slim
      */
     public static function config($key=null, $default=null)
     {
-        $config = static::$app->getContainer()->get('config');
+        $config = static::$app->getContainer()['config'];
 
         if ($key &&  is_string($key) ) {
             return $config->get($key,$default);
@@ -143,6 +143,6 @@ abstract class Slim
      */
     public static function logger($name='logger')
     {
-        return static::$app->getContainer()->get($name);
+        return static::$app->getContainer()[$name];
     }
 }
