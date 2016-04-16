@@ -31,10 +31,10 @@ class AuthCheck
             return $next($request, $response);
         }
 
-        $authUrl = Slim::get('config')->get('mder.loginUrl');
+        $authUrl = Slim::get('config')->get('urls.login');
 
         if (!$authUrl) {
-            throw new InvalidConfigException("require config 'mder.loginUrl' !");
+            throw new InvalidConfigException("require config 'urls.login' !");
         }
 
         $msg = Slim::$app->language->tran('needLogin');

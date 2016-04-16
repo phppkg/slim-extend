@@ -218,19 +218,19 @@ abstract class Model extends Collection
     /**
      * @param array $updateColumns
      * @param bool|false $updateNulls
-     * @return bool|int
+     * @return bool
      */
     public function save($updateColumns = [], $updateNulls = false)
     {
         $this->beforeSave();
 
-        $result = $this->isNew() ? $this->insert()->priValue() : $this->update($updateColumns, $updateNulls);
+        $result = $this->isNew() ? $this->insert() : $this->update($updateColumns, $updateNulls);
 
         if ($result) {
             $this->afterSave();
         }
 
-        return $result;
+        return $result ? true : false;
     }
 
     /**

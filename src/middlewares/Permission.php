@@ -23,16 +23,14 @@ class Permission
      */
     public function __invoke(Request $request, Response $response, $next)
     {
-        $passed = true;
-
-        // some logic ... ...
+        $passed = $this->doCheck($request);
 
         // if passed == true, go on ...
         if( $passed ) {
             return $next($request, $response);
         }
 
-        $msg = \Slim::$app->language->tran('http403');
+        $msg = \Slim::$app->language->tl('http403');
 
         // when is xhr
         if ( $request->isXhr() ) {
@@ -40,5 +38,12 @@ class Permission
         }
 
         return $response->withStatus(403)->write($msg);
+    }
+
+    protected function doCheck(Request $request)
+    {
+        // some logic ... ...
+
+        return true;
     }
 }
