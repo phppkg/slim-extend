@@ -6,11 +6,11 @@
  * Time: 23:35
  */
 
-namespace slimExtend;
+namespace slimExt;
 
 /**
  * Class DataConst
- * @package slimExtend
+ * @package slimExt
  */
 abstract class DataConst
 {

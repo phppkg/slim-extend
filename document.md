@@ -12,7 +12,7 @@ $container = $app->getContainer();
 $container['db'] = function ($c) {
     /** @var $c Slim\Container */
     $options = $c->get('settings')['db'];
-    return \slimExtend\database\DbFactory::getDbo('db', $options);
+    return \slimExt\database\DbFactory::getDbo('db', $options);
 };
 ```
 
@@ -48,8 +48,8 @@ more method please see `src/database/AbstractDriver.php`
 <?php
 
 use Slim;
-use slimExtend\base\Model;
-use slimExtend\DataConst;
+use slimExt\base\Model;
+use slimExt\DataConst;
 
 /**
  * Class BaseModel

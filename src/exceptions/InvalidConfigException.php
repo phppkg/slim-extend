@@ -6,11 +6,11 @@
  * Time: 22:50
  */
 
-namespace slimExtend\exceptions;
+namespace slimExt\exceptions;
 
 /**
  * Class InvalidConfigException
- * @package slimExtend\exceptions
+ * @package slimExt\exceptions
  */
 class InvalidConfigException extends \RuntimeException
 {

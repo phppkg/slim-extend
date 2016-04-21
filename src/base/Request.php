@@ -6,9 +6,9 @@
  * Time: 23:05
  */
 
-namespace slimExtend\base;
+namespace slimExt\base;
 
-use slimExtend\DataConst;
+use slimExt\DataConst;
 use inhere\validate\StrainerList;
 use Slim;
 use Slim\Http\Request as SlimRequest;
@@ -17,7 +17,7 @@ use Slim\Http\Uri;
 /**
  * extension Slim's Request class
  * Class Request
- * @package slimExtend\base
+ * @package slimExt\base
  *
  * @method      string   getRaw()       getRaw($name, $default = null)      Get raw data
  * @method      integer  getInt()       getInt($name, $default = null)      Get a signed integer.

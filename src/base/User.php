@@ -6,13 +6,13 @@
  * Time: 21:57
  */
 
-namespace slimExtend\base;
+namespace slimExt\base;
 
 
 
 /**
  * Class User
- * @package slimExtend\base
+ * @package slimExt\base
  *
  * @property int id
  */

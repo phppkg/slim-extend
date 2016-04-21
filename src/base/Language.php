@@ -6,15 +6,15 @@
  * Time: 15:04
  */
 
-namespace slimExtend\base;
+namespace slimExt\base;
 
-use slimExtend\DataCollector;
+use slimExt\DataCollector;
 use Slim;
-use slimExtend\exceptions\NotFoundException;
+use slimExt\exceptions\NotFoundException;
 
 /**
  * Class Language
- * @package slimExtend\base
+ * @package slimExt\base
  *
  * property $type
  *  if type equal to 1, use monofile. this is default.

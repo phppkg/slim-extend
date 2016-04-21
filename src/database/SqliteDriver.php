@@ -6,14 +6,14 @@
  * Time: 22:33
  */
 
-namespace slimExtend\database;
+namespace slimExt\database;
 
 use Windwalker\Query\Query;
 use Windwalker\Query\Sqlite\SqliteQuery;
 
 /**
  * Class Sqlite
- * @package slimExtend\database
+ * @package slimExt\database
  */
 class SqliteDriver extends AbstractDriver
 {

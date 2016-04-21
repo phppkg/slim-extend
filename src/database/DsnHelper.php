@@ -6,7 +6,7 @@
  * Time: 22:33
  */
 
-namespace slimExtend\database;
+namespace slimExt\database;
 
 /**
  * Class DsnHelper

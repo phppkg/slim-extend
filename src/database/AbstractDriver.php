@@ -6,17 +6,17 @@
  * Time: 22:33
  */
 
-namespace slimExtend\database;
+namespace slimExt\database;
 
 use Slim;
 use PDO;
 use PDOStatement;
-use slimExtend\database\query\QueryHelper;
+use slimExt\database\query\QueryHelper;
 use Windwalker\Query\Query;
 
 /**
  * Class AbstractDriver
- * @package slimExtend\database
+ * @package slimExt\database
  * @link https://github.com/ventoviro/windwalker-database
  */
 abstract class AbstractDriver

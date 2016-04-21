@@ -1,13 +1,13 @@
 <?php
 
-namespace slimExtend\middlewares;
+namespace slimExt\middlewares;
 
-use slimExtend\base\Request;
-use slimExtend\base\Response;
+use slimExt\base\Request;
+use slimExt\base\Response;
 
 /**
  * Class Permission
- * @package slimExtend\middlewares
+ * @package slimExt\middlewares
  */
 class Permission
 {

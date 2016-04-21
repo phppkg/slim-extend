@@ -6,11 +6,11 @@
  * Time: 11:05
  */
 
-namespace slimExtend\exceptions;
+namespace slimExt\exceptions;
 
 /**
  * Class ParseDataException
- * @package slimExtend\exceptions
+ * @package slimExt\exceptions
  */
 class ParseDataException extends \RuntimeException
 {
