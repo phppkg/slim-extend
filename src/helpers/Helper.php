@@ -2,10 +2,10 @@
 /**
  *
  */
-namespace slimExtend\helpers;
+namespace slimExt\helpers;
 
 
-use slimExtend\exceptions\NotFoundException;
+use slimExt\exceptions\NotFoundException;
 
 class Helper
 {

@@ -6,26 +6,26 @@
  * Time: 23:35
  */
 
-namespace slimExtend\base;
+namespace slimExt\base;
 
 use Slim\App as SlimApp;
 
 /**
  * Class App
- * @package slimExtend\base
+ * @package slimExt\base
  *
  * @property-read Request                    request
  *
  * @property \Slim\Container                 container
  * @property \Monolog\Logger                 logger
- * @property \slimExtend\base\User       user
+ * @property \slimExt\base\User       user
  * @property \Slim\Flash\Messages            flash
- * @property \slimExtend\base\Language   language
+ * @property \slimExt\base\Language   language
  *
  *
- * @property \slimExtend\DataCollector   config
- * @property \slimExtend\DataCollector   pageSet
- * @property \slimExtend\DataCollector   pageAttr
+ * @property \slimExt\DataCollector   config
+ * @property \slimExt\DataCollector   pageSet
+ * @property \slimExt\DataCollector   pageAttr
  *
  */
 class App extends SlimApp

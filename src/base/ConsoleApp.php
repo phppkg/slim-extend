@@ -6,16 +6,17 @@
  * Time: 23:05
  */
 
-namespace slimExtend\base;
+namespace slimExt\base;
 
 use Pimple\Container;
 use Interop\Container\ContainerInterface;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
+use slimExt\builder\commands;
 
 /**
  * Class ConsoleApp
- * @package slimExtend\base
+ * @package slimExt\base
  */
 class ConsoleApp extends Application
 {
@@ -32,6 +33,13 @@ class ConsoleApp extends Application
         $this->container = new Container;
 
         parent::__construct($name, $version);
+
+        $this->prepareBuildInCommands();
+    }
+
+    public function prepareBuildInCommands()
+    {
+        $this->add(new commands\BuildCommand);
     }
 
     /**

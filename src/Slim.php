@@ -12,7 +12,7 @@
  * ```
  *     Slim::get('request')
  * equal
- *     Slim::$app->request // by the magic method { @link \slimExtend\base\App::__get() }
+ *     Slim::$app->request // by the magic method { @link \slimExt\base\App::__get() }
  * equal
  *     Slim::$app->request() // by the magic method { @link \Slim\App::__call() }
  * ```
@@ -20,7 +20,7 @@
 abstract class Slim
 {
     /**
-     * @var $app \slimExtend\base\App
+     * @var $app \slimExt\base\App
      */
     public static $app;
 
@@ -119,7 +119,7 @@ abstract class Slim
     /**
      * @param mixed $key
      * @param mixed $default
-     * @return \slimExtend\DataCollector|mixed
+     * @return \slimExt\DataCollector|mixed
      */
     public static function config($key=null, $default=null)
     {

@@ -69,7 +69,7 @@ function cookie($name, $default=null, array $params = [])
 
     // get
     if ($name && is_string($name)) {
-        return isset($_COOKIE[$name]) ? $_SESSION[$name] : $default;
+        return isset($_COOKIE[$name]) ? $_COOKIE[$name] : $default;
     }
 
     return $default;
@@ -177,7 +177,7 @@ function format_messages($data, $code = 0, $msg = '', $describe = '')
  * suggest use : `$response->withRedirect($url, 301);`
  * @param $url
  * @param int $status
- * @return slimExtend\base\Response
+ * @return slimExt\base\Response
  */
 function redirect_to($url='/', $status=301)
 {

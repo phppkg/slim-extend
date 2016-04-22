@@ -6,13 +6,13 @@
  * Time: 23:05
  */
 
-namespace slimExtend\base;
+namespace slimExt\base;
 
 use Slim\Collection as SlimCollection;
 
 /**
  * Class Collection
- * @package slimExtend\base
+ * @package slimExt\base
  */
 class Collection extends SlimCollection
 {

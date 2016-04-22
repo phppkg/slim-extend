@@ -35,7 +35,7 @@
     ],
     "classmap": ["src/Slim.php"],
     "psr-4": {
-      "slimExtend\\" : "src/"
+      "slimExt\\" : "src/"
     }
   },
   "suggest": {

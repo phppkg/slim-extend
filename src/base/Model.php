@@ -7,17 +7,17 @@
  * Time: 23:35
  */
 
-namespace slimExtend\base;
+namespace slimExt\base;
 
 use Slim;
-use slimExtend\database\AbstractDriver;
+use slimExt\database\AbstractDriver;
 use inhere\validate\ValidationTrait;
-use slimExtend\DataConst;
+use slimExt\DataConst;
 use Windwalker\Query\Query;
 
 /**
  * Class BaseModel
- * @package slimExtend
+ * @package slimExt
  *
  */
 abstract class Model extends Collection

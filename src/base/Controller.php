@@ -1,13 +1,13 @@
 <?php
 
-namespace slimExtend\base;
+namespace slimExt\base;
 
 use Slim;
-use slimExtend\helpers\TplHelper;
+use slimExt\helpers\TplHelper;
 
 /**
  * Class Controller
- * @package slimExtend\base
+ * @package slimExt\base
  */
 abstract class Controller extends RestFulController
 {
@@ -115,7 +115,7 @@ abstract class Controller extends RestFulController
         $twig->getEnvironment()->addGlobal($globalKey, $globalVar);
 
         // add custom extension
-        // $twig->addExtension(new \slimExtend\twig\TwigExtension( $c['request'], $c['csrf'] ));
+        // $twig->addExtension(new \slimExt\twig\TwigExtension( $c['request'], $c['csrf'] ));
 
         // Fetch rendered template {@see \Slim\Views\Twig::fetch()}
         $rendered = $twig->fetch($view, $args);

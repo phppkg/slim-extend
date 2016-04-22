@@ -1,15 +1,15 @@
 <?php
 
-namespace slimExtend\middlewares;
+namespace slimExt\middlewares;
 
-use slimExtend\exceptions\InvalidConfigException;
+use slimExt\exceptions\InvalidConfigException;
 use Slim;
-use slimExtend\base\Request;
-use slimExtend\base\Response;
+use slimExt\base\Request;
+use slimExt\base\Response;
 
 /**
  * Class AuthCheck  - 是否登录检查
- * @package slimExtend\middlewares
+ * @package slimExt\middlewares
  */
 class AuthCheck
 {

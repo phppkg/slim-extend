@@ -2,7 +2,7 @@
 /**
  *
  */
-namespace slimExtend\helpers;
+namespace slimExt\helpers;
 
 
 class StrHelper

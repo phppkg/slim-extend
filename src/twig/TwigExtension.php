@@ -6,7 +6,7 @@
  * Time: 01:04
  */
 
-namespace slimExtend\twig;
+namespace slimExt\twig;
 
 use Slim;
 use Slim\Http\Request;

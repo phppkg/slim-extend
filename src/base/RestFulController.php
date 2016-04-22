@@ -1,16 +1,16 @@
 <?php
 
-namespace slimExtend\base;
+namespace slimExt\base;
 
 use Slim;
 
 /**
  * Class RestFulController
- * @package slimExtend\base
+ * @package slimExt\base
  *
  * how to use. e.g:
  * ```
- * class Book extends slimExtend\base\RestFulController
+ * class Book extends slimExt\base\RestFulController
  * {
  *     public function get($request, $response, $args)
  *     {}

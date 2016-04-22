@@ -6,9 +6,9 @@
  * Time: 23:05
  */
 
-namespace slimExtend\base;
+namespace slimExt\base;
 
-use slimExtend\DataConst;
+use slimExt\DataConst;
 use Slim;
 use Slim\Http\Response as SlimResponse;
 
@@ -16,7 +16,7 @@ use Slim\Http\Response as SlimResponse;
  * extension Slim's Response class
  *
  * Class Response
- * @package slimExtend\base
+ * @package slimExt\base
  */
 class Response extends SlimResponse
 {

@@ -1,8 +1,8 @@
 <?php
 
-namespace slimExtend\database\query;
+namespace slimExt\database\query;
 
-use slimExtend\database\DbFactory;
+use slimExt\database\DbFactory;
 use Windwalker\Query\QueryElement;
 use Windwalker\Compare\Compare;
 use Windwalker\Query\Query;
