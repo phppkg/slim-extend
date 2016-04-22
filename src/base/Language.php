@@ -32,6 +32,12 @@ class Language extends DataCollector
     protected $lang = 'en';
 
     /**
+     * fallback lang
+     * @var string
+     */
+    protected $fallbackLang = 'en';
+
+    /**
      * language config file path
      * @var string
      */
@@ -94,7 +100,7 @@ class Language extends DataCollector
 
     protected function prepare($options)
     {
-        foreach (['lang', 'path', 'defaultFile'] as $key) {
+        foreach (['lang', 'fallbackLang', 'path', 'defaultFile'] as $key) {
             if ( isset($options[$key]) ) {
                 $this->$key = $options[$key];
             }
@@ -158,9 +164,10 @@ class Language extends DataCollector
      * @param $key
      * @param array $args
      * @param string $default
+     * @param string $lang
      * @return string
      */
-    public function translate($key, $args = [], $default = 'No translate.')
+    public function translate($key, $args = [], $default = 'No translate.', $lang = '')
     {
         if ( !$key ) {
             throw new \InvalidArgumentException('A lack of parameters or error.');

@@ -69,7 +69,7 @@ function cookie($name, $default=null, array $params = [])
 
     // get
     if ($name && is_string($name)) {
-        return isset($_COOKIE[$name]) ? $_SESSION[$name] : $default;
+        return isset($_COOKIE[$name]) ? $_COOKIE[$name] : $default;
     }
 
     return $default;
