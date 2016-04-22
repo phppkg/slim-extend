@@ -20,6 +20,7 @@
     "symfony/yaml": "^3.0",
     "windwalker/query": "^2.1",
     "symfony/console": "^3.0",
+    "inhere/php-tools": "dev-master",
     "inhere/php-validate": "~1.0"
   },
   "require-dev": {
@@ -52,6 +53,10 @@
     {
       "type": "git",
       "url": "https://git.oschina.net/inhere/php-validate"
+    },
+    {
+      "type": "git",
+      "url": "https://git.oschina.net/inhere/php-tools"
     }
   ]
 }
