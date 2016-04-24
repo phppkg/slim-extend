@@ -2,6 +2,7 @@
 
 namespace slimExt\base;
 
+use slimExt\exceptions\NotFoundException;
 use Slim;
 
 /**
@@ -57,7 +58,7 @@ abstract class RestFulController
      * @param Response $response
      * @param array $args
      * @return bool
-     * @throws \RuntimeException
+     * @throws NotFoundException
      */
     public function __invoke(Request $request, Response $response, array $args)
     {
@@ -78,7 +79,7 @@ abstract class RestFulController
             return $result;
         }
 
-        throw new \RuntimeException('Error Processing Request');
+        throw new NotFoundException('Error Processing Request, Action ' . $action . 'don\'t exists!');
     }
 
     /**
