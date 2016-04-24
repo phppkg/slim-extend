@@ -45,7 +45,7 @@ class ConsoleApp extends Application
     /**
      * Enable access to the DI container by consumers of $app
      *
-     * @return ContainerInterface
+     * @return Container
      */
     public function getContainer()
     {

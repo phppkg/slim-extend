@@ -35,6 +35,17 @@ class Response extends SlimResponse
     }
 
     /**
+     * @param mixed $data
+     * @param int $status
+     * @param int $encodingOptions
+     * @return SlimResponse|static
+     */
+    public function withRawJson($data, $status = 200, $encodingOptions = 0)
+    {
+        return parent::withJson($data, $status, $encodingOptions);
+    }
+
+    /**
      * set cookie
      * ```
      * $res->withCookie(['name' => 'value']);
