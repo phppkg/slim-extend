@@ -79,7 +79,7 @@ abstract class RestFulController
             return $result;
         }
 
-        throw new NotFoundException('Error Processing Request, Action ' . $action . 'don\'t exists!');
+        throw new NotFoundException('Error Processing Request, Action [' . $action . '] don\'t exists!');
     }
 
     /**
