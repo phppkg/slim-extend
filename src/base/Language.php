@@ -9,6 +9,7 @@
 namespace slimExt\base;
 
 use Slim;
+use inhere\tools\language\LanguageManager;
 
 /**
  * Class Language
@@ -20,8 +21,43 @@ use Slim;
  *  if type equal to 2, use multifile.
  *
  *
+ * how to use language translate ?
+ *
+ * 1. allow multi arguments. `tran(string $key , array [$arg1 , $arg2], string $default)`
+ *
+ * @example
+ * ```
+ *  // on language config file
+ * userNotFound: user [%s]  don't exists!
+ *
+ *  // on code
+ * $msg = Slim::$app->language->tran('userNotFound', 'demo');
+ * ```
+ *
+ * 2. allow fetch other config file data, when use multifile. (`static::$type === static::USE_MULTIFILE`)
+ *
+ * @example
+ * ```
+ * // on default config file (e.g. `en/default.yml`)
+ * userNotFound: user [%s] don't exists!
+ *
+ * // on app config file (e.g. `en/app.yml`)
+ * userNotFound: the app user [%s] don't exists!
+ *
+ * // on code
+ * // will fetch value at `en/default.yml`
+ * $msg = Slim::$app->language->tran('userNotFound', 'demo');
+ * //output $msg: user [demo] don't exists!
+ *
+ * // will fetch value at `en/app.yml`
+ * $msg = Slim::$app->language->tran('app:userNotFound', 'demo');
+ * //output $msg: the app user [demo] don't exists!
+ *
+ * ```
+ *
+ *
  */
-class Language extends \inhere\tools\language\Language
+class Language extends LanguageManager
 {
     /**
      * language config file path
@@ -35,12 +71,6 @@ class Language extends \inhere\tools\language\Language
      */
     protected $type = 1;
 
-    /**
-     * default file name, when use multifile. (self::type == self::TYPE_MULTIFILE)
-     * @var string
-     */
-    protected $defaultFile = 'default';
-
     protected function prepare($options, $fileType)
     {
         // maybe use path alias
@@ -48,48 +78,4 @@ class Language extends \inhere\tools\language\Language
 
         parent::prepare($options, $fileType);
     }
-
-    /**
-     * language translate
-     *
-     * 1. allow multi arguments. `tran(string $key , mixed $arg1 , mixed $arg2, ...)`
-     *
-     * @example
-     * ```
-     *  // on language config
-     * userNotFound: user [%s] don't exists!
-     *
-     *  // on code
-     * $msg = Slim::$app->language->tran('userNotFound', 'demo');
-     * ```
-     *
-     * 2. allow fetch other config file data, when use multifile. (`static::$type === static::TYPE_MULTIFILE`)
-     *
-     * @example
-     * ```
-     * // on default config file (e.g. `en/default.yml`)
-     * userNotFound: user [%s] don't exists!
-     *
-     * // on app config file (e.g. `en/app.yml`)
-     * userNotFound: the app user [%s] don't exists!
-     *
-     * // on code
-     * // will fetch value at `en/default.yml`
-     * //output: user [demo] don't exists!
-     * $msg = Slim::$app->language->tran('userNotFound', 'demo');
-     *
-     * // will fetch value at `en/app.yml`
-     * //output: the app user [demo] don't exists!
-     * $msg = Slim::$app->language->tran('app:userNotFound', 'demo');
-     *
-     * ```
-     *
-     * @param $key
-     * @param array $args
-     * @param string $default
-     * @param string $lang
-     * @return string
-     */
-//    public function translate($key, $args = [], $default = 'No translate.', $lang = '')
-
 }
