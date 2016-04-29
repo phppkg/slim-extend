@@ -193,24 +193,6 @@ abstract class Controller extends RestFulController
     }
 
     /**
-     * @param Request $request
-     * @return string
-     */
-    public function csrfField(Request $request)
-    {
-        // CSRF token name and value
-        $nameKey  = Slim::get('csrf')->getTokenNameKey();
-        $valueKey = Slim::get('csrf')->getTokenValueKey();
-        $name  = $request->getAttribute($nameKey);
-        $value = $request->getAttribute($valueKey);
-
-        return <<<EOF
-<input type="hidden" name="$nameKey" value="$name">
-<input type="hidden" name="$valueKey" value="$value">
-EOF;
-    }
-
-    /**
      * get current controller's default templates path
      * @return string
      */
@@ -275,7 +257,7 @@ EOF;
             $action = str_replace(' ','',lcfirst($action));
         }
 
-        Slim::config()->set('action',$action);
+        Slim::config()->set('urls.action',$action);
         $action .= ucfirst($this->actionSuffix);
 
         if ( method_exists($this, $action) ) {
