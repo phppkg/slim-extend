@@ -300,6 +300,7 @@ abstract class Model extends Collection
         }
 
         $this->beforeUpdate();
+        $this->beforeSave();
 
         // validate data
         if ($this->enableValidate && $this->validate(array_keys($data))->fail() ) {
@@ -310,6 +311,7 @@ abstract class Model extends Collection
 
         if ($result) {
             $this->afterUpdate();
+            $this->afterSave();
         }
 
         return $result;
