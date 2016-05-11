@@ -58,6 +58,12 @@ abstract class Controller extends RestFulController
     protected $tplGlobalVarList = [];
 
     /**
+     * append variable to templates, if variable not exists.
+     * @var array
+     */
+    protected $appendTplVar = [];
+
+    /**
      * __construct
      */
     public function __construct()
@@ -84,6 +90,8 @@ abstract class Controller extends RestFulController
         // add tpl global var
         list($varKey, $varList) = $this->handleGlobalVar($settings);
         $args[$varKey] = $varList;
+
+        $this->appendVarToView($args);
 
         return Slim::get('renderer')->render($response, $view, $args);
     }
@@ -116,6 +124,7 @@ abstract class Controller extends RestFulController
 
         // add custom extension
         // $twig->addExtension(new \slimExt\twig\TwigExtension( $c['request'], $c['csrf'] ));
+        $this->appendVarToView($args);
 
         // Fetch rendered template {@see \Slim\Views\Twig::fetch()}
         $rendered = $twig->fetch($view, $args);
@@ -152,6 +161,17 @@ abstract class Controller extends RestFulController
         }
 
         return $globalVar;
+    }
+
+    protected function appendVarToView(array &$args)
+    {
+        if (!$this->appendTplVar) {
+            foreach ($this->appendTplVar as $key => $value) {
+                if (!isset($args[$key])) {
+                    $args[$key] = $value;
+                }
+            }
+        }
     }
 
     const GLOBAL_VAR_NAME_CONFIG_KEY  = 'global_var_key';
