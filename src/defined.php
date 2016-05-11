@@ -6,7 +6,7 @@
  * Time: 11:14
  */
 
-defined('PROJECT_PATH') || define('PROJECT_PATH', '/');
+//defined('PROJECT_PATH') || define('PROJECT_PATH', '/');
 
 defined('DIR_SEP') || define('DIR_SEP', DIRECTORY_SEPARATOR);
 defined('URL_SEP') || define('URL_SEP', '/');
