@@ -165,7 +165,7 @@ abstract class Controller extends RestFulController
 
     protected function appendVarToView(array &$args)
     {
-        if (!$this->appendTplVar) {
+        if ($this->appendTplVar) {
             foreach ($this->appendTplVar as $key => $value) {
                 if (!isset($args[$key])) {
                     $args[$key] = $value;
