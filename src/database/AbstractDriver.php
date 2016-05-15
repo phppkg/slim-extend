@@ -691,7 +691,7 @@ abstract class AbstractDriver
 
         // add sql log
         if ( $this->debug ) {
-            $this->dbLogger()->debug('[' . $this->lastQuery.';] Executed.');
+            $this->dbLogger()->debug('Successful Executed.');
         }
 
         try {
