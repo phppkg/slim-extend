@@ -11,8 +11,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * jump to the project root directory. run:
- * `./console cache:clear {type}`
- * see help: `./console cache:clear --help`
+ * `./bin/console build:init {type}`
+ * see help: `./bin/console build:init --help`
  */
 class BuildCommand extends Command
 {
