@@ -55,6 +55,28 @@ abstract class Model extends Collection
     const SCENE_CREATE = 'create';
     const SCENE_UPDATE = 'update';
 
+    protected static $baseOptions = [
+        'indexKey' => null,
+        /*
+        data type, in :
+            'model'      -- return object, instanceof `self`
+            '\\stdClass' -- return object, instanceof `stdClass`
+            'array'      -- return array, only  [ column's value ]
+            'assoc'      -- return array, Contain  [ column's name => column's value]
+        */
+        'class'    => 'model',
+
+        // 追加限制
+        // 可用方法: limit($limit, $offset), group($columns), having($conditions, $glue = 'AND')
+        // innerJoin($table, $condition = []), leftJoin($table, $condition = []), order($columns),
+        // outerJoin($table, $condition = []), rightJoin($table, $condition = [])
+        // e.g:
+        //  'limit' => [10, 120],
+        //  'order' => 'createTime ASC',
+        //  'group' => 'id, type',
+        //
+    ];
+
     /**
      * define model field list
      * e.g:
@@ -71,7 +93,6 @@ abstract class Model extends Collection
      *    ];
      * }
      * ```
-     *
      * @return array
      */
     abstract public function columns();
@@ -109,15 +130,6 @@ abstract class Model extends Collection
     }
 
     /**
-     * @param array $data
-     * @return static
-     */
-    public static function me($data=[])
-    {
-        return new static($data);
-    }
-
-    /**
      * @param $data
      * @return static
      */
@@ -140,10 +152,10 @@ abstract class Model extends Collection
      * find record by primary key
      * @param mixed $priValue
      * @param string $select
-     * @param string $class
-     * @return static
+     * @param array $options
+     * @return static|array
      */
-    public static function findByPk($priValue, $select='*', $class= 'model')
+    public static function findByPk($priValue, $select='*', array $options= [])
     {
         // only one
         $where = [static::$priKey => $priValue];
@@ -153,43 +165,48 @@ abstract class Model extends Collection
             $where = static::$priKey . ' in (' . implode(',', $priValue) . ')';
         }
 
-        return static::findOne($where, $select, $class);
+        return static::findOne($where, $select, $options);
     }
 
     /**
      * find a record by where condition
-     * @param $where
+     * @param mixed $where
      * @param string $select
-     * @param string $class
-     * @return static|\stdClass|array|false if not exists return false;
+     * @param array $options
+     * @return static|array
      */
-    public static function findOne($where, $select='*', $class= 'model')
+    public static function findOne($where, $select='*', array $options= [])
     {
-        $query = static::handleWhere($where)
-                ->select($select)
-                ->from(static::queryName());
+        $query = static::query($where)->select($select);
 
-        return static::setQuery($query)->loadOne($class === 'model' ? static::class : $class);
+        $options = array_merge(static::$baseOptions, $options);
+        $class = $options['class'] === 'model' ? static::class : $options['class'];
+
+        unset($options['indexKey'], $options['class']);
+        static::applyAppendOptions($options, $query);
+
+        return static::setQuery($query)->loadOne($class);
     }
 
     /**
      * @param mixed $where {@see self::handleWhere() }
      * @param string|array $select
-     * @param null|string $indexKey
-     * @param string $class data type, in :
-     *  'model'      -- return object, instanceof `self`
-     *  '\\stdClass' -- return object, instanceof `stdClass`
-     *  'array'      -- return array, only  [ column's value ]
-     *  'assoc'      -- return array, Contain  [ column's name => column's value]
+     * @param array $options
      * @return array
      */
-    public static function findAll($where, $select='*', $indexKey=null, $class= 'model')
+    public static function findAll($where, $select='*', array $options = [])
     {
-        $query = static::handleWhere($where)
-                ->select($select)
-                ->from(static::queryName());
+        $query = static::query($where)->select($select);
 
-        return static::setQuery($query)->loadAll($indexKey, $class === 'model' ? static::class : $class);
+        $options = array_merge(static::$baseOptions, $options);
+        $indexKey = $options['indexKey'];
+        $class = $options['class'] === 'model' ? static::class : $options['class'];
+
+        unset($options['indexKey'], $options['class']);
+
+        static::applyAppendOptions($options, $query);
+
+        return static::setQuery($query)->loadAll($indexKey, $class);
     }
 
     /**
@@ -489,13 +506,30 @@ abstract class Model extends Collection
     }
 
     /**
-     * `self::setQuery($query)->loadAll(null, self::class);`
+     * findXxx 无法满足需求时，自定义 $query
+     * `
+     * $query = XModel::getQuery();
+     * ...
+     * self::setQuery($query)->loadAll(null, self::class);
+     * `
      * @param string|Query $query
      * @return AbstractDriver
      */
     final public static function setQuery($query)
     {
         return static::getDb()->setQuery($query);
+    }
+
+    /**
+     * apply Append Options
+     * @param  array  $appends
+     * @param  Query  $query
+     */
+    protected static function applyAppendOptions($appends=[], Query $query)
+    {
+        foreach ($appends as $method => $val) {
+            is_array($val) ? $query->$method($val[0],$val[1]) : $query->$method($val);
+        }
     }
 
     /**
