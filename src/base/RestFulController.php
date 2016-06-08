@@ -46,37 +46,33 @@ abstract class RestFulController
      * @param Request $request
      * @param Response $response
      * @param array $args
-     * @return bool
+     * @return void
      */
     protected function beforeInvoke(Request $request, Response $response, array $args)
-    {
-        return false;
-    }
+    {}
 
     /**
      * @param Request $request
      * @param Response $response
      * @param array $args
-     * @return bool
+     * @return mixed
      * @throws NotFoundException
      */
     public function __invoke(Request $request, Response $response, array $args)
     {
         // Maybe want to do something
-        if ( $result = $this->beforeInvoke($request, $response, $args)) {
-            return $result;
-        }
+        $this->beforeInvoke($request, $response, $args);
 
         // default restFul action name
         $action = strtolower($request->getMethod());
 
         if ( method_exists($this, $action) ) {
-            return $this->$action($request, $response, $args);
-        }
+            $response = $this->$action($request, $response, $args);
 
-        // Might want to customize to perform the action name
-        if ( $result = $this->afterInvoke($request, $response, $args)) {
-            return $result;
+            // Might want to customize to perform the action name
+            $this->afterInvoke($request, $response, $args);
+
+            return $response;
         }
 
         throw new NotFoundException('Error Processing Request, Action [' . $action . '] don\'t exists!');
@@ -86,11 +82,9 @@ abstract class RestFulController
      * @param Request $request
      * @param Response $response
      * @param array $args
-     * @return bool
+     * @return void
      */
     protected function afterInvoke(Request $request, Response $response, array $args)
-    {
-        return false;
-    }
+    {}
 
 }

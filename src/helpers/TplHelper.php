@@ -7,18 +7,10 @@ namespace slimExt\helpers;
 
 class TplHelper
 {
-    public function getPageUrl($path, $isFolder=false)
+    public function __call($method, array $args=[])
     {
-        if ( $isFolder ) {
-            return $path;
+        if ( function_exists($method) ) {
+            return call_user_func_array($method, $args);
         }
-
-        if( ($suffix = get_extension($path)) && ($suffix == 'md') ) {
-            $pageUrl = substr($path, 0 , - (strlen($suffix)+1));
-
-            return $pageUrl . '.html';
-        }
-
-        return 'javascript:void(0);';
     }
 }

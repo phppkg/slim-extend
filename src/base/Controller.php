@@ -27,7 +27,7 @@ abstract class Controller extends RestFulController
      * access instance of the $tplHelperClass
      * @var string
      */
-    protected $tplHelperClass = '';
+    protected $tplHelperClass = '\slimExt\helpers\TplHelper';
 
     /**
      * current controller's default templates path.
@@ -62,6 +62,12 @@ abstract class Controller extends RestFulController
      * @var array
      */
     protected $appendTplVar = [];
+
+    /**
+     * enable request method verify
+     * @var bool
+     */
+    protected $enableMethodVerify = true;
 
     /**
      * __construct
@@ -280,10 +286,55 @@ abstract class Controller extends RestFulController
         Slim::config()->set('urls.action',$action);
         $action .= ucfirst($this->actionSuffix);
 
+        // if enable request method verify
+        if ( $this->enableMethodVerify ) {
+            $action = strtolower($request->getMethod()) . ucfirst($action);
+        }
+
         if ( method_exists($this, $action) ) {
             return $this->$action($request, $response, $args);
         }
 
         return false;
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @return mixed
+     * @throws NotFoundException
+     */
+    public function __invoke(Request $request, Response $response, array $args)
+    {
+        // Maybe want to do something
+        $this->beforeInvoke($request, $response, $args);
+
+        $action = !empty($args['action']) ? $args['action'] : $this->defaultAction;
+
+        // convert 'first-second' to 'firstSecond'
+        if ( strpos($action, '-') ) {
+            $action = ucwords(str_replace('-', ' ', $action));
+            $action = str_replace(' ','',lcfirst($action));
+        }
+
+        Slim::config()->set('urls.action',$action);
+        $action .= ucfirst($this->actionSuffix);
+
+        // if enable request method verify
+        if ( $this->enableMethodVerify ) {
+            $action = strtolower($request->getMethod()) . ucfirst($action);
+        }
+
+        if ( method_exists($this, $action) ) {
+            $response = $this->$action($request, $response, $args);
+
+            // Might want to customize to perform the action name
+            $this->afterInvoke($request, $response, $args);
+
+            return $response;
+        }
+
+        throw new NotFoundException('Error Processing Request, Action [' . $action . '] don\'t exists!');
     }
 }
