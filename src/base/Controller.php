@@ -68,7 +68,7 @@ abstract class Controller extends RestFulController
      * enable request method verify
      * @var bool
      */
-    protected $enableMethodVerify = true;
+    protected $enableMethodVerify = false;
 
     /**
      * __construct
@@ -336,6 +336,6 @@ abstract class Controller extends RestFulController
             return $response;
         }
 
-        throw new \NotFoundException('Error Processing Request, Action [' . $action . '] don\'t exists!');
+        throw new NotFoundException('Error Processing Request, Action [' . $action . '] don\'t exists!');
     }
 }
