@@ -4,6 +4,7 @@ namespace slimExt\base;
 
 use Slim;
 use slimExt\helpers\TplHelper;
+use slimExt\exceptions\NotFoundException;
 
 /**
  * Class Controller
@@ -335,6 +336,6 @@ abstract class Controller extends RestFulController
             return $response;
         }
 
-        throw new NotFoundException('Error Processing Request, Action [' . $action . '] don\'t exists!');
+        throw new \NotFoundException('Error Processing Request, Action [' . $action . '] don\'t exists!');
     }
 }
