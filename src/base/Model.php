@@ -282,7 +282,7 @@ abstract class Model extends Collection
      */
     public static function insertMulti(array $dataSet)
     {
-        if ( static::getDb()->supportInsertMulti() ) {
+        if ( static::getDb()->supportInsertMulti ) {
             return static::getDb()->insertMulti(
                 static::tableName(), $dataSet, static::$priKey
             );

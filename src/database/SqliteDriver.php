@@ -38,8 +38,7 @@ class SqliteDriver extends AbstractDriver
         return in_array('sqlite', \PDO::getAvailableDrivers());
     }
 
-    public function insertMulti($table, &$dataSet, $key = null)
-    {
-
-    }
+    // public function insertMulti($table, &$dataSet, $key = null)
+    // {
+    // }
 }
