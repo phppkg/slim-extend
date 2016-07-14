@@ -265,37 +265,11 @@ abstract class Controller extends RestFulController
         return $view;
     }
 
-    /**
-     * beforeInvoke
-     *  Might want to customize to perform the action name
-     * @param  Request $request
-     * @param  Response $response
-     * @param  array $args
-     * @return mixed
-     */
-    protected function beforeInvoke(Request $request, Response $response, array $args)
+    public function filters()
     {
-        $action = !empty($args['action']) ? $args['action'] : $this->defaultAction;
-
-        // convert 'first-second' to 'firstSecond'
-        if ( strpos($action, '-') ) {
-            $action = ucwords(str_replace('-', ' ', $action));
-            $action = str_replace(' ','',lcfirst($action));
-        }
-
-        Slim::config()->set('urls.action',$action);
-        $action .= ucfirst($this->actionSuffix);
-
-        // if enable request method verify
-        if ( $this->enableMethodVerify ) {
-            $action = strtolower($request->getMethod()) . ucfirst($action);
-        }
-
-        if ( method_exists($this, $action) ) {
-            return $this->$action($request, $response, $args);
-        }
-
-        return false;
+        return [
+            'index,add' => 'GET,POST'
+        ];
     }
 
     /**

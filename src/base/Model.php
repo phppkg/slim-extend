@@ -262,7 +262,7 @@ abstract class Model extends Collection
             return false;
         }
 
-        $priValue = static::getDb()->insert( static::tableName(), $this->all());
+        $priValue = static::getDb()->insert(static::tableName(), $this->getColumnsData());
 
         // when insert successful.
         if ($priValue) {
@@ -282,9 +282,14 @@ abstract class Model extends Collection
      */
     public static function insertMulti(array $dataSet)
     {
+        if ( static::getDb()->supportInsertMulti() ) {
+            return static::getDb()->insertMulti(
+                static::tableName(), $dataSet, static::$priKey
+            );
+        }
+
         $pris = [];
 
-        // return static::getDb()->insertMulti($table, $dataSet, $priKey);
         foreach ($dataSet as $k => $data) {
             $pris[$k] = static::load($data)->insert()->priValue();
         }
@@ -300,7 +305,7 @@ abstract class Model extends Collection
      */
     public function update($updateColumns = [], $updateNulls = false)
     {
-        $data = $this->all();
+        $data = $this->getColumnsData();
         $priKey = static::$priKey;
 
         // only update some columns
@@ -616,6 +621,7 @@ abstract class Model extends Collection
      */
     public function set($column, $value)
     {
+        // belong to the model.
         if ( isset($this->columns()[$column]) ) {
             $type = $this->columns()[$column];
 
@@ -627,11 +633,22 @@ abstract class Model extends Collection
             if ( !$this->isNew() ) {
                 $this->_oldData[$column] = $this->get($column);
             }
-
-            return parent::set($column, $value);
         }
 
-        return $this;
+        return parent::set($column, $value);
+    }
+
+    public function getColumnsData()
+    {
+        $data = [];
+
+        foreach ($this as $col => $val) {
+            if ( isset($this->columns()[$col]) ) {
+                $data[$col] = $val;
+            }
+        }
+
+        return $data;
     }
 
     /**

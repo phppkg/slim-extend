@@ -20,6 +20,7 @@ use Windwalker\Query\Mysql\MysqlQuery;
 class MysqlDriver extends AbstractDriver
 {
     protected $name = 'mysql';
+    public $supportInsertMulti = true;
 
     public function newQuery($forceNew=false)
     {

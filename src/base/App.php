@@ -24,8 +24,6 @@ use Slim\App as SlimApp;
  *
  *
  * @property \slimExt\DataCollector   config
- * @property \slimExt\DataCollector   pageSet
- * @property \slimExt\DataCollector   pageAttr
  *
  */
 class App extends SlimApp

@@ -57,6 +57,8 @@ abstract class AbstractDriver
 
     protected $debug = false;
 
+    public $supportInsertMulti = false;
+
     /**
      * @param array $options
      * @param PDO|null $pdo

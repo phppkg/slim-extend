@@ -18,6 +18,7 @@ use Windwalker\Query\Sqlite\SqliteQuery;
 class SqliteDriver extends AbstractDriver
 {
     protected $name = 'sqlite';
+    public $supportInsertMulti = true;
 
     public function newQuery($forceNew=false)
     {
@@ -35,5 +36,10 @@ class SqliteDriver extends AbstractDriver
     public static function isSupported()
     {
         return in_array('sqlite', \PDO::getAvailableDrivers());
+    }
+
+    public function insertMulti($table, &$dataSet, $key = null)
+    {
+
     }
 }
