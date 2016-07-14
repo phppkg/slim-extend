@@ -4,6 +4,7 @@ namespace slimExt\base;
 
 use Slim;
 use slimExt\helpers\TplHelper;
+use slimExt\exceptions\NotFoundException;
 
 /**
  * Class Controller
@@ -67,7 +68,7 @@ abstract class Controller extends RestFulController
      * enable request method verify
      * @var bool
      */
-    protected $enableMethodVerify = true;
+    protected $enableMethodVerify = false;
 
     /**
      * __construct
