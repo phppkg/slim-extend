@@ -158,6 +158,31 @@ class Request extends SlimRequest
     }
 
     /**
+     * Is this an XHR request?
+     *
+     * @return bool
+     */
+    public function isAjax()
+    {
+        return $this->isXhr();
+    }
+
+    /**
+     * Is this an pjax request?
+     * pjax = pushState + ajax
+     * @return bool
+     */
+    public function isPjax()
+    {
+        return $this->isAjax() && ($this->getHeaderLine('X-PJAX') === 'true');
+    }
+
+    public function getPjaxContainer()
+    {
+        return $this->getHeaderLine('X-PJAX-Container');
+    }
+
+    /**
      * @param $name
      * @param array $arguments
      * @return mixed
