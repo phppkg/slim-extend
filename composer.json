@@ -25,7 +25,7 @@
   "require-dev": {
       "filp/whoops": "2.*",
       "inhere/slim-whoops": "dev-master",
-      "inhere/simple-print-tool": "dev-master"
+      "inhere/simple-print-tool": "~1.0"
   },
   "autoload":{
     "files":[
