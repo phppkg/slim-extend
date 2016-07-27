@@ -600,7 +600,8 @@ abstract class Model extends Collection
                     }
 
                     // $subWhere is a column value. e.g: $subWhere = 'value'; go on ...
-                    $subWhere = $key . ' = ' . (is_numeric($subWhere) ? (int)$subWhere : $query->q($subWhere));
+                    // $subWhere = $key . ' = ' . (is_numeric($subWhere) ? (int)$subWhere : $query->q($subWhere));
+                    $subWhere = $key . ' = ' . $query->q($subWhere);
                 }
 
                 $query->where($subWhere, $glue);

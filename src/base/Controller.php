@@ -133,18 +133,18 @@ abstract class Controller extends RestFulController
         // $twig->addExtension(new \slimExt\twig\TwigExtension( $c['request'], $c['csrf'] ));
         $this->appendVarToView($args);
 
-        // check var 'renderPartial'
-        $args['renderPartial'] = isset($args['renderPartial']) ? $args['renderPartial'] : false;
+        // check var '_renderPartial'
+        $args['_renderPartial'] = isset($args['_renderPartial']) ? $args['_renderPartial'] : false;
 
         // is pjax request
         if ( Slim::$app->request->isPjax() ) {
-            $args['renderPartial'] = true;
+            $args['_renderPartial'] = true;
 
-            // X-PJAX-URL:https://github.com/inhere/inhere.github.io
+            // X-PJAX-URL:https://github.com/inhere/php-librarys
             // X-PJAX-Version: 23434
             $response = $response
                             ->withHeader('X-PJAX-URL', (string)Slim::$app->request->getUri())
-                            ->withHeader('X-PJAX-Version', Slim::config()->get('pjax_version', '1.0'));
+                            ->withHeader('X-PJAX-Version', Slim::config('pjax_version', '1.0'));
         }
 
         // Fetch rendered template {@see \Slim\Views\Twig::fetch()}
@@ -172,7 +172,7 @@ abstract class Controller extends RestFulController
      */
     protected function renderPartialTwig($view, Response $response, array $args = [], $return= self::RETURN_RESPONSE)
     {
-        $args['renderPartial'] = true;
+        $args['_renderPartial'] = true;
 
         return $this->renderTwig($view, $response, $args, $return);
     }

@@ -671,7 +671,7 @@ abstract class AbstractDriver
 
         // add sql log
         if ( $this->debug ) {
-            $this->dbLogger()->debug('Prepared -- ' . $sql.'; ');
+            $this->dbLogger()->debug( $sql.'; ');
         }
 
         $this->cursor = $this->pdo->prepare($sql, $this->driverOptions);
@@ -692,9 +692,9 @@ abstract class AbstractDriver
         $this->lastQuery = $this->cursor->queryString;
 
         // add sql log
-        if ( $this->debug ) {
-            $this->dbLogger()->debug('Successful Executed.');
-        }
+        // if ( $this->debug ) {
+        //     $this->dbLogger()->debug('Successful Executed.');
+        // }
 
         try {
             $this->cursor->execute();
