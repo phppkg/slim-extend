@@ -29,7 +29,7 @@ abstract class Model extends Collection
     /**
      * @var array
      */
-    private $_oldData = [];
+    private $_backup = [];
 
     /**
      * the table primary key name
@@ -631,8 +631,8 @@ abstract class Model extends Collection
             }
 
             // backup old value.
-            if ( !$this->isNew() ) {
-                $this->_oldData[$column] = $this->get($column);
+            if ( !$this->isNew() && ($oldValue = $this->get($column)) ) {
+                $this->_backup[$column] = $this->get($column);
             }
         }
 
@@ -679,7 +679,7 @@ abstract class Model extends Collection
      */
     public function getOldData()
     {
-        return $this->_oldData;
+        return $this->_backup;
     }
 
     /**
@@ -688,7 +688,7 @@ abstract class Model extends Collection
      */
     public function getOld($column)
     {
-        return isset($this->_oldData[$column]) ? $this->_oldData[$column] : null;
+        return isset($this->_backup[$column]) ? $this->_backup[$column] : null;
     }
 
     /**

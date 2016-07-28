@@ -100,12 +100,25 @@ $model = TestModel::findOne(['name' => 'test']);
 // more, $list = TestModel[]; 
 $list = TestModel::findAll([
             'name' => 'test',
-        ], 'id,status,type', 'id');
+        ], 'id,status,type', [ 'indexKey' => 'id' ]);
 
 // use query
 $query = TestModel::query()->where("contentId = $contentId")->order('insertTime DESC');
 $result = TestModel::setQuery($query)->loadAll();
 
+// 
+$query = TestModel::query($where)
+            ->select('mt.id,mt.name,mt.type, count(t1.id) as total')
+            ->leftJoin('@@contents as t1 ON mt.id = t1.categoryId')
+            ->group('t1.categoryId');
+$data = TestModel::setQuery($query)->loadAssocList();
+
+// euqals to 
+$data = TestModel::findAll($where, 'mt.id,mt.name,mt.type, count(t1.id) as total', [
+    'class' => 'assoc',
+    'leftJoin' => '@@contents as t1 ON mt.id = t1.categoryId',
+    'group' => 't1.categoryId',
+]);
 
 // ---------- insert record --------
 
