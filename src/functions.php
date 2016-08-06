@@ -14,6 +14,15 @@ function config($key,$default=null)
     return \Slim::config($key,$default);
 }
 
+function slimExt_tl($key, $args = [], $default = 'No translate.')
+{
+    return \Slim::get('language')->tl($key, $args, $default);
+}
+function slimExt_tran($key, $args = [], $default = 'No translate.')
+{
+    return \Slim::get('language')->tl($key, $args, $default);
+}
+
 function is_loc_env()
 {
     return defined('RUNTIME_ENV') && RUNTIME_ENV === 'loc';
