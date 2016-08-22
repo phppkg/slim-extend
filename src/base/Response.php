@@ -24,12 +24,11 @@ class Response extends SlimResponse
      * @param mixed $data
      * @param int $code
      * @param string $msg
-     * @param string $describe
      * @return SlimResponse|static
      */
-    public function withJson($data, $code = 0, $msg = '', $describe = '')
+    public function withJson($data, $code = 0, $msg = '')
     {
-        $data = format_messages($data, $code, $msg, $describe);
+        $data = format_messages($data, $code, $msg);
 
         return parent::withJson($data, 200, 0);
     }

@@ -62,44 +62,24 @@ function alert_messages($msg='')
  * @param array|int $data 输出的数据
  * @param int $code 状态码
  * @param string $msg
- * @param string $describe
  * @return array
  * @throws \RuntimeException
  */
-function format_messages($data, $code = 0, $msg = '', $describe = '')
+function format_messages($data, $code = 0, $msg = '')
 {
-    $jsonData = [
-        'code'     => 0,
-        'msg'      => '请求响应成功！',
-        'describe' => '',
-    ];
-
-    // format_messages(int $code, string $msg , string $describe)
+    // if $data is integer format_messages(int $code, string $msg )
     if ( is_numeric($data) ) {
-        $info = [
+        $jsonData = [
             'code'     => (int)$data,
             'msg'      => $code,
-            'describe' => $msg,
+            'data'     => [],
         ];
-        $data = [];
     } else {
-        $info = [
+        $jsonData = [
             'code'     => (int)$code,
-            'msg'      => $msg,
-            'describe' => $describe,
+            'msg'      => $msg ?: 'successful!',
+            'data'     => (array)$data,
         ];
-    }
-
-    $jsonData = array_merge($jsonData, $info);
-
-    // data is not empty
-    if ($data) {
-        $jsonData['data'] = $data;
-    }
-
-    // no describe
-    if ($jsonData['describe']) {
-        unset($jsonData['describe']);
     }
 
     return $jsonData;
