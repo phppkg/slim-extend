@@ -4,8 +4,13 @@
  */
 namespace slimExt\helpers;
 
+use inhere\librarys\exceptions\UnknownCalledException;
 use Slim;
 
+/**
+ * Class TplHelper
+ * @package slimExt\helpers
+ */
 class TplHelper
 {
     /**
@@ -14,7 +19,7 @@ class TplHelper
      * in view:
      * {{ _globals.helper.csrfField() | raw }}
      *
-     * @param Request $request
+     * @param bool $addId
      * @return string
      */
     public function csrfField($addId=true)
@@ -40,7 +45,6 @@ EOF;
     }
 
     /**
-     * @param Request $request
      * @return array
      */
     public function csrfData()
@@ -48,11 +52,12 @@ EOF;
         return Slim::get('csrf')->generateToken();
     }
 
-
     public function __call($method, array $args=[])
     {
         if ( function_exists($method) ) {
             return call_user_func_array($method, $args);
         }
+
+        throw new UnknownCalledException("Call don't exists method [$method]");
     }
 }

@@ -28,7 +28,7 @@ use inhere\librarys\language\LanguageManager;
  * @example
  * ```
  *  // on language config file
- * userNotFound: user [%s]  don't exists!
+ * userNotFound: user [%s] don't exists!
  *
  *  // on code
  * $msg = Slim::$app->language->tran('userNotFound', 'demo');

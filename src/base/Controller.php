@@ -326,6 +326,12 @@ abstract class Controller extends RestFulController
      *****************************/
 
     /**
+     * when route setting :
+     *
+     * ```
+     * $app->any('/users/{action}', controllers\User::class);
+     * $app->any('/users/{action:index|add|edit}', controllers\User::class);
+     * ```
      * @param Request $request
      * @param Response $response
      * @param array $args
@@ -358,7 +364,7 @@ abstract class Controller extends RestFulController
         }
 
         if ( method_exists($this, $action) ) {
-            $response = $this->$action($request, $response, $args);
+            $response = $this->$action($args);
 
             // Might want to customize to perform the action name
             $this->afterInvoke($args);
@@ -370,6 +376,10 @@ abstract class Controller extends RestFulController
     }
 
     /**
+     * when route setting :
+     * ```
+     * $app->get('/users/{id}', controllers\User::class . ':view');
+     * ```
      * @param $method
      * @param $args
      * @return mixed
@@ -377,6 +387,7 @@ abstract class Controller extends RestFulController
     public function __call($method, $args)
     {
         $args[2]['action'] = $method;
+
         return $this->__invoke($args[0], $args[1], $args[2]);
     }
 }

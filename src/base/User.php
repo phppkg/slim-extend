@@ -8,8 +8,6 @@
 
 namespace slimExt\base;
 
-
-
 /**
  * Class User
  * @package slimExt\base
@@ -21,7 +19,7 @@ class User extends Collection
     /**
      * @var string
      */
-    protected static $saveKey = '_mder_auth';
+    protected static $saveKey = '_slime_auth';
 
     /**
      * Exclude fields that don't need to be saved.

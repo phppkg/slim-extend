@@ -4,6 +4,19 @@
 
  slim 3 extend to MVC structure.
 
+Some Feature :
+
+- Global config, Environment support
+- Language support
+- Command support
+- Twig template engine
+- Flash Messages
+- Monolog
+- Pimple Dependency Injection Container
+- Controller layer for MVC
+- Model layer, database query builder.
+- Tracy Errors Handler(by whoops)
+
 ## Install
 
 - Use composer
@@ -22,7 +35,7 @@ _repositories_ add
 "repositories": [
         {
             "type": "git",
-            "url": "https://git.oschina.net/inhere/slim-extend"
+            "url": "https://github.com/inhere/slim-extend"
         }
     ]
 ```
@@ -77,3 +90,5 @@ class Home extends Controller
     }
 }
 ```
+
+more see [Document](document.md)
