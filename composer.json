@@ -20,6 +20,7 @@
     "symfony/yaml": "^3.0",
     "windwalker/query": "^2.1",
     "symfony/console": "^3.0",
+    "inhere/php-librarys": "~1.0",
     "inhere/php-validate": "~1.0"
   },
   "require-dev": {
@@ -43,19 +44,7 @@
   "repositories": [
     {
       "type": "git",
-      "url": "https://git.oschina.net/inhere/simple-print-tool"
-    },
-    {
-      "type": "git",
       "url": "https://git.oschina.net/inhere/slim-whoops"
-    },
-    {
-      "type": "git",
-      "url": "https://git.oschina.net/inhere/php-validate"
-    },
-    {
-      "type": "git",
-      "url": "https://git.oschina.net/inhere/php-tools"
     }
   ]
 }
