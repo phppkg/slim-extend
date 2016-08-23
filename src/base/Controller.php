@@ -13,6 +13,8 @@ use slimExt\exceptions\NotFoundException;
  */
 abstract class Controller extends RestFulController
 {
+    protected $layout = '';
+
     /**
      * @var string
      */
@@ -312,7 +314,7 @@ abstract class Controller extends RestFulController
             'verbs' => [
                 'handler' => VerbFilter::class,
                 'actions' => [
-                    'logout' => ['post'],
+                    //'logout' => ['post'],
                 ],
             ],
         ];

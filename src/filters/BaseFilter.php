@@ -3,16 +3,16 @@
  * Created by PhpStorm.
  * User: inhere
  * Date: 16/8/23
- * Time: 上午10:38
+ * Time: 下午8:04
  */
 
 namespace slimExt\filters;
 
 /**
- * Class VerbFilter
+ * Class BaseFilter
  * @package slimExt\filters
  */
-class VerbFilter extends BaseFilter
+class BaseFilter
 {
 
 }

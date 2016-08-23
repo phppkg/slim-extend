@@ -64,7 +64,7 @@ use slimExt\base\Controller;
  * Class Home
  * @package app
  */
-class Home extends Base
+class Home extends Controller
 {
     public function indexAction($args)
     {
@@ -75,4 +75,5 @@ class Home extends Base
         //  'param1' => 'xxx'
         //]);
     }
+}
 ```

@@ -12,7 +12,7 @@ namespace slimExt\filters;
  * Class AccessFilter
  * @package slimExt\filters
  */
-class AccessFilter
+class AccessFilter extends BaseFilter
 {
 
 }
