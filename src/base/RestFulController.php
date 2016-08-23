@@ -28,6 +28,16 @@ use Slim;
 abstract class RestFulController
 {
     /**
+     * @var Request
+     */
+    protected $request;
+
+    /**
+     * @var Response
+     */
+    protected $response;
+
+    /**
      * __construct
      */
     public function __construct()
@@ -43,12 +53,10 @@ abstract class RestFulController
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
      * @param array $args
      * @return void
      */
-    protected function beforeInvoke(Request $request, Response $response, array $args)
+    protected function beforeInvoke(array $args)
     {}
 
     /**
@@ -60,17 +68,21 @@ abstract class RestFulController
      */
     public function __invoke(Request $request, Response $response, array $args)
     {
+        // setting...
+        $this->request = $request;
+        $this->response = $response;
+
         // Maybe want to do something
-        $this->beforeInvoke($request, $response, $args);
+        $this->beforeInvoke($args);
 
         // default restFul action name
         $action = strtolower($request->getMethod());
 
         if ( method_exists($this, $action) ) {
-            $response = $this->$action($request, $response, $args);
+            $response = $this->$action($args);
 
             // Might want to customize to perform the action name
-            $this->afterInvoke($request, $response, $args);
+            $this->afterInvoke( $args);
 
             return $response;
         }
@@ -79,12 +91,10 @@ abstract class RestFulController
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
      * @param array $args
      * @return void
      */
-    protected function afterInvoke(Request $request, Response $response, array $args)
+    protected function afterInvoke(array $args)
     {}
 
 }

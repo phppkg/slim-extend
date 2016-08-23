@@ -3,7 +3,8 @@
 namespace slimExt\base;
 
 use Slim;
-use slimExt\helpers\TplHelper;
+use slimExt\filters\AccessFilter;
+use slimExt\filters\VerbFilter;
 use slimExt\exceptions\NotFoundException;
 
 /**
@@ -85,12 +86,11 @@ abstract class Controller extends RestFulController
      * php tpl render
      * @param $view
      * @param array $args
-     * @param Response|null $response
      * @return Response
      */
-    protected function render($view, Response $response, array $args = [])
+    protected function render($view, array $args = [])
     {
-        $response = $response ?: Slim::get('response');
+        $response = $this->response ?: Slim::get('response');
         $settings = Slim::get('settings')['renderer'];
         $view  = $this->getViewPath($view, $settings);
 
@@ -110,13 +110,13 @@ abstract class Controller extends RestFulController
     /**
      * twig tpl render
      * @param $view
-     * @param Response|null $response
      * @param array $args
      * @param int $return
      * @return Response
      */
-    protected function renderTwig($view, Response $response, array $args = [], $return= self::RETURN_RESPONSE)
+    protected function renderTwig($view, array $args = [], $return= self::RETURN_RESPONSE)
     {
+        $response = $this->response;
         $settings = Slim::get('settings')['twigRenderer'];
         $view  = $this->getViewPath($view, $settings);
 
@@ -165,16 +165,15 @@ abstract class Controller extends RestFulController
     /**
      * twig tpl render
      * @param $view
-     * @param Response|null $response
      * @param array $args
      * @param int $return
      * @return Response
      */
-    protected function renderPartialTwig($view, Response $response, array $args = [], $return= self::RETURN_RESPONSE)
+    protected function renderPartialTwig($view, array $args = [], $return= self::RETURN_RESPONSE)
     {
         $args['_renderPartial'] = true;
 
-        return $this->renderTwig($view, $response, $args, $return);
+        return $this->renderTwig($view, $args, $return);
     }
 
     /**
@@ -296,9 +295,33 @@ abstract class Controller extends RestFulController
     public function filters()
     {
         return [
-            'index,add' => 'GET,POST'
+            'access' => [
+                'handler' => AccessFilter::class,
+                'rules' => [
+//                    [
+//                        'actions' => ['login', 'error'],
+//                        'allow' => true,
+//                    ],
+//                    [
+//                        'actions' => ['logout', 'index'],
+//                        'allow' => true,
+//                        'roles' => ['@'],
+//                    ],
+                ],
+            ],
+            'verbs' => [
+                'handler' => VerbFilter::class,
+                'actions' => [
+                    'logout' => ['post'],
+                ],
+            ],
         ];
     }
+
+
+    /*****************************
+     * method call
+     *****************************/
 
     /**
      * @param Request $request
@@ -309,8 +332,12 @@ abstract class Controller extends RestFulController
      */
     public function __invoke(Request $request, Response $response, array $args)
     {
+        // setting...
+        $this->request = $request;
+        $this->response = $response;
+
         // Maybe want to do something
-        $this->beforeInvoke($request, $response, $args);
+        $this->beforeInvoke($args);
 
         $action = !empty($args['action']) ? $args['action'] : $this->defaultAction;
 
@@ -332,11 +359,22 @@ abstract class Controller extends RestFulController
             $response = $this->$action($request, $response, $args);
 
             // Might want to customize to perform the action name
-            $this->afterInvoke($request, $response, $args);
+            $this->afterInvoke($args);
 
             return $response;
         }
 
         throw new NotFoundException('Error Processing Request, Action [' . $action . '] don\'t exists!');
+    }
+
+    /**
+     * @param $method
+     * @param $args
+     * @return mixed
+     */
+    public function __call($method, $args)
+    {
+        $args[2]['action'] = $method;
+        return $this->__invoke($args[0], $args[1], $args[2]);
     }
 }
