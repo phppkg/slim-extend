@@ -8,31 +8,86 @@
 
 namespace slimExt\base;
 
+use Slim;
+use slimExt\DataCollector;
+
 /**
  * Todo ...
  * Class Module
  * @package slimExt\base
  */
-class Module
+abstract class Module
 {
-    public $name = 'default';
+    /**
+     * @var string
+     */
+    public $name = '';
+
+    /**
+     * @var string
+     */
+    protected $path = '';
 
     public $layout = 'default';
 
-    // public $configDir = '@project/config/';
+    /**
+     * @var DataCollector
+     */
+    public $config;
 
     /**
      * __construct
      */
     public function __construct()
     {
+        if ( !$this->name || !preg_match('/^[a-zA-Z][\w-]+$/i', $this->name)) {
+            throw new \RuntimeException('required define module name (property $name)');
+        }
+
+        // get path
+        $reflect = new \ReflectionClass($this);
+        $this->path = dirname($reflect->getFileName());
+
         $this->init();
     }
 
     protected function init()
     {
+        //add path alias
+        Slim::alias('@' . $this->name, $this->path);
+
+        $globalFile = Slim::alias('@config') . '/modules-' . $this->name . '.yml';
+        $configFile = $this->path . '/config.yml';
+
+        // runtime env config
+        $this->config = DataCollector::make($configFile, DataCollector::FORMAT_YML)
+                        ->loadYaml(is_file($globalFile) ? $globalFile : '');
         /*
+        // add twig views path
+        Slim::get('twigRenderer')->getLoader()->addPath($this->path . '/resources/views');
+
+        // or php views path
+        Slim::get('renderer')->setTemplatePath($this->path . '/resources/views');
+
         Some init logic
         */
     }
+
+    /**
+     * register module to application
+     * @param App $app
+     */
+    public static function register($app)
+    {
+        $module = new static;
+
+        $app->loadModule($module->name, $module)
+            ->registerRoutes($app);
+    }
+
+    /**
+     * @param App $app
+     * @return mixed
+     */
+    abstract public function registerRoutes($app);
 }

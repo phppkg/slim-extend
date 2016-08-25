@@ -15,6 +15,7 @@ use Slim\App as SlimApp;
  * @package slimExt\base
  *
  * @property-read Request                    request
+ * @property-read Response                   response
  *
  * @property \Slim\Container                 container
  * @property \Monolog\Logger                 logger
@@ -28,6 +29,45 @@ use Slim\App as SlimApp;
  */
 class App extends SlimApp
 {
+    /**
+     * @var array
+     */
+    public $loadedModules = [];
+
+    /**
+     * @param $name
+     * @param Module $module
+     * @return Module
+     */
+    public function loadModule($name, Module $module)
+    {
+        if ( $this->hasModule($name) ) {
+            throw new \RuntimeException('Module ['.$name.'] have been loaded. don\'t allow override.');
+        }
+
+        $this->loadedModules[$name] = $this->loadedModules['__last'] = $module;
+
+        return $module;
+    }
+
+    /**
+     * @param $name
+     * @return bool
+     */
+    public function hasModule($name)
+    {
+        return isset($this->loadedModules[$name]);
+    }
+
+    /**
+     * @param string $name
+     * @return null
+     */
+    public function module($name='__last')
+    {
+        return isset($this->loadedModules[$name]) ? $this->loadedModules[$name] : null;
+    }
+
     /**
      * @param $id
      * @return \Interop\Container\ContainerInterface|mixed

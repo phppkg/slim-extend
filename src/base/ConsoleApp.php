@@ -20,17 +20,26 @@ use slimExt\builder\commands;
  */
 class ConsoleApp extends Application
 {
+    /**
+     * @var ContainerInterface
+     */
     protected $container;
+
+    protected $bootstraps = [
+        '\slimExt\builder\commands\CreateAppCommand',
+        '\slimExt\builder\commands\AssetPublishCommand',
+    ];
 
     /**
      * Constructor.
      *
-     * @param string $name    The name of the application
+     * @param array $settings
+     * @param string $name The name of the application
      * @param string $version The version of the application
      */
-    public function __construct($name = 'UNKNOWN', $version = 'UNKNOWN')
+    public function __construct( array $settings = [],$name = 'Inhere Console', $version = '1.0.1')
     {
-        $this->container = new Container;
+        $this->container = new Container($settings);
 
         parent::__construct($name, $version);
 
@@ -39,7 +48,9 @@ class ConsoleApp extends Application
 
     public function prepareBuildInCommands()
     {
-        $this->add(new commands\BuildCommand);
+        foreach ($this->bootstraps as $class) {
+            $this->add(new $class);
+        }
     }
 
     /**

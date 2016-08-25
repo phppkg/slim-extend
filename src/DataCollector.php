@@ -367,11 +367,17 @@ class DataCollector implements \JsonSerializable, \ArrayAccess, \IteratorAggrega
         return array_keys($this->data);
     }
 
+    /**
+     * @return array
+     */
     public function jsonSerialize()
     {
         return $this->data;
     }
 
+    /**
+     * @return \RecursiveArrayIterator
+     */
     public function getIterator()
     {
         return new \RecursiveArrayIterator($this->data);
@@ -387,6 +393,10 @@ class DataCollector implements \JsonSerializable, \ArrayAccess, \IteratorAggrega
         return count($this->data);
     }
 
+    /**
+     * @param mixed $offset
+     * @return bool
+     */
     public function offsetExists($offset)
     {
         return $this->exists($offset);

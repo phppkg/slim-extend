@@ -4,6 +4,7 @@
  */
 namespace slimExt\helpers;
 
+use inhere\librarys\asset\AssetLoad;
 use inhere\librarys\exceptions\UnknownCalledException;
 use Slim;
 
@@ -11,8 +12,18 @@ use Slim;
  * Class TplHelper
  * @package slimExt\helpers
  */
-class TplHelper
+class TwigHelper
 {
+//    public function loadCss($css, $opt = [])
+//    {
+//        AssetLoad::css($css, $opt);
+//    }
+//
+//    public function loadJs($js, $opt = [])
+//    {
+//        AssetLoad::css($js, $opt);
+//    }
+
     /**
      * @example
      *

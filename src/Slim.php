@@ -31,11 +31,13 @@ abstract class Slim
     protected static $aliases = [
         '@project' => PROJECT_PATH,
         '@public'  => PROJECT_PATH . DIR_SEP . 'public',
+        '@config'  => PROJECT_PATH . DIR_SEP . 'config',
 
         '@assets'  => PROJECT_PATH . DIR_SEP . 'public' . DIR_SEP . 'assets',
         '@src'     => PROJECT_PATH . DIR_SEP . 'src',
         '@resources' => PROJECT_PATH . DIR_SEP . 'resources',
         '@temp'    => PROJECT_PATH . DIR_SEP . 'temp',
+        '@vendor'    => PROJECT_PATH . DIR_SEP . 'vendor',
     ];
 
     /**
@@ -78,6 +80,11 @@ abstract class Slim
         // custom set path's alias. e.g: Slim::alias([ 'alias' => 'path' ]);
         if ( is_array($path) ) {
             foreach ($path as $alias => $realPath) {
+                // 1th char must is '@'
+                if ( $alias[0] !== '@' ) {
+                    continue;
+                }
+
                 static::$aliases[$alias] = $realPath;
             }
         }
@@ -91,6 +98,19 @@ abstract class Slim
     public static function getAliases()
     {
         return static::$aliases;
+    }
+
+    /**
+     * @param $id
+     * @return mixed
+     */
+    public static function has($id)
+    {
+        if ( !static::$app ) {
+            return null;
+        }
+
+        return static::$app->getContainer()->has($id);
     }
 
     /**
@@ -124,6 +144,7 @@ abstract class Slim
      */
     public static function config($key=null, $default=null)
     {
+        /** @var \slimExt\DataCollector $config */
         $config = static::$app->getContainer()['config'];
 
         if ($key &&  is_string($key) ) {
