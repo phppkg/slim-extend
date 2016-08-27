@@ -31,7 +31,7 @@ abstract class Controller extends RestFulController
      * access instance of the $tplHelperClass
      * @var string
      */
-    protected $tplHelperClass = '\slimExt\helpers\TplHelper';
+    protected $tplHelperClass = '\slimExt\helpers\TwigHelper';
 
     /**
      * current controller's default templates path.

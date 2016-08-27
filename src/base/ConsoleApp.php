@@ -76,4 +76,17 @@ class ConsoleApp extends Application
 
         return $this->add($command);
     }
+
+    /**
+     * @param array $commands
+     * @return $this
+     */
+    public function registerCommands(array $commands = [])
+    {
+        foreach ($commands as $command) {
+            $this->create($command);
+        }
+
+        return $this;
+    }
 }

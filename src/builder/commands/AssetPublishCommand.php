@@ -9,11 +9,15 @@
 namespace slimExt\builder\commands;
 
 use inhere\librarys\asset\AssetPublisher;
+use inhere\librarys\exceptions\InvalidArgumentException;
+use inhere\librarys\files\FileFinder;
 use inhere\librarys\traits\TraitUseOption;
 use slimExt\base\Command;
 use inhere\librarys\exceptions\InvalidOptionException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class AssetPublishCommand
@@ -22,36 +26,6 @@ use Symfony\Component\Console\Input\InputOption;
 class AssetPublishCommand extends Command
 {
     use TraitUseOption;
-
-    public $options = [
-        'assetsPath'  => '',
-        'publishPath' => '',
-
-        'includeFile' => ['README.md'],
-        'includeExt' => ['js','css'],
-        'includeDir' => ['src'],
-
-        'excludeFile' => '.gitignore',
-        'excludeExt' => '.git, .gitignore',
-        'excludeDir' => '.git, .gitignore',
-    ];
-
-    /**
-     * will use it, when asset is relation path
-     * @var string
-     */
-    public $basePath = '';
-
-    /**
-     * @var array
-     */
-    public $assets = [
-        // 'path' allow dir path, file path
-        // e.g.
-        // '/zz/path',
-        // '/xx/path/app.js',
-        // '/xx/path/app.css',
-    ];
 
     protected function optionCheck()
     {
@@ -68,29 +42,91 @@ class AssetPublishCommand extends Command
         $this
             ->setName('asset:publish')
             // 命令描述
-            ->setDescription('publish static asset to directory.')
+            ->setDescription('publish static asset to web access directory. [built in]
+command example:
+  <info> ./bin/console asset:publish -s @vendor/bower -p @public/assets/publish "bootstrap" "jquery" "yii2-pjax"</info>
+            ')
             // 配置第一个参数位置，参数名 name e.g. $ console asset:publish [name]
             // 是可选的参数
             // 参数说明
             ->addArgument(
-                'name',
-                InputArgument::OPTIONAL, // 可选的参数 InputArgument::REQUIRED 必须的
-                'Who do you want to greet?'
+                'asset',
+                InputArgument::IS_ARRAY, // OPTIONAL 可选的参数 REQUIRED 必须的
+                'You want to publish\'s asset path. can use relative path. allow multi asset path.'
             )
-            // 配置选项 e.g. $ console asset:publish [name] [--yell|-y value]
+            // 配置选项
+            // e.g. $ console asset:publish [name] [--yell|-y value]
             ->addOption(
-                '--yell',
-                '-y',// 选项缩写
-                InputOption::VALUE_NONE,
-                'If set, the task will yell in uppercase letters'
+                'source-path',// 选项名 '--sourcePath value'
+                's',          // 选项名缩写 '-s value'
+                InputOption::VALUE_REQUIRED,
+                'The asset source base path. is required.'
+            )
+            ->addOption(
+                'publish-path',
+                'p',
+                InputOption::VALUE_REQUIRED,
+                'The asset publish base path. is required.'
+            )
+            ->addOption(
+                'override',
+                'or',
+                InputOption::VALUE_OPTIONAL,
+                'If set, the publish will override existing asset',
+                false
+            )
+            ->addOption(
+                'show-published',
+                'sp',
+                InputOption::VALUE_OPTIONAL,
+                'If set, will print published asset list',
+                false
             )
         ;
     }
 
-    protected function execute($input, $output)
+    protected function interact(InputInterface $input, OutputInterface $output)
     {
-        $publisher = new AssetPublisher();
-        $publisher->publish();
 
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+        $publisher = new AssetPublisher([
+            'sourcePath'  => \Slim::alias($input->getOption('source-path')),
+            'publishPath' => \Slim::alias($input->getOption('publish-path')),
+        ]);
+//de($publisher, \Slim::config());
+        // $input->isInteractive();
+
+        /*
+         e.g.
+         $asset = [
+            'bootstrap3-typeahead',
+            'jquery',
+            'yii2-pjax'
+        ]
+         */
+        $asset = $input->getArgument('asset');
+
+        if ( count($asset) === 0) {
+            throw new InvalidArgumentException('Please provide asset dir to publish.');
+        }
+
+        $publisher->add($asset)->publish();
+//de($input, $output);
+
+        if ( $this->getOption('show-published') ) {
+            $published = $publisher->getPublishedAssets();
+
+            $output->writeln('<info>-- Created asset publish:</info>');
+            $output->writeln($published['created'] ? : 'No file created.');
+
+            $output->writeln('<info>-- Skipped asset publish:</info>');
+            $output->writeln($published['skipped'] ? : 'No file skipped.');
+        }
+
+
+        $output->writeln('<info>Publish asset successful!</info>');
     }
 }

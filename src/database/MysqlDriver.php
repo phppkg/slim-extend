@@ -9,7 +9,6 @@
 namespace slimExt\database;
 
 use PDO;
-use Windwalker\Database\Query\QueryHelper;
 use Windwalker\Query\Query;
 use Windwalker\Query\Mysql\MysqlQuery;
 
