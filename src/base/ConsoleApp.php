@@ -43,13 +43,13 @@ class ConsoleApp extends Application
 
         parent::__construct($name, $version);
 
-        $this->prepareBuildInCommands();
+        $this->loadBuiltInCommands();
     }
 
-    public function prepareBuildInCommands()
+    public function loadBuiltInCommands()
     {
-        foreach ($this->bootstraps as $class) {
-            $this->add(new $class);
+        foreach ($this->bootstraps as $command) {
+            $this->add(new $command);
         }
     }
 

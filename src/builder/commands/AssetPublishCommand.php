@@ -10,10 +10,7 @@ namespace slimExt\builder\commands;
 
 use inhere\librarys\asset\AssetPublisher;
 use inhere\librarys\exceptions\InvalidArgumentException;
-use inhere\librarys\files\FileFinder;
-use inhere\librarys\traits\TraitUseOption;
 use slimExt\base\Command;
-use inhere\librarys\exceptions\InvalidOptionException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
@@ -25,15 +22,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class AssetPublishCommand extends Command
 {
-    use TraitUseOption;
-
-    protected function optionCheck()
-    {
-        if ( !$this->getOption('publishPath') ) {
-            throw new InvalidOptionException('must be setting option [publishPath].');
-        }
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -53,13 +41,17 @@ command example:
                 'asset',
                 InputArgument::IS_ARRAY, // OPTIONAL 可选的参数 REQUIRED 必须的
                 'You want to publish\'s asset path. can use relative path. allow multi asset path.'
+
             )
             // 配置选项
             // e.g. $ console asset:publish [name] [--yell|-y value]
             ->addOption(
-                'source-path',// 选项名 '--sourcePath value'
-                's',          // 选项名缩写 '-s value'
-                InputOption::VALUE_REQUIRED,
+                // 选项名 '--sourcePath value'
+                'source-path',
+                // 选项名缩写 '-s value'
+                // 注意 选项名缩写首字母不能出现相同的,不然会解析混乱. 这里使用了 s, 后面的选项缩写就不能再有以 s 开头的缩写名了
+                's',
+                InputOption::VALUE_REQUIRED, // InputOption::VALUE_REQUIRED,
                 'The asset source base path. is required.'
             )
             ->addOption(
@@ -77,7 +69,7 @@ command example:
             )
             ->addOption(
                 'show-published',
-                'sp',
+                null,
                 InputOption::VALUE_OPTIONAL,
                 'If set, will print published asset list',
                 false
@@ -86,18 +78,19 @@ command example:
     }
 
     protected function interact(InputInterface $input, OutputInterface $output)
-    {
-
-    }
+    {}
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $sourcePath = \Slim::alias($input->getOption('source-path'));
+        $publishPath = \Slim::alias($input->getOption('publish-path'));
+
         $publisher = new AssetPublisher([
-            'sourcePath'  => \Slim::alias($input->getOption('source-path')),
-            'publishPath' => \Slim::alias($input->getOption('publish-path')),
+            'sourcePath'  => $sourcePath,
+            'publishPath' => $publishPath,
         ]);
-//de($publisher, \Slim::config());
-        // $input->isInteractive();
+
+        $io = $this->getIO($input, $output);
 
         /*
          e.g.
@@ -109,24 +102,36 @@ command example:
          */
         $asset = $input->getArgument('asset');
 
-        if ( count($asset) === 0) {
-            throw new InvalidArgumentException('Please provide asset dir to publish.');
+        $io->title('Asset Publish');
+        $io->writeln([
+            'Will publish: [<info>' . ( $asset ? implode(',',$asset) : 'ALL FILES' ) . '</info>]',
+            "source in the path: <info>$sourcePath</info>",
+            "to publish path: <info>$publishPath</info>",
+        ]);
+
+        $answer = $io->confirm('Are you sure publish?', true);
+
+        if (!$answer) {
+            $this->info($output, 'You want\'t to do publish at now. GoodBye!!');
+
+            return false;
         }
 
         $publisher->add($asset)->publish();
-//de($input, $output);
 
-        if ( $this->getOption('show-published') ) {
+        if ( !$input->getOption('show-published') ) {
             $published = $publisher->getPublishedAssets();
 
-            $output->writeln('<info>-- Created asset publish:</info>');
+            // $output->writeln('<info>-- Created asset publish:</info>');
+            $io->section('-- Created asset publish:');
             $output->writeln($published['created'] ? : 'No file created.');
 
-            $output->writeln('<info>-- Skipped asset publish:</info>');
+            $io->section('-- Skipped asset publish:');
             $output->writeln($published['skipped'] ? : 'No file skipped.');
         }
 
-
         $output->writeln('<info>Publish asset successful!</info>');
+
+        return true;
     }
 }
