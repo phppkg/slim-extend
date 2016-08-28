@@ -62,7 +62,7 @@ command example:
             )
             ->addOption(
                 'override',
-                'or',
+                'o',
                 InputOption::VALUE_OPTIONAL,
                 'If set, the publish will override existing asset',
                 false
@@ -72,7 +72,7 @@ command example:
                 null,
                 InputOption::VALUE_OPTIONAL,
                 'If set, will print published asset list',
-                false
+                true
             )
         ;
     }
@@ -101,33 +101,37 @@ command example:
         ]
          */
         $asset = $input->getArgument('asset');
+        $override = $input->getOption('override');
 
-        $io->title('Asset Publish');
+        $io->title('    Asset Publish Information    ');
         $io->writeln([
             'Will publish: [<info>' . ( $asset ? implode(',',$asset) : 'ALL FILES' ) . '</info>]',
-            "source in the path: <info>$sourcePath</info>",
-            "to publish path: <info>$publishPath</info>",
+            "source in path: <info>$sourcePath</info>",
+            "publish to path: <info>$publishPath</info>",
+            'override existing asset: <info>' . ($override ? 'Yes' : 'No') . '</info>',
         ]);
 
         $answer = $io->confirm('Are you sure publish?', true);
 
         if (!$answer) {
-            $this->info($output, 'You want\'t to do publish at now. GoodBye!!');
+            $this->info($output, 'You want\'t to do publish, at now. GoodBye!!');
 
             return false;
         }
 
         $publisher->add($asset)->publish();
 
-        if ( !$input->getOption('show-published') ) {
+        if ( $input->getOption('show-published') ) {
             $published = $publisher->getPublishedAssets();
 
             // $output->writeln('<info>-- Created asset publish:</info>');
             $io->section('-- Created asset publish:');
             $output->writeln($published['created'] ? : 'No file created.');
+            $output->writeln('');
 
             $io->section('-- Skipped asset publish:');
             $output->writeln($published['skipped'] ? : 'No file skipped.');
+            $output->writeln('');
         }
 
         $output->writeln('<info>Publish asset successful!</info>');
