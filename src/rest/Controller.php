@@ -2,6 +2,7 @@
 
 namespace slimExt\rest;
 
+use inhere\librarys\exceptions\HttpRequestException;
 use Slim;
 use inhere\librarys\exceptions\NotFoundException;
 use inhere\librarys\exceptions\UnknownMethodException;
@@ -32,21 +33,9 @@ use slimExt\base\Response;
  */
 abstract class Controller
 {
-    // supported method
-    const METHOD_CONNECT = 'CONNECT';
-    const METHOD_DELETE = 'DELETE';
-    const METHOD_GET = 'GET';
-    const METHOD_HEAD = 'HEAD';
-    const METHOD_OPTIONS = 'OPTIONS';
-    const METHOD_PATCH = 'PATCH';
-    const METHOD_POST = 'POST';
-    const METHOD_PUT = 'PUT';
-    const METHOD_TRACE = 'TRACE';
+    const DEFAULT_ERR_CODE = 2;
 
-    // special key
-    const METHOD_GETS = 'GETS';
-
-    const RESOURCE_KEY = 'resource';
+    const RESOURCE_ARG_KEY = 'argument';
     const MARK_MORE = '...';
 
     /**
@@ -64,7 +53,7 @@ abstract class Controller
      * so, the access's real controller method name is 'method name' + 'suffix'
      * @var string
      */
-    public $actionSuffix = 'Action';
+    private $actionSuffix = 'Action';
 
     protected $except = [];
 
@@ -85,6 +74,15 @@ abstract class Controller
         // Some init logic
     }
 
+    public function optionsAction()
+    {
+        return array_values($this->methodMapping());
+    }
+
+    /**********************************************************
+     * controller method name handle
+     **********************************************************/
+
     /**
      * method mapping - the is default mapping.
      * supported method:
@@ -94,11 +92,12 @@ abstract class Controller
      * protected function methodMapping()
      * {
      *     return [
-     *         'gets'     => 'index',   # GET /users
+     *         'get...'   => 'index',   # GET /users
      *         'get'      => 'view',    # GET /users/1
      *         'post'     => 'create',  # POST /users
      *         'put'      => 'update',  # PUT /users/1
      *         'delete'   => 'delete',  # DELETE /users/1
+     *         // ...
      *     ];
      *     // or
      *     // $mapping = parent::methodMapping();
@@ -124,32 +123,64 @@ abstract class Controller
              'options'  => 'option', # OPTIONS /users/1
              'options...'  => 'options', # OPTIONS /users
              // extra method mapping
-             // 'get,search' => search
+             // 'get.search' => search
+             'options.df' => 'fddd'
          ];
     }
 
     /**
      * handleMethodMapping -- return real controller method name
      * @param  Request $request
+     * @param array $args
      * @return string
+     * @throws HttpRequestException
      */
     protected function handleMethodMapping($request, array $args)
     {
         // default restFul action name, equals to REQUEST_METHOD
-        $method = $request->getMethod();
+        $method = strtolower($request->getMethod());
         $mapping = $this->methodMapping();
 
         if (!$mapping || !is_array($mapping)) {
             throw new UnknownMethodException('No class method allow the called.');
         }
 
-        $resource = !empty($args['resource']) ? $args['resource'] : '';
+        $action = $error = '';
+        $allowMore = ['get','head','options'];
+        $argument = !empty($args[self::RESOURCE_ARG_KEY]) ? trim($args[self::RESOURCE_ARG_KEY]) : '';
+        $extraKey = $method . '.' . $argument;
 
-        foreach ($mapping as $key => $action) {
-            # code...
+        // find like 'get.search' ... extra method
+        if ($argument && isset($mapping[$extraKey]) ) {
+            $actionMethod = trim($mapping[$extraKey]) . $this->actionSuffix;
+
+            return [$actionMethod, $error];
         }
 
-        return $method . $this->actionSuffix;
+        foreach ($mapping as $key => $value) {
+            // full match REQUEST_METHOD. like 'get' 'post'
+            if ($argument && $key === $method) {
+                $action = $method === 'options' ? 'option' : $value;
+
+            // like 'get' 'get...' 'get.search'
+            } elseif (0 === strpos($key, $method)) {
+                $ext = substr($key, strlen($method));
+
+                // as 'get...'
+                if ($ext === self::MARK_MORE && !$argument && in_array($method, $allowMore)) {
+                    $action = $value;
+                }
+            }
+
+            // match successful.
+            if ($action) {
+                break;
+            }
+        }
+
+        $actionMethod = $action . $this->actionSuffix;
+
+        return [$actionMethod, $error];
     }
 
     /**********************************************************
@@ -183,16 +214,27 @@ abstract class Controller
 
         // Maybe want to do something
         $this->beforeInvoke($args);
-de($args);
+
         // default restFul action name
-        $action = $this->handleMethodMapping($request);
+        list($action,$error) = $this->handleMethodMapping($request,$args);
+
+        if ($error) {
+            return $this->errorHandler($error);
+        }
 
         if ( method_exists($this, $action) ) {
-            $response = $this->$action($args);
+            try {
+                /** @var Response $response */
+                $response = $this->$action(array_shift($args));
 
-            // if the action return is array data
-            if ( is_array($response) ) {
-                $response = $this->response->withJson(['list' => $list]);
+                // if the action return is array data
+                if (is_array($response)) {
+                    $response = $this->response->withJson($response);
+                }
+            } catch (\Exception $e) {
+                $error = $e->getMessage();
+
+                return $this->errorHandler($error, $e->getCode() ? : 2);
             }
 
             // Might want to customize to perform the action name
@@ -201,7 +243,10 @@ de($args);
             return $response;
         }
 
-        throw new NotFoundException('Error Processing Request, Action [' . $action . '] don\'t exists!');
+        // throw new NotFoundException('Error Processing Request, Action [' . $action . '] don\'t exists!');
+        $error = 'Error Processing Request, Action [' . $action . '] don\'t exists!';
+
+        return $this->errorHandler($error);
     }
 
     /**
@@ -212,4 +257,16 @@ de($args);
     protected function afterInvoke(array $args, $response)
     {}
 
+    /**
+     * @param string $error
+     * @param int $code
+     * @param int $status
+     * @return mixed
+     * @internal param Response $response
+     */
+    protected function errorHandler($error, $code = 2, $status = 403)
+    {
+        //throw new HttpRequestException($error);
+        return $this->response->withJson([], $code, $error, $status);
+    }
 }

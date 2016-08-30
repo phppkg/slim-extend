@@ -349,7 +349,7 @@ abstract class Controller
         ];
     }
 
-    protected function doSecurityFilter($method)
+    protected function doSecurityFilter($method, $args)
     {
         # todo ...
     }
@@ -404,11 +404,12 @@ abstract class Controller
                 $this->doSecurityFilter($request->getMethod() , $action);
             }
 
+            /** @var Response $response */
             $response = $this->$actionMethod($args);
 
             // if the action return is array data
             if ( is_array($response) ) {
-                $response = $this->response->withJson(['list' => $list]);
+                $response = $this->response->withJson($response);
             }
 
             // Might want to customize to perform the action name
@@ -417,7 +418,7 @@ abstract class Controller
             return $response;
         }
 
-        throw new NotFoundException('Error Processing Request, Action [' . $action . '] don\'t exists!');
+        throw new NotFoundException('Error Processing Request, Action [' . $actionMethod . '] don\'t exists!');
     }
 
     /**
