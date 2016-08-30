@@ -668,10 +668,13 @@ abstract class AbstractDriver
         $this->connect();
 
         $sql = $this->replaceTablePrefix((string)$this->query);
+        $bounded =& $this->query->getBounded();
 
         // add sql log
         if ( $this->debug ) {
-            $this->dbLogger()->debug( $sql.'; ');
+            $this->dbLogger()->debug( $sql.'; ' . (
+                $bounded ? 'Bounded:' . implode(',', $bounded) : ''
+            ) );
         }
 
         $this->cursor = $this->pdo->prepare($sql, $this->driverOptions);
@@ -682,8 +685,6 @@ abstract class AbstractDriver
 
         // Bind the variables:
         if ($this->query instanceof Query\PreparableInterface) {
-            $bounded =& $this->query->getBounded();
-
             foreach ($bounded as $key => $data) {
                 $this->cursor->bindParam($key, $data->value, $data->dataType, $data->length, $data->driverOptions);
             }

@@ -165,10 +165,16 @@ $query = TestModel::query($where)
 $data = TestModel::setQuery($query)->loadAssocList();
 
 // euqals to 
-$data = TestModel::findAll($where, 'mt.id,mt.name,mt.type, count(t1.id) as total', [
+$data = TestModel::findAll($where,  [
+    'select' => 'mt.id,mt.name,mt.type, count(t1.id) as total',
     'class' => 'assoc',
     'leftJoin' => '@@contents as t1 ON mt.id = t1.categoryId',
     'group' => 't1.categoryId',
+    // 'bind' => [
+    //   ':title' => $kw
+    //]
+    // a closure
+    // function ($query) { ... };
 ]);
 
 // ---------- insert record --------

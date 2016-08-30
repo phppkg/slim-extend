@@ -10,9 +10,10 @@
 namespace slimExt\base;
 
 use Slim;
-use slimExt\database\AbstractDriver;
 use inhere\validate\ValidationTrait;
+use slimExt\database\AbstractDriver;
 use slimExt\DataConst;
+use slimExt\helpers\ModelHelper;
 use Windwalker\Query\Query;
 
 /**
@@ -56,6 +57,9 @@ abstract class Model extends Collection
     const SCENE_UPDATE = 'update';
 
     protected static $baseOptions = [
+        /*
+        data index column
+         */
         'indexKey' => null,
         /*
         data type, in :
@@ -69,13 +73,24 @@ abstract class Model extends Collection
         // 追加限制
         // 可用方法: limit($limit, $offset), group($columns), having($conditions, $glue = 'AND')
         // innerJoin($table, $condition = []), leftJoin($table, $condition = []), order($columns),
-        // outerJoin($table, $condition = []), rightJoin($table, $condition = [])
+        // outerJoin($table, $condition = []), rightJoin($table, $condition = []), bind()
+        // ... more {@see Query}
+        //
+        //
         // e.g:
         //  'limit' => [10, 120],
         //  'order' => 'createTime ASC',
         //  'group' => 'id, type',
-        //
+        'select'  => '*',
+
+        // can be a closure
+        // function ($query) { ... }
     ];
+
+
+    /***********************************************************************************
+     * some prepare work
+     ***********************************************************************************/
 
     /**
      * define model field list
@@ -145,58 +160,75 @@ abstract class Model extends Collection
      */
     public static function query($where=null)
     {
-        return static::handleWhere($where, static::getQuery(true))->from(static::queryName());
+        return ModelHelper::handleWhere($where, '', static::getQuery(true))
+                ->from(static::queryName());
     }
+
+    /***********************************************************************************
+     * find operation
+     ***********************************************************************************/
 
     /**
      * find record by primary key
      * @param mixed $priValue
-     * @param string $select
-     * @param array $options
+     * @param string|array $options
      * @return static|array
      */
-    public static function findByPk($priValue, $select='*', array $options= [])
+    public static function findByPk($priValue, $options= [])
     {
-        // only one
-        $where = [static::$priKey => $priValue];
-
         // many
         if ( is_array($priValue) ) {
-            $where = static::$priKey . ' in (' . implode(',', $priValue) . ')';
+            $where = static::$priKey . ' IN (' . implode(',', $priValue) . ')';
+
+        // only one
+        } else {
+            $where = [static::$priKey => $priValue];
         }
 
-        return static::findOne($where, $select, $options);
+        return static::findOne($where, $options);
     }
 
     /**
      * find a record by where condition
      * @param mixed $where
-     * @param string $select
-     * @param array $options
+     * @param string|array $options
      * @return static|array
      */
-    public static function findOne($where, $select='*', array $options= [])
+    public static function findOne($where, $options= [])
     {
-        $query = static::query($where)->select($select);
+        // as select
+        if ( is_string($options) ) {
+            $options = [
+                'select' => $options
+            ];
+        }
+
+        $query = static::query($where);
 
         $options = array_merge(static::$baseOptions, $options);
         $class = $options['class'] === 'model' ? static::class : $options['class'];
 
         unset($options['indexKey'], $options['class']);
-        static::applyAppendOptions($options, $query);
+        ModelHelper::applyAppendOptions($options, $query);
 
         return static::setQuery($query)->loadOne($class);
     }
 
     /**
-     * @param mixed $where {@see self::handleWhere() }
-     * @param string|array $select
-     * @param array $options
+     * @param mixed $where {@see ModelHelper::handleWhere() }
+     * @param string|array $options
      * @return array
      */
-    public static function findAll($where, $select='*', array $options = [])
+    public static function findAll($where, $options = [])
     {
-        $query = static::query($where)->select($select);
+        // as select
+        if ( is_string($options) ) {
+            $options = [
+                'select' => $options
+            ];
+        }
+
+        $query = static::query($where);
 
         $options = array_merge(static::$baseOptions, $options);
         $indexKey = $options['indexKey'];
@@ -204,7 +236,7 @@ abstract class Model extends Collection
 
         unset($options['indexKey'], $options['class']);
 
-        static::applyAppendOptions($options, $query);
+        ModelHelper::applyAppendOptions($options, $query);
 
         return static::setQuery($query)->loadAll($indexKey, $class);
     }
@@ -231,6 +263,10 @@ abstract class Model extends Collection
 
         return static::setQuery($query)->exists();
     }
+
+    /***********************************************************************************
+     * create operation
+     ***********************************************************************************/
 
     /**
      * @param array $updateColumns
@@ -296,6 +332,10 @@ abstract class Model extends Collection
 
         return $pris;
     }
+
+    /***********************************************************************************
+     * update operation
+     ***********************************************************************************/
 
     /**
      * update by primary key
@@ -366,6 +406,10 @@ abstract class Model extends Collection
         return static::getDb()->updateBatch( static::tableName(), $data, $conditions);
     }
 
+    /***********************************************************************************
+     * delete operation
+     ***********************************************************************************/
+
     /**
      * delete by model
      * @return int
@@ -378,7 +422,8 @@ abstract class Model extends Collection
             return 0;
         }
 
-        $query = static::handleWhere([ static::$priKey => $priValue ])->delete(static::tableName());
+        $query = ModelHelper::handleWhere([ static::$priKey => $priValue ], static::class)
+                ->delete(static::tableName());
 
         if ($affected = static::setQuery($query)->execute()->countAffected() ) {
             $this->afterDelete();
@@ -401,7 +446,8 @@ abstract class Model extends Collection
             $where = static::$priKey . ' in (' . implode(',', $priValue) . ')';
         }
 
-        $query = static::handleWhere($where)->delete(static::tableName());
+        $query = ModelHelper::handleWhere($where, static::class)
+                ->delete(static::tableName());
 
         return static::setQuery($query)->execute()->countAffected();
     }
@@ -412,10 +458,15 @@ abstract class Model extends Collection
      */
     public static function deleteBy($where)
     {
-        $query = static::handleWhere($where, static::getQuery(true))->delete(static::tableName());
+        $query = ModelHelper::handleWhere($where, '', static::getQuery(true))
+                ->delete(static::tableName());
 
         return static::setQuery($query)->execute()->countAffected();
     }
+
+    /***********************************************************************************
+     * extra operation
+     ***********************************************************************************/
 
     protected function beforeInsert(){}
     protected function afterInsert(){}
@@ -480,6 +531,10 @@ abstract class Model extends Collection
         return $this->decrement($column, $step);
     }
 
+    /***********************************************************************************
+     * helper method
+     ***********************************************************************************/
+
     /**
      * @param null|bool $value
      * @return bool
@@ -523,95 +578,6 @@ abstract class Model extends Collection
     final public static function setQuery($query)
     {
         return static::getDb()->setQuery($query);
-    }
-
-    /**
-     * apply Append Options
-     * @param  array  $appends
-     * @param  Query  $query
-     */
-    protected static function applyAppendOptions($appends=[], Query $query)
-    {
-        foreach ($appends as $method => $val) {
-            is_array($val) ? $query->$method($val[0],$val[1]) : $query->$method($val);
-        }
-    }
-
-    /**
-     * @param string|array|\Closure $where
-     * @param Query $query
-     * @example
-     * ```
-     * ...
-     * $result = XxModel::findAll([
-     *      'userId = 23',
-     *      'publishTime > 0',
-     *      'title' => 'test', // equal to "title = 'test'"
-     *      'status' => [3, 'or'], // equal to "OR status = 3"
-     *      ['categoryId > 23', 'or'], // equal to "OR categoryId > 23"
-     * ]);
-     *
-     * ```
-     * @return Query
-     */
-    protected static function handleWhere($where, Query $query = null)
-    {
-        $query = $query ?: static::getQuery(true);
-
-        /* e.g:
-        a Closure
-        function(Query $q) use ($value) {
-            $q->where( 'column = ' . $q->q($value) );
-        }
-        */
-        if (is_object($where) and $where instanceof \Closure) {
-            $where($query);
-
-            return $query;
-        }
-
-        if ( is_array($where) ) {
-            $glue = 'AND';
-
-            foreach ($where as $key => $subWhere) {
-                if (is_object($where) and $where instanceof \Closure) {
-                    $where($query);
-                    continue;
-
-                // natural int key
-                } else if ( is_int($key) ) {
-
-                    // e.g: $subWhere = [ "column = 'value'", 'OR' ];
-                    if ( is_array($subWhere) ) {
-                        list($subWhere, $glue) = $subWhere;
-                        $glue = in_array(strtoupper($glue), ['AND', 'OR']) ? strtoupper($glue) : 'AND';
-                    }
-
-                    // $subWhere is string, e.g: $subWhere = "column = 'value'"; go on ...
-
-                // string key, $key is a column name
-                } elseif ( is_string($key) ) {
-
-                    // e.g: $subWhere = [ 'value', 'OR' ];
-                    if ( is_array($subWhere) ) {
-                        list($subWhere, $glue) = $subWhere;
-
-                        $glue = in_array(strtoupper($glue), ['AND', 'OR']) ? strtoupper($glue) : 'AND';
-                    }
-
-                    // $subWhere is a column value. e.g: $subWhere = 'value'; go on ...
-                    // $subWhere = $key . ' = ' . (is_numeric($subWhere) ? (int)$subWhere : $query->q($subWhere));
-                    $subWhere = $key . ' = ' . $query->q($subWhere);
-                }
-
-                $query->where($subWhere, $glue);
-            }// end foreach
-
-        } elseif ( $where && is_string($where) ) {
-            $query->where($where);
-        }
-
-        return $query;
     }
 
     /**

@@ -11,19 +11,34 @@ use slimExt\exceptions\NotFoundException;
  * Class Controller
  * @package slimExt\base
  */
-abstract class Controller extends RestFulController
+abstract class Controller
 {
-    protected $layout = '';
+    /**
+     * @var Request
+     */
+    protected $request;
+
+    /**
+     * @var Response
+     */
+    protected $response;
 
     /**
      * @var string
      */
-    public $actionSuffix = 'Action';
+    public $layout = '';
 
     /**
      * @var string
      */
     public $defaultAction = 'index';
+
+    /**
+     * action name suffix.
+     * so, the access's real controller method name is 'action name' + 'suffix'
+     * @var string
+     */
+    public $actionSuffix = 'Action';
 
     /**
      * template helper class name.
@@ -81,8 +96,17 @@ abstract class Controller extends RestFulController
         // save to container
         Slim::set('controller', $this);
 
-        parent::__construct();
+        $this->init();
     }
+
+    protected function init()
+    {
+        // Some init logic
+    }
+
+    /**********************************************************
+     * the view render handle
+     **********************************************************/
 
     /**
      * php tpl render
@@ -294,6 +318,10 @@ abstract class Controller extends RestFulController
         return $view;
     }
 
+    /**********************************************************
+     * request method security check @todo ...
+     **********************************************************/
+
     public function filters()
     {
         return [
@@ -317,16 +345,28 @@ abstract class Controller extends RestFulController
                     //'logout' => ['post'],
                 ],
             ],
+            // 'onFailure' => function () {},
         ];
     }
 
+    protected function doSecurityFilter($method)
+    {
+        # todo ...
+    }
 
-    /*****************************
-     * method call
-     *****************************/
+    /**********************************************************
+     * call the controller method
+     **********************************************************/
 
     /**
-     * when route setting :
+     * @param array $args
+     * @return void
+     */
+    protected function beforeInvoke(array $args)
+    {}
+
+    /**
+     * when route setting as (no define action name):
      *
      * ```
      * $app->any('/users/{action}', controllers\User::class);
@@ -356,18 +396,23 @@ abstract class Controller extends RestFulController
         }
 
         Slim::config()->set('urls.action',$action);
-        $action .= ucfirst($this->actionSuffix);
+        $actionMethod = $action . ucfirst($this->actionSuffix);
 
-        // if enable request method verify
-        if ( $this->enableMethodVerify ) {
-            $action = strtolower($request->getMethod()) . ucfirst($action);
-        }
+        if ( method_exists($this, $actionMethod) ) {
+            // if enable request method security check
+            if ( $this->enableMethodVerify ) {
+                $this->doSecurityFilter($request->getMethod() , $action);
+            }
 
-        if ( method_exists($this, $action) ) {
-            $response = $this->$action($args);
+            $response = $this->$actionMethod($args);
+
+            // if the action return is array data
+            if ( is_array($response) ) {
+                $response = $this->response->withJson(['list' => $list]);
+            }
 
             // Might want to customize to perform the action name
-            $this->afterInvoke($args);
+            $this->afterInvoke($args, $response);
 
             return $response;
         }
@@ -376,10 +421,20 @@ abstract class Controller extends RestFulController
     }
 
     /**
-     * when route setting :
+     * @param array $args
+     * @param Response $response
+     * @return void
+     */
+    protected function afterInvoke(array $args, $response)
+    {}
+
+    /**
+     * when route have been setting action name:
+     *
      * ```
      * $app->get('/users/{id}', controllers\User::class . ':view');
      * ```
+     *
      * @param $method
      * @param $args
      * @return mixed
