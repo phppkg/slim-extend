@@ -672,9 +672,7 @@ abstract class AbstractDriver
 
         // add sql log
         if ( $this->debug ) {
-            $this->dbLogger()->debug( $sql.'; ' . (
-                $bounded ? 'Bounded:' . implode(',', $bounded) : ''
-            ) );
+            $this->dbLogger()->debug( $sql.'; ');
         }
 
         $this->cursor = $this->pdo->prepare($sql, $this->driverOptions);
@@ -683,10 +681,13 @@ abstract class AbstractDriver
             throw new \RuntimeException('PDOStatement not prepared. Maybe you haven\'t set any query');
         }
 
+        $boundedStr = 'Bounded ';
+
         // Bind the variables:
         if ($this->query instanceof Query\PreparableInterface) {
             foreach ($bounded as $key => $data) {
                 $this->cursor->bindParam($key, $data->value, $data->dataType, $data->length, $data->driverOptions);
+                $boundedStr .= "$key->{$data->value},";
             }
         }
 
@@ -700,7 +701,7 @@ abstract class AbstractDriver
         try {
             $this->cursor->execute();
         } catch (\PDOException $e) {
-            throw new \RuntimeException($e->getMessage() . "\nSQL: " . $this->lastQuery, (int) $e->getCode(), $e);
+            throw new \RuntimeException($e->getMessage() . "\nSQL: {$this->lastQuery}, $boundedStr", (int)$e->getCode(), $e);
         }
 
         return $this;

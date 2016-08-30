@@ -27,6 +27,7 @@ use Slim\Http\Uri;
  * @method      boolean  getBoolean()   getBoolean($name, $default = null)  Get a boolean.
  * @method      string   getString()    getString($name, $default = null)
  * @method      string   getTrimmed()   getTrimmed($name, $default = null)
+ * @method      string   getSafe()      getSafe($name, $default = null)
  * @method      string   getEmail()     getEmail($name, $default = null)
  * @method      string   getUrl()       getUrl($name, $default = null)      Get URL
  *
@@ -59,6 +60,9 @@ class Request extends SlimRequest
 
         // trim($var)
         'trimmed'  => 'trim',
+
+        // safe data
+        'safe'  => 'htmlspecialchars',
 
         // abs((int)$var)
         'number'  => StrainerList::class . '::abs',

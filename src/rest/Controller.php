@@ -105,7 +105,7 @@ abstract class Controller
      *     // $mapping['get'] = 'xxx';
      *     // return $mapping;
      * }
-     * @var array
+     * @return array
      */
     protected function methodMapping()
     {
