@@ -3,26 +3,15 @@
 namespace slimExt\base;
 
 use Slim;
-use slimExt\filters\AccessFilter;
-use slimExt\filters\VerbFilter;
+use slimExt\AbstractController;
 use slimExt\exceptions\NotFoundException;
 
 /**
  * Class Controller
  * @package slimExt\base
  */
-abstract class Controller
+abstract class Controller extends AbstractController
 {
-    /**
-     * @var Request
-     */
-    protected $request;
-
-    /**
-     * @var Response
-     */
-    protected $response;
-
     /**
      * @var string
      */
@@ -81,28 +70,6 @@ abstract class Controller
      * @var array
      */
     protected $appendTplVar = [];
-
-    /**
-     * enable request method verify
-     * @var bool
-     */
-    protected $enableMethodVerify = false;
-
-    /**
-     * __construct
-     */
-    public function __construct()
-    {
-        // save to container
-        Slim::set('controller', $this);
-
-        $this->init();
-    }
-
-    protected function init()
-    {
-        // Some init logic
-    }
 
     /**********************************************************
      * the view render handle
@@ -314,42 +281,6 @@ abstract class Controller
     }
 
     /**********************************************************
-     * request method security check @todo ...
-     **********************************************************/
-
-    public function filters()
-    {
-        return [
-            'access' => [
-                'handler' => AccessFilter::class,
-                'rules' => [
-//                    [
-//                        'actions' => ['login', 'error'],
-//                        'allow' => true,
-//                    ],
-//                    [
-//                        'actions' => ['logout', 'index'],
-//                        'allow' => true,
-//                        'roles' => ['@'],
-//                    ],
-                ],
-            ],
-            'verbs' => [
-                'handler' => VerbFilter::class,
-                'actions' => [
-                    //'logout' => ['post'],
-                ],
-            ],
-            // 'onFailure' => function () {},
-        ];
-    }
-
-    protected function doSecurityFilter($method, $args)
-    {
-        # todo ...
-    }
-
-    /**********************************************************
      * call the controller method
      **********************************************************/
 
@@ -394,9 +325,9 @@ abstract class Controller
         $actionMethod = $action . ucfirst($this->actionSuffix);
 
         if ( method_exists($this, $actionMethod) ) {
-            // if enable request method security check
-            if ( $this->enableMethodVerify ) {
-                $this->doSecurityFilter($request->getMethod() , $action);
+            // if enable request action security filter
+            if ( true !== ($result = $this->doSecurityFilter($action)) ) {
+                return $result;
             }
 
             /** @var Response $response */

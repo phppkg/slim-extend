@@ -14,5 +14,10 @@ namespace slimExt\filters;
  */
 class VerbFilter extends BaseFilter
 {
+    protected function doFilter($action)
+    {
+        $method = $this->request->getMethod();
 
+        return true;
+    }
 }

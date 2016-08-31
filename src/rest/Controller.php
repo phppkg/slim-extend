@@ -6,6 +6,7 @@ use inhere\librarys\exceptions\HttpRequestException;
 use Slim;
 use inhere\librarys\exceptions\NotFoundException;
 use inhere\librarys\exceptions\UnknownMethodException;
+use slimExt\AbstractController;
 use slimExt\base\Request;
 use slimExt\base\Response;
 
@@ -31,22 +32,12 @@ use slimExt\base\Response;
  * }
  * ```
  */
-abstract class Controller
+abstract class Controller extends AbstractController
 {
     const DEFAULT_ERR_CODE = 2;
 
     const RESOURCE_ARG_KEY = 'argument';
     const MARK_MORE = '...';
-
-    /**
-     * @var Request
-     */
-    protected $request;
-
-    /**
-     * @var Response
-     */
-    protected $response;
 
     /**
      * method name suffix.
@@ -60,19 +51,6 @@ abstract class Controller
     protected $extraMapping= [
         'GET,search' => 'search',
     ];
-
-    /**
-     * __construct
-     */
-    public function __construct()
-    {
-        $this->init();
-    }
-
-    protected function init()
-    {
-        // Some init logic
-    }
 
     /**
      * @return array
@@ -103,6 +81,30 @@ abstract class Controller
     public function optionsAction()
     {
         return array_values($this->methodMapping());
+    }
+
+    /**
+     * @return array
+     */
+    public function filters()
+    {
+        return [
+//            'access' => [
+//                'handler' => AccessFilter::class,
+//                'rules' => [
+//                    [
+//                        'actions' => ['login', 'error'],
+//                        'allow' => true,
+//                    ],
+//                    [
+//                        'actions' => ['logout', 'index'],
+//                        'allow' => true,
+//                        '@' logged '*' all user. you can add custom role. like 'user','admin'
+//                        'roles' => ['@'],
+//                    ],
+//                ],
+//            ]
+        ];
     }
 
     /**********************************************************
@@ -150,7 +152,6 @@ abstract class Controller
              'options...' => 'options', # OPTIONS /users
              // extra method mapping
              // 'get.search' => search
-             'options.df' => 'fddd'
          ];
     }
 

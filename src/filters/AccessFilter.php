@@ -8,11 +8,18 @@
 
 namespace slimExt\filters;
 
+
 /**
  * Class AccessFilter
+ * auth/permission check
  * @package slimExt\filters
  */
 class AccessFilter extends BaseFilter
 {
+    public $rules = [];
 
+    protected function doFilter( $action )
+    {
+        return true;
+    }
 }
