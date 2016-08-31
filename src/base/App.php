@@ -61,7 +61,7 @@ class App extends SlimApp
 
     /**
      * @param string $name
-     * @return null
+     * @return Module
      */
     public function module($name='__last')
     {

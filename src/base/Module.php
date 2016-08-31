@@ -56,7 +56,7 @@ abstract class Module
         //add path alias
         Slim::alias('@' . $this->name, $this->path);
 
-        $globalFile = Slim::alias('@config') . '/modules-' . $this->name . '.yml';
+        $globalFile = Slim::alias('@config') . '/module-' . $this->name . '.yml';
         $configFile = $this->path . '/config.yml';
 
         // runtime env config

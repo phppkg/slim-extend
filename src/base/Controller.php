@@ -279,15 +279,10 @@ abstract class Controller
     {
         if ( !$this->tplPath ) {
             $calledClass = get_class($this);
-            $nodes = explode('\\', trim($calledClass,'\\'));
-            // remove `app` e.g: `app\controllers\SimpleAuth`
-            $nodes = array_slice($nodes, 2);
-            $nodePath = implode('/', array_map(function($node){
-                return lcfirst($node);
-            }, $nodes));
+            $ctrlName = trim(strrchr($calledClass,'\\'),'\\');
 
             $prefix = $this->tplPathPrefix ? '/'.$this->tplPathPrefix : '';
-            $this->tplPath = $prefix . '/' . $nodePath;
+            $this->tplPath = $prefix . '/' . lcfirst($ctrlName);
         }
 
         return $this->tplPath;

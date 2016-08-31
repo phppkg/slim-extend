@@ -82,6 +82,16 @@ class Request extends SlimRequest
     }
 
     /**
+     * @param $name
+     * @return \Slim\Http\UploadedFile
+     */
+    public function getUploadedFile($name)
+    {
+        return isset($this->getUploadedFiles()[$name]) ? $this->getUploadedFiles()[$name] : null;
+    }
+
+
+    /**
      * @return array
      */
     public function getMessage()

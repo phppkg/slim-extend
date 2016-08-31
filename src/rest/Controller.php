@@ -74,6 +74,32 @@ abstract class Controller
         // Some init logic
     }
 
+    /**
+     * @return array
+     * @return Response
+     */
+    public function headsAction()
+    {
+        return $this->response
+            ->withHeader('X-Welcome','Hi, Welcome to the network.')
+            ->withHeader('X-Request-Method','method heads');
+    }
+
+    /**
+     * @param $id
+     * @return Response
+     */
+    public function headAction($id)
+    {
+        return $this->response
+            ->withHeader('X-Welcome','Hi, Welcome to the network.')
+            ->withHeader('X-Request-Method','method head')
+            ->withHeader('X-Request-Param', $id);
+    }
+
+    /**
+     * @return array
+     */
     public function optionsAction()
     {
         return array_values($this->methodMapping());
@@ -111,17 +137,17 @@ abstract class Controller
         return [
              //REQUEST_METHOD => method name
              // 'gets' is special key.
-             'get...'     => 'gets',   # GET /users
-             'get'      => 'get',    # GET /users/1
-             'post'     => 'post',   # POST /users
-             'put'      => 'put',    # PUT /users/1
+             'get...'     => 'gets',    # GET /users
+             'get'      => 'get',       # GET /users/1
+             'post'     => 'post',      # POST /users
+             'put'      => 'put',       # PUT /users/1
              # usually PUT == PATCH
-             'patch'    => 'put',     # PATCH /users/1
-             'delete'   => 'delete',  # DELETE /users/1
-             'head'     => 'head',    # HEAD /users/1
-             'head...'     => 'heads',   # HEAD /users
-             'options'  => 'option', # OPTIONS /users/1
-             'options...'  => 'options', # OPTIONS /users
+             'patch'    => 'patch',     # PATCH /users/1
+             'delete'   => 'delete',    # DELETE /users/1
+             'head'     => 'head',      # HEAD /users/1
+             'head...'  => 'heads',     # HEAD /users
+             'options'  => 'option',    # OPTIONS /users/1
+             'options...' => 'options', # OPTIONS /users
              // extra method mapping
              // 'get.search' => search
              'options.df' => 'fddd'

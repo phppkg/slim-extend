@@ -9,16 +9,16 @@
  * @param null $default
  * @return mixed|null
  */
-function config($key,$default=null)
+function slim_config($key,$default=null)
 {
     return \Slim::config($key,$default);
 }
 
-function slimExt_tl($key, $args = [], $default = 'No translate.')
+function slim_tl($key, $args = [], $default = 'No translate.')
 {
     return \Slim::get('language')->tl($key, $args, $default);
 }
-function slimExt_tran($key, $args = [], $default = 'No translate.')
+function slim_tran($key, $args = [], $default = 'No translate.')
 {
     return \Slim::get('language')->tl($key, $args, $default);
 }
