@@ -17,10 +17,10 @@ use Slim\Collection as SlimCollection;
 class Collection extends SlimCollection
 {
     /**
-     * @param array $data
+     * @param mixed $data
      * @return $this
      */
-    public function sets(array $data)
+    public function sets($data)
     {
         foreach ($data as $key => $value) {
             $this->set($key, $value);

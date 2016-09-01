@@ -137,7 +137,7 @@ class Request extends SlimRequest
     }
 
     /**
-     * Get part of it - 获取其中的一部分
+     * Get part of it - 获取其中的一部分, 可以设置过滤
      * @param array $needKeys
      * @return array
      */
@@ -145,8 +145,8 @@ class Request extends SlimRequest
     {
         $needed = [];
 
-        foreach ($needKeys as $key) {
-            $needed[$key] = $this->getParam($key);
+        foreach ($needKeys as $key => $value) {
+            $needed[$key] = is_integer($key) ? $this->getParam($value) : $this->doFiltering($key, $value);
         }
 
         return $needKeys ? $needed : $this->getParams();

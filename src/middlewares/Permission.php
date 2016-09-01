@@ -11,7 +11,6 @@ use slimExt\base\Response;
  */
 class Permission
 {
-
     /**
      * Auth middleware invokable class
      *

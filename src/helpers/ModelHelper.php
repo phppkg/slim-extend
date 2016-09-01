@@ -33,7 +33,7 @@ class ModelHelper
 
     /**
      * @param mixed $wheres
-     * @param \slimExt\base\Model $model the model class name
+     * @param \slimExt\base\Model|string $model the model class name
      * @param Query $query
      * @example
      * ```

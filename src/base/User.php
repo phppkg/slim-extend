@@ -8,6 +8,11 @@
 
 namespace slimExt\base;
 
+use inhere\librarys\helpers\ObjectHelper;
+use Slim;
+use inhere\librarys\exceptions\InvalidArgumentException;
+use inhere\librarys\exceptions\InvalidConfigException;
+
 /**
  * Class User
  * @package slimExt\base
@@ -28,43 +33,70 @@ class User extends Collection
     protected $excepted = ['password'];
 
     /**
-     * don't allow set attribute
-     * @param array $items
+     * the identity [model] class name
+     * @var string
      */
-    public function __construct($items=[])
+    public $identityClass;
+
+    /**
+     * @var string
+     */
+    public $loginUrl = '/login';
+
+    /**
+     * @var string
+     */
+    public $logoutUrl = '/logout';
+
+    /**
+     * @var CheckAccessInterface
+     */
+    public $accessChecker;
+
+    public $idColumn = 'id';
+
+    /**
+     * checked permission caching list
+     * @var array
+     * e.g.
+     * [
+     *  'createPost' => true,
+     *  'deletePost' => false,
+     * ]
+     */
+    private $_accesses = [];
+
+    const AFTER_LOGGED_TO_KEY  = '_after_logged_to';
+    const AFTER_LOGOUT_TO_KEY  = '_after_logout_to';
+
+    /**
+     * don't allow set attribute
+     * @param array $options
+     */
+    public function __construct($options=[])
     {
         parent::__construct();
 
-        // if have already login
-        if ( $user = session(self::$saveKey) ){
-            $this->clear();
-            $this->sets($user);
+        ObjectHelper::loadAttrs($this, $options);
+
+        if ($this->identityClass === null) {
+            throw new InvalidConfigException('User::identityClass must be set.');
         }
+
+        // if have already login
+        $this->refreshIdentity();
     }
 
     /**
-     * @param array $user
+     * @param IdentityInterface $user
      * @return static
      */
-    public function login($user)
+    public function login(IdentityInterface $user)
     {
-        // except column at set.
-        foreach ($this->excepted as $column) {
-            if ( isset($user[$column])) {
-                unset($user[$column]);
-            }
-        }
-
-        if ( $user instanceof Collection) {
-            $user = $user->all();
-        }
-
         $this->clear();
-        $this->sets($user);
+        $this->setIdentity($user);
 
-        session([static::$saveKey => $user]);
-
-        return $this;
+        return $this->isLogin();
     }
 
     public function logout()
@@ -72,6 +104,70 @@ class User extends Collection
         $this->clear();
 
         unset($_SESSION[static::$saveKey]);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
+    public function loginRequired(Request $request, Response $response)
+    {
+        $authUrl = Slim::get('config')->get('urls.login', $this->loginUrl);
+
+        if (!$authUrl) {
+            throw new InvalidConfigException("require config 'urls.login' !");
+        }
+
+        $this->setLoggedTo($request->getRequestUri());
+        $msg = Slim::$app->language->tran('needLogin');
+
+        // when is xhr
+        if ( $request->isXhr() ) {
+            $data = ['redirect' => $authUrl];
+
+            return $response->withJson($data, __LINE__, $msg);
+        }
+
+        return $response->withRedirect($authUrl)->withMessage($msg);
+    }
+
+    /**
+     * check user permission
+     * @param string $permission a permission name or a url
+     * @param array $params
+     * @param bool|true $caching
+     * @return bool
+     */
+    public function can($permission, $params = [], $caching = true)
+    {
+        return $this->canAccess($permission, $params, $caching);
+    }
+    public function canAccess($permission, $params = [], $caching = true)
+    {
+        if ( isset($this->_accesses[$permission]) ) {
+            return $this->_accesses[$permission];
+        }
+
+        $access = false;
+
+        if ( $checker = $this->getAccessChecker() ) {
+            $access = $checker->checkAccess($this->getId(), $permission, $params);
+
+            if ($caching) {
+                $this->_accesses[$permission] = $access;
+            }
+        }
+
+        return $access;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->get($this->idColumn);
     }
 
     /**
@@ -89,4 +185,104 @@ class User extends Collection
     {
         return !$this->isLogin();
     }
+
+    public function clear()
+    {
+        $this->data = $this->_accesses = [];
+    }
+
+    /**
+     * @param bool|false $force
+     */
+    public function refreshIdentity($force=false)
+    {
+        $id = $this->getId();
+        $this->clear();
+
+        /* @var $class IdentityInterface */
+        $class = $this->identityClass;
+
+        if (!$force && ($data = session(self::$saveKey)) ) {
+            $this->sets($data);
+        } elseif ( $user = $class::findIdentity($id) ) {
+            $this->setIdentity($user);
+        } else {
+            throw new \RuntimeException('The refresh auth data is failure!!');
+        }
+    }
+
+    /**
+     * @param IdentityInterface $identity
+     */
+    public function setIdentity(IdentityInterface $identity)
+    {
+        if ($identity instanceof IdentityInterface) {
+            $this->sets($identity);
+            session([ self::$saveKey => $identity->all()]);
+            $this->_accesses = [];
+        } elseif ($identity === null) {
+            $this->data = [];
+        } else {
+            throw new InvalidArgumentException('The identity object must implement IdentityInterface.');
+        }
+    }
+
+    public function sets($data)
+    {
+        // except column at set.
+        foreach ($this->excepted as $column) {
+            if ( isset($data[$column])) {
+                unset($data[$column]);
+            }
+        }
+
+        return parent::sets($data);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAccessChecker()
+    {
+        return $this->accessChecker ? : \Slim::get('accessChecker');
+    }
+
+    /**
+     * @param string $default
+     * @return string
+     */
+    public function getLogoutTo($default='/')
+    {
+        session(self::AFTER_LOGOUT_TO_KEY, $default);
+    }
+
+    /**
+     * @param $url
+     */
+    public function setLogoutTo($url)
+    {
+        session([
+            self::AFTER_LOGOUT_TO_KEY => trim($url)
+        ]);
+    }
+
+    /**
+     * @param string $default
+     * @return string
+     */
+    public function getLoggedTo($default='/')
+    {
+        session(self::AFTER_LOGGED_TO_KEY, $default);
+    }
+
+    /**
+     * @param $url
+     */
+    public function setLoggedTo($url)
+    {
+        session([
+            self::AFTER_LOGGED_TO_KEY => trim($url)
+        ]);
+    }
+
 }

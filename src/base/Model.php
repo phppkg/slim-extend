@@ -28,6 +28,17 @@ abstract class Model extends Collection
     protected $enableValidate = true;
 
     /**
+     * Validation class name
+     */
+    //protected $validateHandler = '\inhere\validate\Validation';
+
+    /**
+     * if true will save(insert/update) safe's data -- Through validation's data
+     * @var bool
+     */
+    protected $enableSafeData = true;
+
+    /**
      * @var array
      */
     private $_backup = [];
@@ -113,6 +124,18 @@ abstract class Model extends Collection
     abstract public function columns();
 
     /**
+     * 定义保存数据时,当前场景允许写入的属性字段
+     * @return array
+     */
+    public function sceneAttrs()
+    {
+        return [
+            // 'create' => ['username', 'email', 'password','createTime'],
+            // 'update' => ['username', 'email','createTime'],
+        ];
+    }
+
+    /**
      * @return string
      */
     public static function tableName()
@@ -172,7 +195,7 @@ abstract class Model extends Collection
      * find record by primary key
      * @param mixed $priValue
      * @param string|array $options
-     * @return static|array
+     * @return static
      */
     public static function findByPk($priValue, $options= [])
     {
@@ -298,7 +321,8 @@ abstract class Model extends Collection
             return false;
         }
 
-        $priValue = static::getDb()->insert(static::tableName(), $this->getColumnsData());
+        $data = $this->enableSafeData ? $this->getSafeData() : $this->getColumnsData();
+        $priValue = static::getDb()->insert(static::tableName(), $data);
 
         // when insert successful.
         if ($priValue) {

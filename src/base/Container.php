@@ -16,6 +16,11 @@ use Slim\Container as SlimContainer;
  */
 class Container extends SlimContainer
 {
+    /**
+     * @param $key
+     * @param null $default
+     * @return null
+     */
     public function getSetting($key,$default = null)
     {
         return isset($this->settings[$key]) ? $this->settings[$key] : $default;

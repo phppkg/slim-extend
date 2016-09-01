@@ -31,21 +31,6 @@ class AuthCheck
             return $next($request, $response);
         }
 
-        $authUrl = Slim::get('config')->get('urls.login');
-
-        if (!$authUrl) {
-            throw new InvalidConfigException("require config 'urls.login' !");
-        }
-
-        $msg = Slim::$app->language->tran('needLogin');
-
-        // when is xhr
-        if ( $request->isXhr() ) {
-            $data = ['redirect' => $authUrl];
-
-            return $response->withJson($data, __LINE__, $msg);
-        }
-
-         return $response->withRedirect($authUrl)->withMessage($msg);
+        return Slim::$app->user->loginRequired($request, $response);
     }
 }
