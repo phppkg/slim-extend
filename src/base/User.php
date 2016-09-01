@@ -24,7 +24,7 @@ class User extends Collection
     /**
      * @var string
      */
-    protected static $saveKey = '_slime_auth';
+    protected static $saveKey = '_slim_auth';
 
     /**
      * Exclude fields that don't need to be saved.
@@ -84,7 +84,9 @@ class User extends Collection
         }
 
         // if have already login
-        $this->refreshIdentity();
+        if ( session(self::$saveKey) ) {
+            $this->refreshIdentity();
+        }
     }
 
     /**
@@ -253,7 +255,7 @@ class User extends Collection
      */
     public function getLogoutTo($default='/')
     {
-        session(self::AFTER_LOGOUT_TO_KEY, $default);
+        return session(self::AFTER_LOGOUT_TO_KEY, $default);
     }
 
     /**
@@ -272,7 +274,7 @@ class User extends Collection
      */
     public function getLoggedTo($default='/')
     {
-        session(self::AFTER_LOGGED_TO_KEY, $default);
+        return session(self::AFTER_LOGGED_TO_KEY, $default);
     }
 
     /**
