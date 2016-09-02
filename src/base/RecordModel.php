@@ -8,6 +8,8 @@
 
 namespace slimExt\base;
 
+use inhere\librarys\exceptions\InvalidConfigException;
+use inhere\librarys\helpers\ArrHelper;
 use Slim;
 use slimExt\database\AbstractDriver;
 use slimExt\DataConst;
@@ -20,7 +22,6 @@ use Windwalker\Query\Query;
  */
 abstract class RecordModel extends Model
 {
-
     /**
      * if true will save(insert/update) safe's data -- Through validation's data
      * @var bool
@@ -79,6 +80,14 @@ abstract class RecordModel extends Model
         // function ($query) { ... }
     ];
 
+    public function __construct(array $items = [])
+    {
+        parent::__construct($items);
+
+        if (!$this->columns()) {
+            throw new InvalidConfigException('Must define method columns() and is can\'t empty.');
+        }
+    }
 
     /***********************************************************************************
      * some prepare work
@@ -155,8 +164,7 @@ abstract class RecordModel extends Model
      */
     public static function query($where=null)
     {
-        return ModelHelper::handleWhere($where, '', static::getQuery(true))
-            ->from(static::queryName());
+        return ModelHelper::handleWhere($where, static::class)->from(static::queryName());
     }
 
     /***********************************************************************************
@@ -171,12 +179,10 @@ abstract class RecordModel extends Model
      */
     public static function findByPk($priValue, $options= [])
     {
-        // many
-        if ( is_array($priValue) ) {
+        if ( is_array($priValue) ) {// many
             $where = static::$priKey . ' IN (' . implode(',', $priValue) . ')';
-            
-        // only one
-        } else {
+
+        } else { // only one
             $where = [static::$priKey => $priValue];
         }
 
@@ -198,13 +204,11 @@ abstract class RecordModel extends Model
             ];
         }
 
-        $query = static::query($where);
-
         $options = array_merge(static::$baseOptions, $options);
         $class = $options['class'] === 'model' ? static::class : $options['class'];
 
         unset($options['indexKey'], $options['class']);
-        ModelHelper::applyAppendOptions($options, $query);
+        $query = ModelHelper::applyAppendOptions($options, static::query($where));
 
         return static::setQuery($query)->loadOne($class);
     }
@@ -223,15 +227,13 @@ abstract class RecordModel extends Model
             ];
         }
 
-        $query = static::query($where);
-
         $options = array_merge(static::$baseOptions, $options);
-        $indexKey = $options['indexKey'];
+        $indexKey = ArrHelper::remove('indexKey',$options, null);
         $class = $options['class'] === 'model' ? static::class : $options['class'];
 
         unset($options['indexKey'], $options['class']);
 
-        ModelHelper::applyAppendOptions($options, $query);
+        $query = ModelHelper::applyAppendOptions($options, static::query($where));
 
         return static::setQuery($query)->loadAll($indexKey, $class);
     }
@@ -292,7 +294,7 @@ abstract class RecordModel extends Model
             return false;
         }
 
-        $data = $this->onlySafeData ? $this->getSafeData() : $this->getColumnsData();
+        $data = $this->getColumnsData();
         $priValue = static::getDb()->insert(static::tableName(), $data);
 
         // when insert successful.
@@ -339,7 +341,7 @@ abstract class RecordModel extends Model
      */
     public function update($updateColumns = [], $updateNulls = false)
     {
-        $data = $this->onlySafeData ? $this->getSafeData() : $this->getColumnsData();
+        $data = $this->getColumnsData();
         $priKey = static::$priKey;
 
         // only update some columns
@@ -412,7 +414,7 @@ abstract class RecordModel extends Model
     {
         $this->beforeDelete();
 
-        if ( !$priValue = $this->priValue() ) {
+        if ( !($priValue = $this->priValue()) ) {
             return 0;
         }
 
@@ -440,20 +442,18 @@ abstract class RecordModel extends Model
             $where = static::$priKey . ' in (' . implode(',', $priValue) . ')';
         }
 
-        $query = ModelHelper::handleWhere($where, static::class)
-            ->delete(static::tableName());
+        $query = ModelHelper::handleWhere($where, static::class)->delete(static::tableName());
 
         return static::setQuery($query)->execute()->countAffected();
     }
 
     /**
-     * @param $where
+     * @param mixed $where
      * @return int
      */
     public static function deleteBy($where)
     {
-        $query = ModelHelper::handleWhere($where, '', static::getQuery(true))
-            ->delete(static::tableName());
+        $query = ModelHelper::handleWhere($where, static::class)->delete(static::tableName());
 
         return static::setQuery($query)->execute()->countAffected();
     }
@@ -462,13 +462,25 @@ abstract class RecordModel extends Model
      * extra operation
      ***********************************************************************************/
 
-    protected function beforeInsert(){}
+    protected function beforeInsert()
+    {
+        return true;
+    }
     protected function afterInsert(){}
-    protected function beforeUpdate(){}
+    protected function beforeUpdate()
+    {
+        return true;
+    }
     protected function afterUpdate(){}
-    protected function beforeSave(){}
+    protected function beforeSave()
+    {
+        return true;
+    }
     protected function afterSave(){}
-    protected function beforeDelete(){}
+    protected function beforeDelete()
+    {
+        return true;
+    }
     protected function afterDelete(){}
 
     /**
@@ -561,11 +573,13 @@ abstract class RecordModel extends Model
 
     /**
      * findXxx 无法满足需求时，自定义 $query
-     * `
+     *
+     * ```
      * $query = XModel::getQuery();
      * ...
-     * self::setQuery($query)->loadAll(null, self::class);
-     * `
+     * ...
+     * self::setQuery($query)->loadAll(null, XModel::class);
+     * ```
      * @param string|Query $query
      * @return AbstractDriver
      */
@@ -599,11 +613,15 @@ abstract class RecordModel extends Model
         return parent::set($column, $value);
     }
 
+    /**
+     * @return array
+     */
     public function getColumnsData()
     {
+        $source = $this->onlySafeData ? $this->getSafeData() : $this;
         $data = [];
 
-        foreach ($this as $col => $val) {
+        foreach ($source as $col => $val) {
             if ( isset($this->columns()[$col]) ) {
                 $data[$col] = $val;
             }

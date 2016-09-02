@@ -6,14 +6,16 @@ use inhere\librarys\exceptions\UnknownMethodException;
 use Windwalker\Query\Query;
 
 /**
- *
+ * Class ModelHelper
+ * @package slimExt\helpers
  */
 class ModelHelper
 {
     /**
      * apply Append Options
-     * @param  array  $options
-     * @param  Query  $query
+     * @param  array $options
+     * @param  Query $query
+     * @return Query
      */
     public static function applyAppendOptions($options=[], Query $query)
     {
@@ -29,11 +31,13 @@ class ModelHelper
 
             is_array($value) ? call_user_func_array([$query,$method], $value) : $query->$method($value);
         }
+
+        return $query;
     }
 
     /**
      * @param mixed $wheres
-     * @param \slimExt\base\Model|string $model the model class name
+     * @param \slimExt\base\RecordModel|string $model the model class name, is a string
      * @param Query $query
      * @example
      * ```

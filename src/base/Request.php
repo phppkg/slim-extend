@@ -59,7 +59,7 @@ class Request extends SlimRequest
         'string'  => 'string',
 
         // trim($var)
-        'trimmed'  => 'trim',
+        'trimmed'  => StrainerList::class . '::trim',
 
         // safe data
         'safe'  => 'htmlspecialchars',
@@ -70,6 +70,9 @@ class Request extends SlimRequest
         'email'   => StrainerList::class . '::email',
         // will use filter_var($var ,FILTER_SANITIZE_URL)
         'url'     => StrainerList::class . '::url',
+
+        // will use filter_var($var ,FILTER_SANITIZE_ENCODED, $settings);
+        'encoded'     => StrainerList::class . '::encoded',
     ];
 
     /**
@@ -89,7 +92,6 @@ class Request extends SlimRequest
     {
         return isset($this->getUploadedFiles()[$name]) ? $this->getUploadedFiles()[$name] : null;
     }
-
 
     /**
      * @return array
@@ -225,7 +227,7 @@ class Request extends SlimRequest
      */
     protected function doFiltering($value, $filter, $default = null)
     {
-        if ( $filter === static::FILTER_RAW || !is_scalar($value)) {
+        if ( $filter === static::FILTER_RAW) {
             return $value;
         }
 
