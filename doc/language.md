@@ -2,17 +2,38 @@
 
 > [Return](index.md)
 
+config the language translator.
+
+```
+// language
+'language'       => [
+    'lang'     => $config->get('language', 'en'),
+    'basePath' => '@resources/languages',
+    'defaultFile' => 'default',
+
+    'langFiles' => [
+        // file key => file path
+        // if no file key, default use file name. e.g: app
+        'app.yml',
+        'contents.yml',
+        'user.yml',
+    ],
+],
+```
+
+use language translator:
 
 ```
 use Slim;
 
+// If no file is specified it reads 'basePath + lang + defaut.yml'
 $msg = Slim::$app->language->tran('key');
 // can also 
 $msg = Slim::$app->language->tl('key'); // tl() is alias method of the tran()
 
 // ... in twig
 {{ _globals.lang.tran('key') }} 
-{{ _globals.lang.tran('otherFile:key') }} // translate from 'otherFile'
+{{ _globals.lang.tran('app:key') }} // translate from 'app.yml'
 
 ```
 
@@ -31,7 +52,7 @@ $msg = Slim::$app->language->tran('userNotFound', 'demo');
 // $msg : user [demo] don't exists!
 ```
 
-2. allow fetch other config file data, when use multifile. (`Language::$type === static::USE_MULTIFILE`)
+2. allow fetch other config file data
 
 @example
 ```

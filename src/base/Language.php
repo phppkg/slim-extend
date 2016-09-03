@@ -15,11 +15,6 @@ use inhere\librarys\language\LanguageManager;
  * Class Language
  * @package slimExt\base
  *
- * property $type
- *  if type equal to 1, use monofile. this is default.
- *
- *  if type equal to 2, use multifile.
- *
  *
  * how to use language translate ?
  *
@@ -34,7 +29,7 @@ use inhere\librarys\language\LanguageManager;
  * $msg = Slim::$app->language->tran('userNotFound', 'demo');
  * ```
  *
- * 2. allow fetch other config file data, when use multifile. (`static::$type === static::USE_MULTIFILE`)
+ * 2. allow fetch other config file data
  *
  * @example
  * ```
@@ -54,28 +49,25 @@ use inhere\librarys\language\LanguageManager;
  * //output $msg: the app user [demo] don't exists!
  *
  * ```
- *
- *
  */
 class Language extends LanguageManager
 {
     /**
-     * language config file path
-     * @var string
+     * @param $file
+     * @param string $fileKey
      */
-    protected $path = '@resources/languages';
+    public function addLangFile($file, $fileKey = '')
+    {
+        $file = Slim::alias($file);
+
+        parent::addLangFile($file, $fileKey);
+    }
 
     /**
-     * type of language config
-     * @var int
+     * @param array|string $path
      */
-    protected $type = 1;
-
-    protected function prepare($options, $fileType)
+    public function setBasePath($path)
     {
-        // maybe use path alias
-        $options['path'] = Slim::alias($options['path']);
-
-        parent::prepare($options, $fileType);
+        parent::setBasePath(Slim::alias($path));
     }
 }
