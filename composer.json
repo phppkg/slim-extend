@@ -19,6 +19,7 @@
     "slim/csrf": "^0.6.0",
     "symfony/yaml": "^3.0",
     "windwalker/query": "^3.0",
+    "windwalker/compare": "^3.0",
     "symfony/console": "^3.0",
     "inhere/php-librarys": "~1.0",
     "inhere/php-validate": "~1.0"

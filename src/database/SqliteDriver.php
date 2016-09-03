@@ -18,7 +18,8 @@ use Windwalker\Query\Sqlite\SqliteQuery;
 class SqliteDriver extends AbstractDriver
 {
     protected $name = 'sqlite';
-    public $supportInsertMulti = true;
+
+    protected $supportBatchSave = true;
 
     public function newQuery($forceNew=false)
     {

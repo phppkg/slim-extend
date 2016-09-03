@@ -22,8 +22,6 @@ abstract class Model extends Collection
 {
     use ValidationTrait;
 
-    const SCENE_DEFAULT = 'default';
-
     /**
      * @var bool
      */

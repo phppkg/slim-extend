@@ -57,7 +57,13 @@ abstract class AbstractDriver
 
     protected $debug = false;
 
-    public $supportInsertMulti = false;
+    /**
+     * Whether to support a one-time insert or update multiple records.
+     * @see insertBatch()
+     * @see updateBatch()
+     * @var bool
+     */
+    protected $supportBatchSave = false;
 
     /**
      * @param array $options
@@ -352,13 +358,13 @@ abstract class AbstractDriver
     /**
      * SQL:
      * ```
-     * INSERT INTO "mder_users"
+     * INSERT INTO "user"
      * ("username", "password", "createTime", "role", "lastLogin", "avatar")
      * VALUES
      * (?, ?, ?, 1, 1, '')
      * ```
      * @param string $table
-     * @param array $data
+     * @param array|object $data
      * @param string $priKey
      * @return array|int|bool
      */
@@ -390,12 +396,12 @@ abstract class AbstractDriver
         }
 
         // Create the base insert statement.
-        $query->insert($query->quoteName($table))
-            ->columns($fields)
-            ->values(array($values));
+        $query->insert($query->quoteName($table));
+        $query->columns($fields);
+        $query->values(array($values));
 
         // Set the query and execute the insert.
-        $this->setQuery($query)->execute();
+        $this->setQuery($query)->exec();
 
         // Update the primary key if it exists.
         $id = $this->pdo->lastInsertId();
@@ -435,6 +441,43 @@ abstract class AbstractDriver
         return $dataSet;
     }
 
+    /**
+     * one-time insert multiple records.
+     * @param string $table
+     * @param array $columns
+     * @param array $values
+     * e.g:
+     * $columns = ['title', 'year'];
+     * $values = [
+     *   [ 'The Tragedy of Julius Caesar', 1599]
+     *   [ 'Macbeth', 1606]
+     * ];
+     * @return bool|int
+     */
+    public function insertBatch($table, array $columns, array $values)
+    {
+        $query = $this->newQuery(true);
+        $query->columns($columns);
+
+        // Build conditions
+        $hasField = false;
+
+        foreach ($values as &$value) {
+            // to string. eg: "'Macbeth', 1606"
+            $value = implode(',', $query->q($value));
+            $hasField = true;
+        }
+
+        if (!$hasField) {
+            return false;
+        }
+
+        $query->values($values);
+        $query->insert($query->qn($table));
+
+        return $this->setQuery($query)->exec();
+    }
+
 ////////////////////////////////////// update record //////////////////////////////////////
 
     /**
@@ -444,7 +487,7 @@ abstract class AbstractDriver
      * @param   array|string  $key         The name of the primary key.
      * @param   boolean $updateNulls True to update null fields or false to ignore them.
      * @throws \InvalidArgumentException
-     * @return  boolean  True on success.
+     * @return  boolean|int  True on success.
      */
     public function update($table, $data, $key= 'id', $updateNulls = false)
     {
@@ -496,7 +539,7 @@ abstract class AbstractDriver
         }
 
         // Set the query and execute the update.
-        return $this->setQuery($query)->execute();
+        return $this->setQuery($query)->exec();
     }
 
     /**
@@ -532,7 +575,7 @@ abstract class AbstractDriver
      *                           - `array('id' => 5)` => id = 5
      *                           - `new GteCompare('id', 20)` => 'id >= 20'
      *                           - `new Compare('id', '%Flower%', 'LIKE')` => 'id LIKE "%Flower%"'
-     * @return  boolean True if update success.
+     * @return  int
      */
     public function updateBatch($table, $data, $conditions = [])
     {
@@ -554,7 +597,7 @@ abstract class AbstractDriver
 
         $query->update($table);
 
-        return $this->setQuery($query)->execute();
+        return $this->setQuery($query)->exec();
     }
 
     /**
@@ -629,22 +672,99 @@ abstract class AbstractDriver
      *
      * ```
      * $db->setQuery($query)->exists();
-     *
      * // SQL: select exists(select * from `table` where (`phone` = 152xxx)) as `exists`;
      * ```
      * @return int
      */
     public function exists()
     {
-        $this->query = sprintf('select exists(%s) as `exists`', $this->query->select('*'));
+        $this->query = sprintf('SELECT exists(%s) AS `exists`', $this->query->select('*'));
 
         $result = $this->loadOne();
 
         return $result ? $result->exists : 0;
     }
 
+////////////////////////////////////// transaction method //////////////////////////////////////
 
-////////////////////////////////////// helper method //////////////////////////////////////
+    /**
+     * Initiates a transaction
+     * @link http://php.net/manual/en/pdo.begintransaction.php
+     * @param bool $throwException throw a exception on failure.
+     * @return bool <b>TRUE</b> on success or <b>FALSE</b> on failure.
+     */
+    public function beginTrans($throwException = true)
+    {
+        $result = $this->pdo->beginTransaction();
+
+        if ( $throwException && false === $result ) {
+            throw new \RuntimeException('Begin a transaction is failure!!');
+        }
+
+        return $result;
+    }
+    public function beginTransaction()
+    {
+        return $this->beginTrans();
+    }
+
+    /**
+     * (PHP 5 &gt;= 5.1.0, PECL pdo &gt;= 0.1.0)<br/>
+     * Commits a transaction
+     * @link http://php.net/manual/en/pdo.commit.php
+     * @param bool $throwException throw a exception on failure.
+     * @return bool <b>TRUE</b> on success or <b>FALSE</b> on failure.
+     */
+    public function commit($throwException = true)
+    {
+        if ( !$this->inTransaction() ) {
+            throw new \LogicException('Transaction must be turned on before committing a transaction!!');
+        }
+
+        $result = $this->pdo->commit();
+
+        if ( $throwException && false === $result ) {
+            throw new \RuntimeException('Committing a transaction is failure!!');
+        }
+
+        return $result;
+    }
+
+    /**
+     * (PHP 5 &gt;= 5.1.0, PECL pdo &gt;= 0.1.0)<br/>
+     * Rolls back a transaction
+     * @link http://php.net/manual/en/pdo.rollback.php
+     * @param bool $throwException throw a exception on failure.
+     * @return bool <b>TRUE</b> on success or <b>FALSE</b> on failure.
+     */
+    public function rollBack($throwException = true)
+    {
+        if ( !$this->inTransaction() ) {
+            throw new \LogicException('Transaction must be turned on before rolls back a transaction!!');
+        }
+
+        $result = $this->pdo->rollBack();
+
+        if ( $throwException && false === $result ) {
+            throw new \RuntimeException('Committing a transaction is failure!!');
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return bool
+     */
+    public function inTrans()
+    {
+        return $this->pdo->inTransaction();
+    }
+    public function inTransaction()
+    {
+        return $this->inTrans();
+    }
+
+////////////////////////////////////// run method //////////////////////////////////////
 
     /**
      * @param $query
@@ -659,6 +779,27 @@ abstract class AbstractDriver
 
         return $this;
     }
+
+    /**
+     * exec a statement, returns the number of rows that were modified
+     * can use to INSERT, UPDATE, DELETE
+     * @param string $statement
+     * @return int
+     */
+    public function exec($statement='')
+    {
+        $this->connect();
+        $sql = $statement ?: (string)$this->query;
+        $sql = $this->replaceTablePrefix(trim($sql));
+
+        // add sql log
+        if ( $this->debug ) {
+            $this->dbLogger()->debug( $sql.';');
+        }
+
+        return $this->pdo->exec($sql);
+    }
+
 
     /**
      * @return static
@@ -794,6 +935,11 @@ abstract class AbstractDriver
         return isset($this->options[$name]) ? $this->options[$name] : $default;
     }
 
+    public function getDriver()
+    {
+        return $this->getOption('driver');
+    }
+
     /**
      * @return mixed
      */
@@ -832,6 +978,14 @@ abstract class AbstractDriver
     public function getDebug()
     {
         return $this->debug;
+    }
+
+    /**
+     * @return bool
+     */
+    public function supportBatchSave()
+    {
+        return $this->supportBatchSave;
     }
 
     /**

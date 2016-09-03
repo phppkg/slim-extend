@@ -8,6 +8,7 @@
 
 namespace slimExt\base;
 
+use inhere\librarys\exceptions\InvalidArgumentException;
 use inhere\librarys\exceptions\InvalidConfigException;
 use inhere\librarys\helpers\ArrHelper;
 use Slim;
@@ -23,15 +24,27 @@ use Windwalker\Query\Query;
 abstract class RecordModel extends Model
 {
     /**
-     * if true will save(insert/update) safe's data -- Through validation's data
+     * if true, will only save(insert/update) safe's data -- Through validation's data
      * @var bool
      */
-    protected $onlySafeData = true;
+    protected $onlySaveSafeData = true;
+
+    /**
+     * default only update the have been changed column.
+     * @var bool
+     */
+    protected $onlyUpdateChanged = true;
 
     /**
      * @var array
      */
     private $_backup = [];
+
+    const SCENE_DEFAULT = 'default';
+    const SCENE_CREATE = 'create';
+    const SCENE_UPDATE = 'update';
+    const SCENE_DELETE = 'delete';
+    const SCENE_SEARCH = 'search';
 
     /**
      * the table primary key name
@@ -46,13 +59,8 @@ abstract class RecordModel extends Model
      */
     protected static $aliasName = 'mt';
 
-    const SCENE_CREATE = 'create';
-    const SCENE_UPDATE = 'update';
-
     protected static $baseOptions = [
-        /*
-        data index column
-         */
+        /* data index column. */
         'indexKey' => null,
         /*
         data type, in :
@@ -68,7 +76,6 @@ abstract class RecordModel extends Model
         // innerJoin($table, $condition = []), leftJoin($table, $condition = []), order($columns),
         // outerJoin($table, $condition = []), rightJoin($table, $condition = []), bind()
         // ... more {@see Query}
-        //
         //
         // e.g:
         //  'limit' => [10, 120],
@@ -95,8 +102,7 @@ abstract class RecordModel extends Model
 
     /**
      * define model field list
-     * e.g:
-     * in sub class
+     * in sub class:
      * ```
      * public function columns()
      * {
@@ -105,7 +111,6 @@ abstract class RecordModel extends Model
      *          'id'          => 'int',
      *          'title'       => 'string',
      *          'createTime'  => 'int',
-     *          'updateTime'  => 'int',
      *    ];
      * }
      * ```
@@ -210,7 +215,15 @@ abstract class RecordModel extends Model
         unset($options['indexKey'], $options['class']);
         $query = ModelHelper::applyAppendOptions($options, static::query($where));
 
-        return static::setQuery($query)->loadOne($class);
+        $model = static::setQuery($query)->loadOne($class);
+
+        // use data model
+        if ( $class === static::class ) {
+            /** @var static $model */
+            $model->setOldData($model->all());
+        }
+
+        return $model;
     }
 
     /**
@@ -309,18 +322,27 @@ abstract class RecordModel extends Model
     }
 
     /**
+     * more @see AbstractDriver::insertBatch()
+     * @param array $columns
+     * @param array $values
+     * @return bool|int
+     */
+    public static function insertBatch(array $columns, array $values)
+    {
+        if ( static::getDb()->supportBatchSave() ) {
+            return static::getDb()->insertBatch( static::tableName(), $columns, $values);
+        }
+
+        throw new \RuntimeException('The driver ['.static::getDb()->getDriver().'] don\'t support one-time insert multi records.');
+    }
+
+    /**
      * insert multiple
      * @param array $dataSet
      * @return array
      */
     public static function insertMulti(array $dataSet)
     {
-        if ( static::getDb()->supportInsertMulti ) {
-            return static::getDb()->insertMulti(
-                static::tableName(), $dataSet, static::$priKey
-            );
-        }
-
         $pris = [];
 
         foreach ($dataSet as $k => $data) {
@@ -333,6 +355,7 @@ abstract class RecordModel extends Model
     /***********************************************************************************
      * update operation
      ***********************************************************************************/
+
     /**
      * update by primary key
      * @param array $updateColumns only update some columns
@@ -341,31 +364,38 @@ abstract class RecordModel extends Model
      */
     public function update($updateColumns = [], $updateNulls = false)
     {
-        $data = $this->getColumnsData();
         $priKey = static::$priKey;
-
-        // only update some columns
-        if ( $updateColumns ) {
-            foreach ($data as $column => $value) {
-                if ( !in_array($column,$updateColumns)  ) {
-                    unset($data[$column]);
-                }
-            }
-
-            if ( !isset($data[$priKey]) ) {
-                $data[$priKey] = $this->get($priKey);
-            }
-        }
-
         $this->beforeUpdate();
         $this->beforeSave();
 
+        // the primary column is must be exists.
+        if ($updateColumns && !in_array($priKey, $updateColumns)) {
+            $updateColumns[] = $priKey;
+        }
+
         // validate data
-        if ($this->enableValidate && $this->validate(array_keys($data))->fail() ) {
+        if ($this->enableValidate && $this->validate($updateColumns)->fail() ) {
             return false;
         }
 
-        $result = static::getDb()->update( static::tableName(), $data, $priKey, $updateNulls);
+        // collect there are data will update.
+        $data = $this->getColumnsData();
+
+        if ( $this->onlyUpdateChanged ) {
+            // Exclude the column if it value not change
+            foreach ($data as $column => $value) {
+                if (!$this->valueIsChanged($column) && $column !== $priKey) {
+                    unset($data[$column]);
+                }
+            }
+        }
+
+        // check primary key
+        if ( !isset($data[$priKey]) ) {
+            throw new InvalidArgumentException('Must be require primary column of the method update()');
+        }
+
+        $result = static::getDb()->update(static::tableName(), $data, $priKey, $updateNulls);
 
         if ($result) {
             $this->afterUpdate();
@@ -456,6 +486,45 @@ abstract class RecordModel extends Model
         $query = ModelHelper::handleWhere($where, static::class)->delete(static::tableName());
 
         return static::setQuery($query)->execute()->countAffected();
+    }
+
+    /***********************************************************************************
+     * transaction operation
+     ***********************************************************************************/
+
+    /**
+     * @param bool $throwException throw a exception on failure.
+     * @return bool
+     */
+    public static function beginTrans($throwException = true)
+    {
+        return static::getDb()->beginTrans($throwException);
+    }
+
+    /**
+     * @param bool $throwException throw a exception on failure.
+     * @return bool
+     */
+    public static function commit($throwException = true)
+    {
+        return static::getDb()->commit($throwException);
+    }
+
+    /**
+     * @param bool $throwException throw a exception on failure.
+     * @return bool
+     */
+    public static function rollBack($throwException = true)
+    {
+        return static::getDb()->rollBack($throwException);
+    }
+
+    /**
+     * @return bool
+     */
+    public static function inTrans()
+    {
+        return static::getDb()->inTrans();
     }
 
     /***********************************************************************************
@@ -603,11 +672,6 @@ abstract class RecordModel extends Model
             if ($type === DataConst::TYPE_INT ) {
                 $value = (int)$value;
             }
-
-            // backup old value.
-            if ( !$this->isNew() && ($oldValue = $this->get($column)) ) {
-                $this->_backup[$column] = $this->get($column);
-            }
         }
 
         return parent::set($column, $value);
@@ -618,7 +682,7 @@ abstract class RecordModel extends Model
      */
     public function getColumnsData()
     {
-        $source = $this->onlySafeData ? $this->getSafeData() : $this;
+        $source = $this->onlySaveSafeData ? $this->getSafeData() : $this;
         $data = [];
 
         foreach ($source as $col => $val) {
@@ -640,16 +704,12 @@ abstract class RecordModel extends Model
 
     /**
      * Check whether the column's value is changed, the update.
-     * @param $column
+     * @param string $column
      * @return bool
      */
     protected function valueIsChanged($column)
     {
-        if ( $this->isNew() ) {
-            return true;
-        }
-
-        return $this->get($column) !== $this->getOld($column);
+        return $this->isNew() || $this->get($column) !== $this->getOld($column);
     }
 
     /**
@@ -658,6 +718,15 @@ abstract class RecordModel extends Model
     public function getOldData()
     {
         return $this->_backup;
+    }
+
+    /**
+     * @param $data
+     * @return array
+     */
+    public function setOldData($data)
+    {
+        $this->_backup = $data;
     }
 
     /**
