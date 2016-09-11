@@ -32,7 +32,6 @@ abstract class Model extends Collection
      */
     //protected $validateHandler = '\inhere\validate\Validation';
 
-
     /**
      * @param $data
      * @return static

@@ -23,7 +23,7 @@ use Slim\App as SlimApp;
  * @property \Slim\Flash\Messages            flash
  * @property \slimExt\base\Language   language
  *
- *
+ * @property \slimExt\database\AbstractDriver   db
  * @property \slimExt\DataCollector   config
  *
  */

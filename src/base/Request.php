@@ -85,6 +85,14 @@ class Request extends SlimRequest
     }
 
     /**
+     * @return array|null|object
+     */
+    public function post()
+    {
+        return $this->getParsedBody();
+    }
+
+    /**
      * @param $name
      * @return \Slim\Http\UploadedFile
      */

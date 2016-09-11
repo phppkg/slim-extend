@@ -87,9 +87,21 @@ abstract class RecordModel extends Model
         // function ($query) { ... }
     ];
 
-    public function __construct(array $items = [])
+
+    /**
+     * @param $data
+     * @param string $scene
+     * @return static
+     */
+    public static function load($data, $scene = '')
+    {
+        return new static($data, $scene);
+    }
+    public function __construct(array $items = [], $scene='')
     {
         parent::__construct($items);
+
+        $this->scene = trim($scene);
 
         if (!$this->columns()) {
             throw new InvalidConfigException('Must define method columns() and is can\'t empty.');
@@ -218,7 +230,7 @@ abstract class RecordModel extends Model
         $model = static::setQuery($query)->loadOne($class);
 
         // use data model
-        if ( $class === static::class ) {
+        if ($model && $class === static::class ) {
             /** @var static $model */
             $model->setOldData($model->all());
         }

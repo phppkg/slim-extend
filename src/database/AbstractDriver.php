@@ -8,6 +8,7 @@
 
 namespace slimExt\database;
 
+use inhere\librarys\exceptions\InvalidArgumentException;
 use Slim;
 use PDO;
 use PDOStatement;
@@ -370,6 +371,10 @@ abstract class AbstractDriver
      */
     public function insert($table, $data, $priKey='')
     {
+        if (!$data) {
+            throw new InvalidArgumentException('Insert data is empty. Please check it.');
+        }
+
         $query = $this->newQuery(true);
         $fields = $values = [];
 
@@ -493,6 +498,10 @@ abstract class AbstractDriver
     {
         if (!is_array($data) && !is_object($data)) {
             throw new \InvalidArgumentException('Please give me array or object to update.');
+        }
+
+        if (!$data) {
+            throw new InvalidArgumentException('Update data is empty. Please check it.');
         }
 
         $query = $this->newQuery(true);
@@ -809,7 +818,6 @@ abstract class AbstractDriver
         $this->connect();
 
         $sql = $this->replaceTablePrefix((string)$this->query);
-        $bounded =& $this->query->getBounded();
 
         // add sql log
         if ( $this->debug ) {
@@ -826,6 +834,8 @@ abstract class AbstractDriver
 
         // Bind the variables:
         if ($this->query instanceof Query\PreparableInterface) {
+            $bounded =& $this->query->getBounded();
+
             foreach ($bounded as $key => $data) {
                 $this->cursor->bindParam($key, $data->value, $data->dataType, $data->length, $data->driverOptions);
                 $boundedStr .= "$key->{$data->value},";

@@ -8,6 +8,7 @@
 
 namespace slimExt\base;
 
+use inhere\librarys\utils\JsonMessage;
 use slimExt\DataConst;
 use Slim;
 use Slim\Http\Response as SlimResponse;
@@ -29,6 +30,10 @@ class Response extends SlimResponse
      */
     public function withJson($data, $code = 0, $msg = '', $status = 200)
     {
+        if ( $data instanceof JsonMessage) {
+            return parent::withJson($data, $status, 0);
+        }
+
         $data = format_messages($data, $code, $msg);
 
         return parent::withJson($data, $status, 0);
