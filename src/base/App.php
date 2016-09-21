@@ -17,7 +17,7 @@ use Slim\App as SlimApp;
  * @property-read Request                    request
  * @property-read Response                   response
  *
- * @property \Slim\Container                 container
+ * @property \slimExt\base\Container         container
  * @property \Monolog\Logger                 logger
  * @property \slimExt\base\User       user
  * @property \Slim\Flash\Messages            flash

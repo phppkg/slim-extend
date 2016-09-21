@@ -8,6 +8,7 @@
 
 namespace slimExt\base;
 
+use inhere\librarys\exceptions\LogicException;
 use Slim\Container as SlimContainer;
 
 /**
@@ -16,6 +17,23 @@ use Slim\Container as SlimContainer;
  */
 class Container extends SlimContainer
 {
+    /**
+     * @param $id
+     * @param array $params
+     * @return mixed
+     * @throws LogicException
+     */
+    public function call($id, $params = [])
+    {
+        $callable = $this->raw($id);
+
+        if ( !($callable instanceof \Closure) ) {
+            throw new LogicException('The service must is a Closure by the method(Container::call) call.');
+        }
+
+        return $params ? $callable($this) : call_user_func_array($callable, $params);
+    }
+
     /**
      * @param $key
      * @param null $default

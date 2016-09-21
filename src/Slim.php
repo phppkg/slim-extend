@@ -130,6 +130,20 @@ abstract class Slim
 
     /**
      * @param $id
+     * @param array $params
+     * @return mixed
+     */
+    public static function call($id,$params = [])
+    {
+        if ( !static::$app ) {
+            return null;
+        }
+
+        return static::$app->container->call($id,$params);
+    }
+
+    /**
+     * @param $id
      * @param $value
      */
     public static function set($id, $value)
