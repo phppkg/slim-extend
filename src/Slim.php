@@ -144,6 +144,26 @@ abstract class Slim
 
     /**
      * @param $id
+     * @param string $class
+     * @param array $params
+     * @return mixed
+     * @throws \inhere\librarys\exceptions\LogicException
+     */
+    public static function make($id, $class = null, $params = null)
+    {
+        if ( !static::$app ) {
+            return null;
+        }
+
+        $callable = static::$app->container->factory(function () use ($class, $params) {
+            return new $class($params);
+        });
+
+        static::$app->container[$id] = $callable;
+    }
+
+    /**
+     * @param $id
      * @param $value
      */
     public static function set($id, $value)

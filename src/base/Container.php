@@ -14,6 +14,8 @@ use Slim\Container as SlimContainer;
 /**
  * Class Container
  * @package slimExt\base
+ *
+ * @property-read Collection settings
  */
 class Container extends SlimContainer
 {
