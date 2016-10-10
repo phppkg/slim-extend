@@ -20,7 +20,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * built in color tag:
  *  info comment question error
  * usage:
- *  `<info>Operation successful!</info>`
+ *  `$output->writeln('<info>Operation successful!</info>')`
  *
  * if you want to use more style, please create style instance.
  *
@@ -50,6 +50,16 @@ class Command extends SfCommand
     protected $styleIO;
 
     /**
+     * @var InputInterface
+     */
+    protected $input;
+
+    /**
+     * @var OutputInterface
+     */
+    protected $output;
+
+    /**
      * @param null|string $name
      */
     public function __construct($name = null)
@@ -70,7 +80,10 @@ class Command extends SfCommand
      * @param OutputInterface $output An OutputInterface instance
      */
     protected function initialize(InputInterface $input, OutputInterface $output)
-    {}
+    {
+        $this->input = $input;
+        $this->output = $output;
+    }
 
     /**
      * @param  InputInterface  $input  [description]
@@ -80,14 +93,12 @@ class Command extends SfCommand
     {}
 
     /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
      * @return SymfonyStyle
      */
-    public function getIO(InputInterface $input, OutputInterface $output)
+    public function getIO()
     {
         if (!$this->styleIO) {
-            $this->styleIO = new SymfonyStyle($input, $output);
+            $this->styleIO = new SymfonyStyle($this->input, $this->output);
         }
 
         return $this->styleIO;
@@ -102,32 +113,29 @@ class Command extends SfCommand
     }
 
     /**
-     * @param OutputInterface $output
      * @param $msg
      * @param int $options
      */
-    public function info($output, $msg, $options = 0)
+    public function info($msg, $options = 0)
     {
-        $output->writeln("<info>$msg</info>", $options);
+        $this->output->writeln("<info>$msg</info>", $options);
     }
 
     /**
-     * @param OutputInterface $output
      * @param $msg
      * @param int $options
      */
-    public function comment($output, $msg, $options = 0)
+    public function comment($msg, $options = 0)
     {
-        $output->writeln("<comment>$msg</comment>", $options);
+        $this->output->writeln("<comment>$msg</comment>", $options);
     }
 
     /**
-     * @param OutputInterface $output
      * @param $msg
      * @param int $options
      */
-    public function error($output, $msg, $options = 0)
+    public function error($msg, $options = 0)
     {
-        $output->writeln("<error>$msg</error>", $options);
+        $this->output->writeln("<error>$msg</error>", $options);
     }
 }

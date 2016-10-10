@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * `./bin/console build:init {type}`
  * see help: `./bin/console build:init --help`
  */
-class CreateAppCommand extends Command
+class AppCreateCommand extends Command
 {
     /**
      * {@inheritDoc}

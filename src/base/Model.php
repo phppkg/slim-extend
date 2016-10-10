@@ -28,9 +28,17 @@ abstract class Model extends Collection
     protected $enableValidate = true;
 
     /**
+     * if true, will only save(insert/update) safe's data -- Through validation's data
+     * @var bool
+     */
+    protected $onlySaveSafeData = true;
+
+
+    /**
      * Validation class name
      */
     //protected $validateHandler = '\inhere\validate\Validation';
+
 
     /**
      * @param $data
@@ -39,5 +47,41 @@ abstract class Model extends Collection
     public static function load($data)
     {
         return new static($data);
+    }
+
+
+    /**
+     * define model field list
+     * in sub class:
+     * ```
+     * public function columns()
+     * {
+     *    return [
+     *          // column => type
+     *          'id'          => 'int',
+     *          'title'       => 'string',
+     *          'createTime'  => 'int',
+     *    ];
+     * }
+     * ```
+     * @return array
+     */
+    abstract public function columns();
+
+    /**
+     * @return array
+     */
+    public function getColumnsData()
+    {
+        $source = $this->onlySaveSafeData ? $this->getSafeData() : $this;
+        $data = [];
+
+        foreach ($source as $col => $val) {
+            if ( isset($this->columns()[$col]) ) {
+                $data[$col] = $val;
+            }
+        }
+
+        return $data;
     }
 }

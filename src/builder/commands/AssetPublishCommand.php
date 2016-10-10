@@ -9,7 +9,6 @@
 namespace slimExt\builder\commands;
 
 use inhere\librarys\asset\AssetPublisher;
-use inhere\librarys\exceptions\InvalidArgumentException;
 use slimExt\base\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -41,7 +40,6 @@ command example:
                 'asset',
                 InputArgument::IS_ARRAY, // OPTIONAL 可选的参数 REQUIRED 必须的
                 'You want to publish\'s asset path. can use relative path. allow multi asset path.'
-
             )
             // 配置选项
             // e.g. $ console asset:publish [name] [--yell|-y value]
@@ -90,7 +88,7 @@ command example:
             'publishPath' => $publishPath,
         ]);
 
-        $io = $this->getIO($input, $output);
+        $io = $this->getIO();
 
         /*
          e.g.
@@ -116,7 +114,7 @@ command example:
         if (!$answer) {
             $this->info($output, 'You want\'t to do publish, at now. GoodBye!!');
 
-            return false;
+            return 1;
         }
 
         $publisher->add($asset)->publish();
@@ -136,6 +134,6 @@ command example:
 
         $output->writeln('<info>Publish asset successful!</info>');
 
-        return true;
+        return 0;
     }
 }

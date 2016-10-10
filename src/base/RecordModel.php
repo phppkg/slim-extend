@@ -24,12 +24,6 @@ use Windwalker\Query\Query;
 abstract class RecordModel extends Model
 {
     /**
-     * if true, will only save(insert/update) safe's data -- Through validation's data
-     * @var bool
-     */
-    protected $onlySaveSafeData = true;
-
-    /**
      * default only update the have been changed column.
      * @var bool
      */
@@ -111,24 +105,6 @@ abstract class RecordModel extends Model
     /***********************************************************************************
      * some prepare work
      ***********************************************************************************/
-
-    /**
-     * define model field list
-     * in sub class:
-     * ```
-     * public function columns()
-     * {
-     *    return [
-     *          // column => type
-     *          'id'          => 'int',
-     *          'title'       => 'string',
-     *          'createTime'  => 'int',
-     *    ];
-     * }
-     * ```
-     * @return array
-     */
-    abstract public function columns();
 
     /**
      * 定义保存数据时,当前场景允许写入的属性字段
@@ -373,6 +349,7 @@ abstract class RecordModel extends Model
      * @param array $updateColumns only update some columns
      * @param bool|false $updateNulls
      * @return bool
+     * @throws InvalidArgumentException
      */
     public function update($updateColumns = [], $updateNulls = false)
     {
@@ -687,23 +664,6 @@ abstract class RecordModel extends Model
         }
 
         return parent::set($column, $value);
-    }
-
-    /**
-     * @return array
-     */
-    public function getColumnsData()
-    {
-        $source = $this->onlySaveSafeData ? $this->getSafeData() : $this;
-        $data = [];
-
-        foreach ($source as $col => $val) {
-            if ( isset($this->columns()[$col]) ) {
-                $data[$col] = $val;
-            }
-        }
-
-        return $data;
     }
 
     /**
