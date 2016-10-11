@@ -19,6 +19,13 @@ use Slim\Container as SlimContainer;
  */
 class Container extends SlimContainer
 {
+    public function __construct(array $settings = [], array $values = [])
+    {
+        parent::__construct($values);
+
+        $this->settings->replace($settings);
+    }
+
     /**
      * @param $id
      * @param array $params
@@ -34,15 +41,5 @@ class Container extends SlimContainer
         }
 
         return $params ? $callable($this) : call_user_func_array($callable, $params);
-    }
-
-    /**
-     * @param $key
-     * @param null $default
-     * @return null
-     */
-    public function getSetting($key,$default = null)
-    {
-        return isset($this->settings[$key]) ? $this->settings[$key] : $default;
     }
 }

@@ -72,6 +72,7 @@ class User extends Collection
     /**
      * don't allow set attribute
      * @param array $options
+     * @throws InvalidConfigException
      */
     public function __construct($options=[])
     {
@@ -112,6 +113,7 @@ class User extends Collection
      * @param Request $request
      * @param Response $response
      * @return Response
+     * @throws InvalidConfigException
      */
     public function loginRequired(Request $request, Response $response)
     {
@@ -215,6 +217,7 @@ class User extends Collection
 
     /**
      * @param IdentityInterface $identity
+     * @throws InvalidArgumentException
      */
     public function setIdentity(IdentityInterface $identity)
     {
