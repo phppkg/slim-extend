@@ -28,6 +28,7 @@ class ConsoleApp extends Application
     protected $bootstraps = [
         '\slimExt\builder\commands\AppCreateCommand',
         '\slimExt\builder\commands\AssetPublishCommand',
+        '\slimExt\builder\commands\CommandUpdateCommand',
     ];
 
     /**
