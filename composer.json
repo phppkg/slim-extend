@@ -21,13 +21,13 @@
     "windwalker/query": "^3.0",
     "windwalker/compare": "^3.0",
     "symfony/console": "^3.0",
-    "inhere/php-librarys": "~1.0",
-    "inhere/php-validate": "~1.0"
+    "inhere/php-librarys": "dev-master",
+    "inhere/php-validate": "dev-master"
   },
   "require-dev": {
       "filp/whoops": "2.*",
       "inhere/slim-whoops": "dev-master",
-      "inhere/simple-print-tool": "~1.0"
+      "inhere/simple-print-tool": "dev-master"
   },
   "autoload":{
     "files":[
