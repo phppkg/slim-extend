@@ -71,6 +71,8 @@ abstract class Controller extends AbstractController
      */
     protected $appendTplVar = [];
 
+    protected $bodyBlock = 'body';
+
     /**********************************************************
      * the view render handle
      **********************************************************/
@@ -119,26 +121,27 @@ abstract class Controller extends AbstractController
         $globalVar = $this->addTwigGlobalVar();
         list($globalKey, $globalVar) = $this->handleGlobalVar($settings, $globalVar);
 
-        // add tpl global var
-        $twig->getEnvironment()->addGlobal($globalKey, $globalVar);
-
         // add custom extension
         // $twig->addExtension(new \slimExt\twig\TwigExtension( $c['request'], $c['csrf'] ));
         $this->appendVarToView($args);
 
-        // check var '_renderPartial'
-        $args['_renderPartial'] = isset($args['_renderPartial']) ? $args['_renderPartial'] : false;
-
         // is pjax request
         if ( Slim::$app->request->isPjax() ) {
-            $args['_renderPartial'] = true;
 
             // X-PJAX-URL:https://github.com/inhere/php-librarys
             // X-PJAX-Version: 23434
             $response = $response
                             ->withHeader('X-PJAX-URL', (string)Slim::$app->request->getUri())
                             ->withHeader('X-PJAX-Version', Slim::config('pjax_version', '1.0'));
+
+            $args[$globalKey] = $globalVar;
+            $rendered = $twig->getEnvironment()->loadTemplate($view)->renderBlock($this->bodyBlock, $args);
+
+            return $response->write($rendered);
         }
+
+        // add tpl global var
+        $twig->getEnvironment()->addGlobal($globalKey, $globalVar);
 
         // Fetch rendered template {@see \Slim\Views\Twig::fetch()}
         $rendered = $twig->fetch($view, $args);
