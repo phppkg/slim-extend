@@ -125,7 +125,7 @@ abstract class Slim
             return null;
         }
 
-        return static::$app->$id;
+        return static::$app->getContainer()[$id];
     }
 
     /**

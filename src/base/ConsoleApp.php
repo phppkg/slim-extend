@@ -8,7 +8,7 @@
 
 namespace slimExt\base;
 
-use Pimple\Container;
+use slimExt\base\Container;
 use Interop\Container\ContainerInterface;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
@@ -35,12 +35,13 @@ class ConsoleApp extends Application
      * Constructor.
      *
      * @param array $settings
+     * @param array $services
      * @param string $name The name of the application
      * @param string $version The version of the application
      */
-    public function __construct( array $settings = [],$name = 'Inhere Console', $version = '1.0.1')
+    public function __construct( array $settings = [], array $services = [], $name = 'Inhere Console', $version = '1.0.1')
     {
-        $this->container = new Container($settings);
+        $this->container = new Container($settings, $services);
 
         parent::__construct($name, $version);
 
