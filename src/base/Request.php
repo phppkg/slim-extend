@@ -19,17 +19,17 @@ use Slim\Http\Uri;
  * Class Request
  * @package slimExt\base
  *
- * @method      string   getRaw()       getRaw($name, $default = null)      Get raw data
- * @method      integer  getInt()       getInt($name, $default = null)      Get a signed integer.
- * @method      integer  getNumber()    getNumber($name, $default = null)   Get an unsigned integer.
- * @method      float    getFloat()     getFloat($name, $default = null)    Get a floating-point number.
- * @method      boolean  getBool()      getBool($name, $default = null)     Get a boolean.
- * @method      boolean  getBoolean()   getBoolean($name, $default = null)  Get a boolean.
- * @method      string   getString()    getString($name, $default = null)
- * @method      string   getTrimmed()   getTrimmed($name, $default = null)
- * @method      string   getSafe()      getSafe($name, $default = null)
- * @method      string   getEmail()     getEmail($name, $default = null)
- * @method      string   getUrl()       getUrl($name, $default = null)      Get URL
+ * @method      string   getRaw($name, $default = null)      Get raw data
+ * @method      integer  getInt($name, $default = null)      Get a signed integer.
+ * @method      integer  getNumber($name, $default = null)   Get an unsigned integer.
+ * @method      float    getFloat($name, $default = null)    Get a floating-point number.
+ * @method      boolean  getBool($name, $default = null)     Get a boolean.
+ * @method      boolean  getBoolean($name, $default = null)  Get a boolean.
+ * @method      string   getString($name, $default = null)
+ * @method      string   getTrimmed($name, $default = null)
+ * @method      string   getSafe($name, $default = null)
+ * @method      string   getEmail($name, $default = null)
+ * @method      string   getUrl($name, $default = null)      Get URL
  *
  * @property  Uri $uri;
  */
@@ -137,18 +137,19 @@ class Request extends SlimRequest
      */
     public function get($name, $default = null, $filter = 'raw')
     {
-        if ( !isset($this->getParams()[$name]) ) {
-            return $default;
-        }
+        $value = !isset($this->getParams()[$name]) ? $default : $this->getParams()[$name];
 
-        $value = $this->getParams()[$name];
-
-        return $this->doFiltering($value, $filter, $default);
+        return $this->filtering($value, $filter);
     }
 
     /**
      * Get part of it - 获取其中的一部分, 可以设置过滤
      * @param array $needKeys
+     * $needKeys = [
+     *     'name',
+     *     'password',
+     *     'status' => 'int'
+     * ]
      * @return array
      */
     public function getPart(array $needKeys=[])
@@ -156,10 +157,14 @@ class Request extends SlimRequest
         $needed = [];
 
         foreach ($needKeys as $key => $value) {
-            $needed[$key] = is_integer($key) ? $this->getParam($value) : $this->doFiltering($key, $value);
+            if ( is_int($key) ) {
+                $needed[$value] = $this->getParam($value)
+            } else {
+                $needed[$key] = $this->filtering($key, $value);
+            }
         }
 
-        return $needKeys ? $needed : $this->getParams();
+        return $needed;
     }
 
     /**
@@ -213,13 +218,9 @@ class Request extends SlimRequest
      */
     public function __call($name, array $arguments)
     {
-        if (substr($name, 0, 3) === 'get') {
+        if (substr($name, 0, 3) === 'get' && $arguments) {
             $filter = substr($name, 3);
-            $default = null;
-
-            if (isset($arguments[1])) {
-                $default = $arguments[1];
-            }
+            $default = isset($arguments[1]) ? $arguments[1] : null;
 
             return $this->get($arguments[0], $default, lcfirst($filter));
         }
@@ -233,7 +234,7 @@ class Request extends SlimRequest
      * @param null $default
      * @return mixed|null
      */
-    protected function doFiltering($value, $filter, $default = null)
+    public function filtering($value, $filter)
     {
         if ( $filter === static::FILTER_RAW) {
             return $value;
@@ -241,7 +242,7 @@ class Request extends SlimRequest
 
         // is a custom filter
         if ( !is_string($filter) || !isset($this->filterList[$filter]) ) {
-            $result = $default;
+            $result = $value;
 
             // is custom callable filter
             if ( is_callable($filter) ) {
@@ -258,9 +259,6 @@ class Request extends SlimRequest
             $result = call_user_func($filter, $value);
         } else {
             switch ( lcfirst(trim($filter)) ) {
-                case DataConst::TYPE_ARRAY :
-                    $result = (array)$value;
-                    break;
                 case DataConst::TYPE_BOOL :
                 case DataConst::TYPE_BOOLEAN :
                     $result = (bool)$value;
@@ -273,14 +271,17 @@ class Request extends SlimRequest
                 case DataConst::TYPE_INTEGER :
                     $result = (int)$value;
                     break;
-                case DataConst::TYPE_OBJECT :
-                    $result = (object)$value;
-                    break;
                 case DataConst::TYPE_STRING :
                     $result = (string)$value;
                     break;
+                case DataConst::TYPE_ARRAY :
+                    $result = (array)$value;
+                    break;
+                case DataConst::TYPE_OBJECT :
+                    $result = (object)$value;
+                    break;
                 default:
-                    $result = $default;
+                    $result = $value;
                     break;
             }
         }
