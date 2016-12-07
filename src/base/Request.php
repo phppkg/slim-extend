@@ -143,7 +143,7 @@ class Request extends SlimRequest
     }
 
     /**
-     * Get part of it - 获取其中的一部分, 可以设置过滤
+     * Get Multi - 获取多个, 可以设置过滤
      * @param array $needKeys
      * $needKeys = [
      *     'name',
@@ -152,13 +152,13 @@ class Request extends SlimRequest
      * ]
      * @return array
      */
-    public function getPart(array $needKeys=[])
+    public function getMulti(array $needKeys=[])
     {
         $needed = [];
 
         foreach ($needKeys as $key => $value) {
             if ( is_int($key) ) {
-                $needed[$value] = $this->getParam($value)
+                $needed[$value] = $this->getParam($value);
             } else {
                 $needed[$key] = $this->filtering($key, $value);
             }
