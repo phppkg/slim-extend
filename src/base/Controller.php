@@ -30,6 +30,12 @@ abstract class Controller extends AbstractController
     public $actionSuffix = 'Action';
 
     /**
+     * the template Engine. e.g 'php' 'twig'
+     * @var string
+     */
+    protected $tplEngine = 'twig';
+
+    /**
      * template helper class name.
      * can use `{{ _globals.helper.propertyName }}` OR `{{ _globals.helper.methodName(arg1[, arg2, ...]) }}`
      * access instance of the $tplHelperClass
@@ -291,8 +297,7 @@ abstract class Controller extends AbstractController
      * @param array $args
      * @return void
      */
-    protected function beforeInvoke(array $args)
-    {}
+    protected function beforeInvoke(array $args) {}
 
     /**
      * when route setting as (no define action name):
@@ -355,16 +360,13 @@ abstract class Controller extends AbstractController
      * @param Response $response
      * @return void
      */
-    protected function afterInvoke(array $args, $response)
-    {}
+    protected function afterInvoke(array $args, $response) {}
 
     /**
      * when route have been setting action name:
-     *
      * ```
      * $app->get('/users/{id}', controllers\User::class . ':view');
      * ```
-     *
      * @param $method
      * @param $args
      * @return mixed

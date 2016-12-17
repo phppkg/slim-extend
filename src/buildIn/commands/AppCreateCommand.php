@@ -1,6 +1,6 @@
 <?php
 
-namespace slimExt\builder\commands;
+namespace slimExt\buildIn\commands;
 
 use Slim;
 use slimExt\base\Command;

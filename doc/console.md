@@ -4,7 +4,7 @@ the console application base on Symfony/Console
 
 ## usage
 
-a example command class, see `slimExt\builder\commands\AssetPublishCommand`
+a example command class, see `slimExt\buildIn\commands\AssetPublishCommand`
 
 ## use color style
 

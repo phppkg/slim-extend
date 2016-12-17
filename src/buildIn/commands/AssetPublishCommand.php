@@ -6,7 +6,7 @@
  * Time: 下午6:18
  */
 
-namespace slimExt\builder\commands;
+namespace slimExt\buildIn\commands;
 
 use inhere\librarys\asset\AssetPublisher;
 use slimExt\base\Command;
@@ -17,7 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class AssetPublishCommand
- * @package slimExt\builder\commands
+ * @package slimExt\buildIn\commands
  */
 class AssetPublishCommand extends Command
 {
@@ -29,7 +29,7 @@ class AssetPublishCommand extends Command
         $this
             ->setName('asset:publish')
             // 命令描述
-            ->setDescription('publish static asset to web access directory. [built in]
+            ->setDescription('publish static asset to web access directory. [<info>built in</info>]
 command example:
   <info> ./bin/console asset:publish -s @vendor/bower -p @public/assets/publish "bootstrap" "jquery" "yii2-pjax"</info>
             ')

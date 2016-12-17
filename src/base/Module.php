@@ -44,17 +44,16 @@ abstract class Module
             throw new \RuntimeException('required define module name (property $name)');
         }
 
-        // get path
-        $reflect = new \ReflectionClass($this);
-        $this->path = dirname($reflect->getFileName());
+        $this->prepare();
 
         $this->init();
     }
 
-    protected function init()
+    public function prepare()
     {
-        //add path alias
-        Slim::alias('@' . $this->name, $this->path);
+        // get path
+        $reflect = new \ReflectionClass($this);
+        $this->path = dirname($reflect->getFileName());
 
         $globalFile = Slim::alias('@config') . '/module-' . $this->name . '.yml';
         $configFile = $this->path . '/config.yml';
@@ -62,15 +61,20 @@ abstract class Module
         // runtime env config
         $this->config = DataCollector::make($configFile, DataCollector::FORMAT_YML)
                         ->loadYaml(is_file($globalFile) ? $globalFile : '');
-        /*
+
+        //add path alias
+        // Slim::alias('@' . $this->name, $this->path);
         // add twig views path
-        Slim::get('twigRenderer')->getLoader()->addPath($this->path . '/resources/views');
-
+        // Slim::get('twigRenderer')->getLoader()->addPath($this->path . '/resources/views');
         // or php views path
-        Slim::get('renderer')->setTemplatePath($this->path . '/resources/views');
+        // Slim::get('renderer')->setTemplatePath($this->path . '/resources/views');
+    }
 
-        Some init logic
-        */
+    protected function init()
+    {
+        /*
+         * Some init logic
+         */
     }
 
     /**

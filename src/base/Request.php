@@ -152,13 +152,13 @@ class Request extends SlimRequest
      * ]
      * @return array
      */
-    public function getPart(array $needKeys=[])
+    public function getMulti(array $needKeys=[])
     {
         $needed = [];
 
         foreach ($needKeys as $key => $value) {
             if ( is_int($key) ) {
-                $needed[$value] = $this->getParam($value)
+                $needed[$value] = $this->getParam($value);
             } else {
                 $needed[$key] = $this->filtering($key, $value);
             }

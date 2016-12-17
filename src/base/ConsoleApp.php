@@ -12,7 +12,7 @@ use slimExt\base\Container;
 use Interop\Container\ContainerInterface;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
-use slimExt\builder\commands;
+use slimExt\buildIn\commands;
 
 /**
  * Class ConsoleApp
@@ -26,9 +26,9 @@ class ConsoleApp extends Application
     protected $container;
 
     protected $bootstraps = [
-        '\slimExt\builder\commands\AppCreateCommand',
-        '\slimExt\builder\commands\AssetPublishCommand',
-        '\slimExt\builder\commands\CommandUpdateCommand',
+        '\slimExt\buildIn\commands\AppCreateCommand',
+        '\slimExt\buildIn\commands\AssetPublishCommand',
+        '\slimExt\buildIn\commands\CommandUpdateCommand',
     ];
 
     /**
