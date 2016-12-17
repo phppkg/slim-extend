@@ -143,7 +143,7 @@ class Request extends SlimRequest
     }
 
     /**
-     * Get part of it - 获取其中的一部分, 可以设置过滤
+     * Get Multi - 获取多个, 可以设置过滤
      * @param array $needKeys
      * $needKeys = [
      *     'name',
