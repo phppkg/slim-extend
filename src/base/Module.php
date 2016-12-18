@@ -21,7 +21,7 @@ abstract class Module
     /**
      * @var string
      */
-    public $name = '';
+    const NAME = '';
 
     /**
      * @var string
@@ -40,22 +40,24 @@ abstract class Module
      */
     public function __construct()
     {
-        if ( !$this->name || !preg_match('/^[a-zA-Z][\w-]+$/i', $this->name)) {
-            throw new \RuntimeException('required define module name (property $name)');
-        }
-
         $this->prepare();
 
         $this->init();
     }
 
-    public function prepare()
+    protected function prepare()
     {
+        $name = static::NAME;
+
+        if ( !$name || !preg_match('/^[a-zA-Z][\w-]+$/i', $name)) {
+            throw new \RuntimeException('required define module name (property $name)');
+        }
+
         // get path
         $reflect = new \ReflectionClass($this);
         $this->path = dirname($reflect->getFileName());
 
-        $globalFile = Slim::alias('@config') . '/module-' . $this->name . '.yml';
+        $globalFile = Slim::alias('@config') . '/module-' . $name . '.yml';
         $configFile = $this->path . '/config.yml';
 
         // runtime env config
@@ -63,7 +65,7 @@ abstract class Module
                         ->loadYaml(is_file($globalFile) ? $globalFile : '');
 
         //add path alias
-        // Slim::alias('@' . $this->name, $this->path);
+        // Slim::alias('@' . $name, $this->path);
         // add twig views path
         // Slim::get('twigRenderer')->getLoader()->addPath($this->path . '/resources/views');
         // or php views path
@@ -83,15 +85,31 @@ abstract class Module
      */
     public static function register($app)
     {
-        $module = new static;
+        $module = $app->loadModule(static::NAME, new static($app));
 
-        $app->loadModule($module->name, $module)
-            ->registerRoutes($app);
+        if ( \inhere\librarys\helpers\PhpHelper::isCli() ) {
+            $module->registerCommands($app);
+        } else {
+            $module->registerRoutes($app);
+        }
     }
 
     /**
+     * register route to web application
      * @param App $app
      * @return mixed
      */
-    abstract public function registerRoutes($app);
+    protected function registerRoutes($app)
+    {
+        // require __DIR__. '/routes.php';
+    }
+
+    /**
+     * register command to console application
+     * @param App $app
+     */
+    protected function registerCommands($app)
+    {
+        // $app->add('...');
+    }
 }

@@ -20,6 +20,8 @@ use slimExt\buildIn\commands;
  */
 class ConsoleApp extends Application
 {
+    use TraitUseModule;
+
     /**
      * @var ContainerInterface
      */
