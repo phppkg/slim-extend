@@ -26,7 +26,7 @@ class Response extends SlimResponse
      * @param int $code
      * @param string $msg
      * @param int $status
-     * @return SlimResponse|static
+     * @return SlimResponse
      */
     public function withJson($data, $code = 0, $msg = '', $status = 200)
     {
@@ -43,7 +43,7 @@ class Response extends SlimResponse
      * @param mixed $data
      * @param int $status
      * @param int $encodingOptions
-     * @return SlimResponse|static
+     * @return SlimResponse
      */
     public function withRawJson($data, $status = 200, $encodingOptions = 0)
     {
@@ -69,7 +69,7 @@ class Response extends SlimResponse
     /**
      * @param \Psr\Http\Message\UriInterface|string $url
      * @param int $status
-     * @return static
+     * @return SlimResponse
      */
     public function withRedirect($url, $status = 301)
     {

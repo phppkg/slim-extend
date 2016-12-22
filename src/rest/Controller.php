@@ -2,8 +2,6 @@
 
 namespace slimExt\rest;
 
-use inhere\librarys\exceptions\HttpRequestException;
-use Slim;
 use inhere\librarys\exceptions\NotFoundException;
 use inhere\librarys\exceptions\UnknownMethodException;
 use slimExt\AbstractController;
@@ -16,7 +14,7 @@ use slimExt\base\Response;
  *
  * how to use. e.g:
  * ```
- * class Book extends slimExt\base\RestFulController
+ * class Book extends slimExt\rest\Controller
  * {
  *     public function getsAction($args)
  *     {}
@@ -31,13 +29,28 @@ use slimExt\base\Response;
  *     ... ...
  * }
  * ```
+ *
+ * in routes
+ * ```
+ * $app->any('/api/test[/{argument}]', api\Book::class);
+ * ```
  */
 abstract class Controller extends AbstractController
 {
     const DEFAULT_ERR_CODE = 2;
 
     const RESOURCE_ARG_KEY = 'argument';
-    const MARK_MORE = '...';
+
+    // match request like GET /users (get all resource)
+    const MARK_MORE = '*';
+
+    // allow multi request method reflect to one action.
+    // e.g 'get|post' => 'index'
+    const MULTI_SEP = '|';
+
+    // method to action char
+    // e.g 'get.search'
+    const M2A_CHAR = '.';
 
     /**
      * method name suffix.
@@ -48,19 +61,18 @@ abstract class Controller extends AbstractController
 
     protected $except = [];
 
-    protected $extraMapping= [
-        'GET,search' => 'search',
-    ];
+//    protected $extraMapping= [
+//        'GET,search' => 'search',
+//    ];
 
     /**
-     * @return array
      * @return Response
      */
     public function headsAction()
     {
         return $this->response
-            ->withHeader('X-Welcome','Hi, Welcome to the network.')
-            ->withHeader('X-Request-Method','method heads');
+            ->withHeader('X-Welcome', 'Hi, Welcome to the network.')
+            ->withHeader('X-Request-Method', 'method heads');
     }
 
     /**
@@ -70,8 +82,8 @@ abstract class Controller extends AbstractController
     public function headAction($id)
     {
         return $this->response
-            ->withHeader('X-Welcome','Hi, Welcome to the network.')
-            ->withHeader('X-Request-Method','method head')
+            ->withHeader('X-Welcome', 'Hi, Welcome to the network.')
+            ->withHeader('X-Request-Method', 'method head')
             ->withHeader('X-Request-Param', $id);
     }
 
@@ -120,7 +132,7 @@ abstract class Controller extends AbstractController
      * protected function methodMapping()
      * {
      *     return [
-     *         'get...'   => 'index',   # GET /users
+     *         'get*'   => 'index',   # GET /users
      *         'get'      => 'view',    # GET /users/1
      *         'post'     => 'create',  # POST /users
      *         'put'      => 'update',  # PUT /users/1
@@ -137,22 +149,26 @@ abstract class Controller extends AbstractController
     protected function methodMapping()
     {
         return [
-             //REQUEST_METHOD => method name
-             // 'gets' is special key.
-             'get...'     => 'gets',    # GET /users
-             'get'      => 'get',       # GET /users/1
-             'post'     => 'post',      # POST /users
-             'put'      => 'put',       # PUT /users/1
-             # usually PUT == PATCH
-             'patch'    => 'patch',     # PATCH /users/1
-             'delete'   => 'delete',    # DELETE /users/1
-             'head'     => 'head',      # HEAD /users/1
-             'head...'  => 'heads',     # HEAD /users
-             'options'  => 'option',    # OPTIONS /users/1
-             'options...' => 'options', # OPTIONS /users
-             // extra method mapping
-             // 'get.search' => search
-         ];
+            //REQUEST_METHOD => method name
+            // 'gets' is special key.
+            'get*' => 'gets',    # GET /users
+            'get'   => 'get',       # GET /users/1
+            'post' => 'post',      # POST /users
+            'put'   => 'put',       # PUT /users/1
+            # usually PUT == PATCH
+            'patch' => 'patch',     # PATCH /users/1
+            'delete' => 'delete',    # DELETE /users/1
+            'head'    => 'head',      # HEAD /users/1
+            'head*' => 'heads',     # HEAD /users
+            'options' => 'option',    # OPTIONS /users/1
+            'options*' => 'options', # OPTIONS /users
+
+            // multi REQUEST_METHOD match
+            // 'get|post' => 'index'
+
+            // extra method mapping
+            // 'get.search' => search
+        ];
     }
 
     /**
@@ -160,7 +176,7 @@ abstract class Controller extends AbstractController
      * @param  Request $request
      * @param array $args
      * @return string
-     * @throws HttpRequestException
+     * @throws UnknownMethodException
      */
     protected function handleMethodMapping($request, array $args)
     {
@@ -172,24 +188,29 @@ abstract class Controller extends AbstractController
             throw new UnknownMethodException('No class method allow the called.');
         }
 
+        $map = [];
+        foreach ($mapping as $key => $item) {
+            $this->_parseSpecialSetting($key, $item, $map);
+        }
+
         $action = $error = '';
-        $allowMore = ['get','head','options'];
+        $allowMore = ['get', 'head', 'options'];
         $argument = !empty($args[self::RESOURCE_ARG_KEY]) ? trim($args[self::RESOURCE_ARG_KEY]) : '';
-        $extraKey = $method . '.' . $argument;
+        $extraKey = $method . self::M2A_CHAR . $argument;
 
         // find like 'get.search' ... extra method
-        if ($argument && isset($mapping[$extraKey]) ) {
-            $actionMethod = trim($mapping[$extraKey]) . $this->actionSuffix;
+        if ($argument && isset($map[$extraKey])) {
+            $actionMethod = trim($map[$extraKey]) . $this->actionSuffix;
 
             return [$actionMethod, $error];
         }
 
-        foreach ($mapping as $key => $value) {
+        foreach ($map as $key => $value) {
             // full match REQUEST_METHOD. like 'get' 'post'
             if ($argument && $key === $method) {
                 $action = $method === 'options' ? 'option' : $value;
 
-            // like 'get' 'get...' 'get.search'
+                // like 'get' 'get...' 'get.search'
             } elseif (0 === strpos($key, $method)) {
                 $ext = substr($key, strlen($method));
 
@@ -210,6 +231,39 @@ abstract class Controller extends AbstractController
         return [$actionMethod, $error];
     }
 
+    private function _parseSpecialSetting($key, $item, &$map)
+    {
+        $key = str_replace(' ', '', $key);
+        $item = trim($item);
+
+        // get.search get|post.search
+        if (strpos($key, '.')) {
+            list($m, $a) = explode('.', $key);
+
+            $m = strtolower($m);
+
+            if (strpos($m, '|')) {
+                foreach (explode('|', $m) as $k) {
+                    $map[$k.self::M2A_CHAR.$a] = $item;
+                }
+            } else {
+                $map[$m.self::M2A_CHAR.$a] = $item;
+            }
+
+        // get|post => index
+        } elseif (strpos($key, '|')) {
+            $key = strtolower($key);
+
+            foreach (explode('|', $key) as $k) {
+                $map[$k] = $item;
+            }
+        } else {
+            $key = strtolower($key);
+
+            $map[$key] = $item;
+        }
+    }
+
     /**********************************************************
      * call the controller method
      **********************************************************/
@@ -219,7 +273,8 @@ abstract class Controller extends AbstractController
      * @return void
      */
     protected function beforeInvoke(array $args)
-    {}
+    {
+    }
 
     /**
      * e.g.
@@ -243,13 +298,13 @@ abstract class Controller extends AbstractController
         $this->beforeInvoke($args);
 
         // default restFul action name
-        list($action,$error) = $this->handleMethodMapping($request,$args);
+        list($action, $error) = $this->handleMethodMapping($request, $args);
 
         if ($error) {
             return $this->errorHandler($error);
         }
 
-        if ( method_exists($this, $action) ) {
+        if (method_exists($this, $action)) {
             try {
                 /** @var Response $response */
                 $response = $this->$action(array_shift($args));
@@ -261,7 +316,7 @@ abstract class Controller extends AbstractController
             } catch (\Exception $e) {
                 $error = $e->getMessage();
 
-                return $this->errorHandler($error, $e->getCode() ? : 2);
+                return $this->errorHandler($error, $e->getCode() ?: 2);
             }
 
             // Might want to customize to perform the action name
@@ -282,7 +337,8 @@ abstract class Controller extends AbstractController
      * @return void
      */
     protected function afterInvoke(array $args, $response)
-    {}
+    {
+    }
 
     /**
      * @param string $error

@@ -284,7 +284,7 @@ abstract class RecordModel extends Model
     }
 
     /**
-     * @return static
+     * @return boolean|static
      */
     public function insert()
     {
@@ -648,9 +648,7 @@ abstract class RecordModel extends Model
 
     /**
      * format column's data type
-     * @param string $column
-     * @param mixed $value
-     * @return $this|void
+     * @inheritdoc
      */
     public function set($column, $value)
     {
@@ -694,7 +692,6 @@ abstract class RecordModel extends Model
 
     /**
      * @param $data
-     * @return array
      */
     public function setOldData($data)
     {

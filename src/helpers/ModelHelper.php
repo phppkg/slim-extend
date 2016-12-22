@@ -16,6 +16,7 @@ class ModelHelper
      * @param  array $options
      * @param  Query $query
      * @return Query
+     * @throws UnknownMethodException
      */
     public static function applyAppendOptions($options=[], Query $query)
     {

@@ -12,6 +12,9 @@ use slimExt\exceptions\NotFoundException;
  */
 abstract class Controller extends AbstractController
 {
+    const ENGINE_TWIG = 'twig';
+    const ENGINE_PHP = 'php';
+
     /**
      * @var string
      */
@@ -91,6 +94,10 @@ abstract class Controller extends AbstractController
      */
     protected function render($view, array $args = [])
     {
+        if ( $this->tplEngine === self::ENGINE_TWIG ) {
+            return $this->renderTwig($view, $args);
+        }
+
         $response = $this->response ?: Slim::get('response');
         $settings = Slim::get('settings')['renderer'];
         $view  = $this->getViewPath($view, $settings);
@@ -104,18 +111,13 @@ abstract class Controller extends AbstractController
         return Slim::get('renderer')->render($response, $view, $args);
     }
 
-    const RETURN_RENDERED = 1;
-    const RETURN_RESPONSE = 2;
-    const RETURN_BOTH     = 3;
-
     /**
      * twig tpl render
      * @param $view
      * @param array $args
-     * @param int $return
-     * @return Response
+     * @return Response|Slim\Http\Response
      */
-    protected function renderTwig($view, array $args = [], $return= self::RETURN_RESPONSE)
+    protected function renderTwig($view, array $args = [])
     {
         $response = $this->response;
         $settings = Slim::get('settings')['twigRenderer'];
@@ -136,6 +138,7 @@ abstract class Controller extends AbstractController
 
             // X-PJAX-URL:https://github.com/inhere/php-librarys
             // X-PJAX-Version: 23434
+            /** @var Response $response */
             $response = $response
                             ->withHeader('X-PJAX-URL', (string)Slim::$app->request->getUri())
                             ->withHeader('X-PJAX-Version', Slim::config('pjax_version', '1.0'));
@@ -152,30 +155,8 @@ abstract class Controller extends AbstractController
         // Fetch rendered template {@see \Slim\Views\Twig::fetch()}
         $rendered = $twig->fetch($view, $args);
 
-        if ( $return === static::RETURN_RENDERED ) {
-            return $rendered;
-        } elseif ( $return === static::RETURN_BOTH ) {
-            $response->getBody()->write($rendered);
-
-            return [$response, $rendered];
-        }
-
         // return response
         return $response->write($rendered);
-    }
-
-    /**
-     * twig tpl render
-     * @param $view
-     * @param array $args
-     * @param int $return
-     * @return Response
-     */
-    protected function renderPartialTwig($view, array $args = [], $return= self::RETURN_RESPONSE)
-    {
-        $args['_renderPartial'] = true;
-
-        return $this->renderTwig($view, $args, $return);
     }
 
     /**

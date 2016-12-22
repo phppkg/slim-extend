@@ -8,6 +8,7 @@
 
 namespace slimExt\base;
 
+use inhere\librarys\helpers\PhpHelper;
 use Slim;
 use slimExt\DataCollector;
 
@@ -87,7 +88,7 @@ abstract class Module
     {
         $module = $app->loadModule(static::NAME, new static($app));
 
-        if ( \inhere\librarys\helpers\PhpHelper::isCli() ) {
+        if ( PhpHelper::isCli() ) {
             $module->registerCommands($app);
         } else {
             $module->registerRoutes($app);
@@ -101,7 +102,7 @@ abstract class Module
      */
     protected function registerRoutes($app)
     {
-        // require __DIR__. '/routes.php';
+         // require __DIR__ . '/routes.php';
     }
 
     /**

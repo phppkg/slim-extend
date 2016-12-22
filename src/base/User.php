@@ -92,7 +92,7 @@ class User extends Collection
 
     /**
      * @param IdentityInterface $user
-     * @return static
+     * @return bool
      */
     public function login(IdentityInterface $user)
     {

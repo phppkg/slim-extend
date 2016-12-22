@@ -9,9 +9,7 @@
 
 namespace slimExt\base;
 
-use Slim;
 use inhere\validate\ValidationTrait;
-use Windwalker\Query\Query;
 
 /**
  * Class BaseModel

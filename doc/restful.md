@@ -32,6 +32,20 @@ use slimExt\rest\Controller;
 class Test extends Controller
 {
     /**
+     * @return array
+     */
+    protected function methodMapping()
+    {
+        $map = parent::methodMapping();
+ 
+        // extra method mapping
+        $map['post.local'] = 'local';
+        $map['get|post.thirdParty'] = 'thirdParty';
+
+        return $map;
+    }
+
+    /**
      * @return Slim\Http\Response|static
      */
     public function getsAction()
@@ -50,6 +64,20 @@ class Test extends Controller
             'test' => 'data',
             'id' => $id
         ];
+    }
+    
+    public function localAction()
+    {
+        return $this->response->withJson([
+            'token' => 'test'
+        ]);
+    }
+
+    public function thirdPartyAction()
+    {
+        return $this->response->withJson([
+            'token' => 'test'
+        ]);
     }
 }
 ```
