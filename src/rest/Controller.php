@@ -314,9 +314,8 @@ abstract class Controller extends AbstractController
                     $response = $this->response->withJson($response);
                 }
             } catch (\Exception $e) {
-                $error = $e->getMessage();
-
-                return $this->errorHandler($error, $e->getCode() ?: 2);
+                throw $e;
+//                return $this->errorHandler($e->getMessage(), $e->getCode() ?: 2);
             }
 
             // Might want to customize to perform the action name
