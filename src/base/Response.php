@@ -9,7 +9,6 @@
 namespace slimExt\base;
 
 use inhere\librarys\utils\JsonMessage;
-use slimExt\DataConst;
 use Slim;
 use Slim\Http\Response as SlimResponse;
 
@@ -107,7 +106,7 @@ class Response extends SlimResponse
             throw new \InvalidArgumentException('params type error!');
         }
 
-        Slim::$app->flash->addMessage(DataConst::FLASH_MSG_KEY, json_encode($alert));
+        Slim::$app->flash->addMessage(Request::FLASH_MSG_KEY, json_encode($alert));
 
         return $this;
     }
@@ -119,7 +118,7 @@ class Response extends SlimResponse
      */
     public function withInput(array $data)
     {
-        Slim::$app->flash->addMessage(DataConst::FLASH_OLD_INPUT_KEY, json_encode($data));
+        Slim::$app->flash->addMessage(Request::FLASH_OLD_INPUT_KEY, json_encode($data));
         Slim::$app->logger->info('dev-' . session_id(), $_SESSION);
 
         return $this;

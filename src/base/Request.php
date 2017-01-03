@@ -8,11 +8,11 @@
 
 namespace slimExt\base;
 
-use slimExt\DataConst;
 use inhere\validate\StrainerList;
 use Slim;
 use Slim\Http\Request as SlimRequest;
 use Slim\Http\Uri;
+use slimExt\DataType;
 
 /**
  * extension Slim's Request class
@@ -35,6 +35,9 @@ use Slim\Http\Uri;
  */
 class Request extends SlimRequest
 {
+    const FLASH_MSG_KEY         = '_alert_messages';
+    const FLASH_OLD_INPUT_KEY   = '_last_inputs';
+
     /**
      * return raw data
      */
@@ -107,7 +110,7 @@ class Request extends SlimRequest
     public function getMessage()
     {
         $messageList = [];
-        $messages = Slim::$app->flash->getMessage(DataConst::FLASH_MSG_KEY) ?: [];
+        $messages = Slim::$app->flash->getMessage(self::FLASH_MSG_KEY) ?: [];
 
         foreach ($messages as $alert) {
             $messageList[] = json_decode($alert, true);
@@ -122,7 +125,7 @@ class Request extends SlimRequest
      */
     public function getOldInput($default = [])
     {
-        if ( $data = Slim::get('flash')->getMessage(DataConst::FLASH_OLD_INPUT_KEY) ) {
+        if ( $data = Slim::get('flash')->getMessage(self::FLASH_OLD_INPUT_KEY) ) {
             return json_decode($data[0], true);
         }
 
@@ -231,7 +234,6 @@ class Request extends SlimRequest
     /**
      * @param $value
      * @param $filter
-     * @param null $default
      * @return mixed|null
      */
     public function filtering($value, $filter)
@@ -255,29 +257,29 @@ class Request extends SlimRequest
         // is a defined filter
         $filter = $this->filterList[$filter];
 
-        if ( !in_array($filter, DataConst::dataTypes()) ) {
+        if ( !in_array($filter, DataType::types()) ) {
             $result = call_user_func($filter, $value);
         } else {
             switch ( lcfirst(trim($filter)) ) {
-                case DataConst::TYPE_BOOL :
-                case DataConst::TYPE_BOOLEAN :
+                case DataType::T_BOOL :
+                case DataType::T_BOOLEAN :
                     $result = (bool)$value;
                     break;
-                case DataConst::TYPE_DOUBLE :
-                case DataConst::TYPE_FLOAT :
+                case DataType::T_DOUBLE :
+                case DataType::T_FLOAT :
                     $result = (float)$value;
                     break;
-                case DataConst::TYPE_INT :
-                case DataConst::TYPE_INTEGER :
+                case DataType::T_INT :
+                case DataType::T_INTEGER :
                     $result = (int)$value;
                     break;
-                case DataConst::TYPE_STRING :
+                case DataType::T_STRING :
                     $result = (string)$value;
                     break;
-                case DataConst::TYPE_ARRAY :
+                case DataType::T_ARRAY :
                     $result = (array)$value;
                     break;
-                case DataConst::TYPE_OBJECT :
+                case DataType::T_OBJECT :
                     $result = (object)$value;
                     break;
                 default:

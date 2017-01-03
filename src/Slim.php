@@ -33,11 +33,13 @@ abstract class Slim
         '@public'  => PROJECT_PATH . DIR_SEP . 'public',
         '@config'  => PROJECT_PATH . DIR_SEP . 'config',
 
-        '@assets'  => PROJECT_PATH . DIR_SEP . 'public' . DIR_SEP . 'assets',
         '@src'     => PROJECT_PATH . DIR_SEP . 'src',
-        '@modules'   => PROJECT_PATH . DIR_SEP . 'src' . DIR_SEP . 'modules',
-        '@resources' => PROJECT_PATH . DIR_SEP . 'resources',
+        '@res'      => PROJECT_PATH . DIR_SEP . 'res',
+        '@resources' => PROJECT_PATH . DIR_SEP . 'res',
         '@temp'    => PROJECT_PATH . DIR_SEP . 'temp',
+
+        '@assets'  => PROJECT_PATH . DIR_SEP . 'public' . DIR_SEP . 'assets',
+        '@modules'   => PROJECT_PATH . DIR_SEP . 'src' . DIR_SEP . 'modules',
 
         '@vendor'    => PROJECT_PATH . DIR_SEP . 'vendor',
     ];

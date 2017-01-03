@@ -13,7 +13,7 @@ use inhere\librarys\exceptions\InvalidConfigException;
 use inhere\librarys\helpers\ArrHelper;
 use Slim;
 use slimExt\database\AbstractDriver;
-use slimExt\DataConst;
+use slimExt\DataType;
 use slimExt\helpers\ModelHelper;
 use Windwalker\Query\Query;
 
@@ -262,10 +262,6 @@ abstract class RecordModel extends Model
         return static::setQuery($query)->exists();
     }
 
-    /***********************************************************************************
-     * create operation
-     ***********************************************************************************/
-
     /**
      * @param array $updateColumns
      * @param bool|false $updateNulls
@@ -273,18 +269,17 @@ abstract class RecordModel extends Model
      */
     public function save($updateColumns = [], $updateNulls = false)
     {
-        $this->beforeSave();
-        $result = $this->isNew() ? $this->insert() : $this->update($updateColumns, $updateNulls);
+        $this->isNew() ? $this->insert() : $this->update($updateColumns, $updateNulls);
 
-        if ($result) {
-            $this->afterSave();
-        }
-
-        return $result ? true : false;
+        return !$this->hasError();
     }
 
+    /***********************************************************************************
+     * create operation
+     ***********************************************************************************/
+
     /**
-     * @return boolean|static
+     * @return static
      */
     public function insert()
     {
@@ -292,7 +287,7 @@ abstract class RecordModel extends Model
         $this->beforeSave();
 
         if ( $this->enableValidate && $this->validate()->fail() ) {
-            return false;
+            return $this;
         }
 
         $data = $this->getColumnsData();
@@ -348,7 +343,7 @@ abstract class RecordModel extends Model
      * update by primary key
      * @param array $updateColumns only update some columns
      * @param bool|false $updateNulls
-     * @return bool
+     * @return static
      * @throws InvalidArgumentException
      */
     public function update($updateColumns = [], $updateNulls = false)
@@ -364,7 +359,7 @@ abstract class RecordModel extends Model
 
         // validate data
         if ($this->enableValidate && $this->validate($updateColumns)->fail() ) {
-            return false;
+            return $this;
         }
 
         // collect there are data will update.
@@ -391,7 +386,7 @@ abstract class RecordModel extends Model
             $this->afterSave();
         }
 
-        return $result;
+        return $this;
     }
 
     /**
@@ -656,7 +651,7 @@ abstract class RecordModel extends Model
         if ( isset($this->columns()[$column]) ) {
             $type = $this->columns()[$column];
 
-            if ($type === DataConst::TYPE_INT ) {
+            if ($type === DataType::T_INT ) {
                 $value = (int)$value;
             }
         }
