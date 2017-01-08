@@ -196,6 +196,13 @@ abstract class Controller extends AbstractController
         $action = $error = '';
         $allowMore = ['get', 'head', 'options'];
         $argument = !empty($args[self::RESOURCE_ARG_KEY]) ? trim($args[self::RESOURCE_ARG_KEY]) : '';
+
+        // convert 'first-second' to 'firstSecond'
+        if ( $argument && strpos($argument, '-') ) {
+            $argument = ucwords(str_replace('-', ' ', $argument));
+            $argument = str_replace(' ','',lcfirst($argument));
+        }
+
         $extraKey = $method . self::M2A_CHAR . $argument;
 
         // find like 'get.search' ... extra method

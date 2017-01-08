@@ -232,7 +232,7 @@ class User extends Collection
         }
     }
 
-    public function sets($data)
+    public function sets(array $data)
     {
         // except column at set.
         foreach ($this->excepted as $column) {
