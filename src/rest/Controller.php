@@ -205,7 +205,7 @@ abstract class Controller extends AbstractController
 
         $extraKey = $method . self::M2A_CHAR . $argument;
 
-        // find like 'get.search' ... extra method
+        // match like 'get.search' extra method
         if ($argument && isset($map[$extraKey])) {
             $actionMethod = trim($map[$extraKey]) . $this->actionSuffix;
 
@@ -213,18 +213,13 @@ abstract class Controller extends AbstractController
         }
 
         foreach ($map as $key => $value) {
-            // full match REQUEST_METHOD. like 'get' 'post'
-            if ($argument && $key === $method) {
+            // like 'get*' 'head*'
+            if (!$argument && $key === $method . self::MARK_MORE && in_array($method, $allowMore)) {
+                $action = $value;
+
+            // have argument. like '/users/1' '/users/username'
+            } else if ($key === $method) {
                 $action = $method === 'options' ? 'option' : $value;
-
-                // like 'get' 'get...' 'get.search'
-            } elseif (0 === strpos($key, $method)) {
-                $ext = substr($key, strlen($method));
-
-                // as 'get...'
-                if ($ext === self::MARK_MORE && !$argument && in_array($method, $allowMore)) {
-                    $action = $value;
-                }
             }
 
             // match successful.
