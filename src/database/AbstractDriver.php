@@ -704,6 +704,7 @@ abstract class AbstractDriver
      */
     public function beginTrans($throwException = true)
     {
+        $this->connect();
         $result = $this->pdo->beginTransaction();
 
         if ( $throwException && false === $result ) {
@@ -766,6 +767,8 @@ abstract class AbstractDriver
      */
     public function inTrans()
     {
+        $this->connect();
+
         return $this->pdo->inTransaction();
     }
     public function inTransaction()
