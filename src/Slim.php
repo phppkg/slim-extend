@@ -38,7 +38,7 @@ abstract class Slim
         '@resources' => PROJECT_PATH . DIR_SEP . 'res',
         '@temp'    => PROJECT_PATH . DIR_SEP . 'temp',
 
-        '@assets'  => PROJECT_PATH . DIR_SEP . 'public' . DIR_SEP . 'assets',
+        // '@assets'  => PROJECT_PATH . DIR_SEP . 'public' . DIR_SEP . 'assets',
         '@modules'   => PROJECT_PATH . DIR_SEP . 'src' . DIR_SEP . 'modules',
 
         '@vendor'    => PROJECT_PATH . DIR_SEP . 'vendor',

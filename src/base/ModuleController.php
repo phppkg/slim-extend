@@ -25,8 +25,8 @@ class ModuleController extends Controller
 
         $currentModule = Slim::$app->module();
 
-        $vars[$currentModule->name . 'Config'] = $currentModule->config;
-        $vars[$currentModule->name . 'Params'] = $currentModule->config->get('params',[]);
+        $vars[$currentModule::NAME . 'Config'] = $currentModule->config;
+        $vars[$currentModule::NAME . 'Params'] = $currentModule->config->get('params',[]);
 
         return $vars;
     }
