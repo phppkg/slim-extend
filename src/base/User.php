@@ -222,7 +222,7 @@ class User extends Collection
     public function setIdentity(IdentityInterface $identity)
     {
         if ($identity instanceof IdentityInterface) {
-            $this->sets($identity);
+            $this->sets((array)$identity);
             session([ self::$saveKey => $identity->all()]);
             $this->_accesses = [];
         } elseif ($identity === null) {
