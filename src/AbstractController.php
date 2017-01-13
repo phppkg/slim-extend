@@ -12,8 +12,7 @@ use inhere\librarys\exceptions\NotFoundException;
 use Slim;
 use slimExt\base\Request;
 use slimExt\base\Response;
-use slimExt\filters\AccessFilter;
-use slimExt\filters\VerbFilter;
+use slimExt\filters\BaseFilter;
 
 /**
  * Class AbstractController
@@ -60,22 +59,23 @@ class AbstractController
     {
         return [
             'access' => [
-                'handler' => AccessFilter::class,
+                // 'filter' => AccessFilter::class,
                 'rules' => [
 //                    [
 //                        'actions' => ['login', 'error'],
-//                        'allow' => true,
+//                        'allow' => false,
+//                        'roles' => ['?'],
 //                    ],
                     [
                         'actions' => [], // ['logout', 'index'],
                         'allow' => true,
-                        // '@' logged '*' all user. you can add custom role. like 'user','admin'
+                        // '?' not login '@' logged '*' all user. you can add custom role. like 'user','admin'
                         'roles' => ['*'],
                     ],
                 ],
             ],
 //            'verbs' => [
-//                'handler' => VerbFilter::class,
+//                'filter' => VerbFilter::class,
 //                'actions' => [
 //                    //'logout' => ['post'],
 //                ],
@@ -96,18 +96,27 @@ class AbstractController
         $defaultFilter = '\slimExt\filters\\%sFilter';
 
         foreach ($this->filters() as $name => $settings) {
-            $handler = !empty($settings['handler']) ?
-                $settings['handler'] :
+            $filter = !empty($settings['filter']) ?
+                $settings['filter'] :
                 sprintf( $defaultFilter, ucfirst($name));
 
-            unset($settings['handler']);
+            unset($settings['filter']);
 
-            if ( !class_exists($handler) ) {
-                throw new NotFoundException("Filter handler class [$handler] not found.");
+            // filter is a Closure. call it.
+            if ( $filter instanceof \Closure ) {
+                return $filter($action, $this);
             }
 
-            $handler = new $handler($settings);
-            $result = $handler($this->request, $this->response, $this, $action);
+            if ( !class_exists($filter) ) {
+                throw new NotFoundException("Filter class [$filter] not found.");
+            }
+
+            $filter = new $filter($settings);
+
+            if (!$filter instanceof BaseFilter) {
+                # code...
+            }
+            $result = $filter($this->request, $this->response, $this, $action);
 
             if ( true !== $result ) {
                 return $result;

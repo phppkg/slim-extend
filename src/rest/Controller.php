@@ -96,13 +96,15 @@ abstract class Controller extends AbstractController
     }
 
     /**
+     * more information
+     * @see slimExt\AbstractController::doSecurityFilter()
      * @return array
      */
     public function filters()
     {
         return [
 //            'access' => [
-//                'handler' => AccessFilter::class,
+//                'filter' => AccessFilter::class,
 //                'rules' => [
 //                    [
 //                        'actions' => ['login', 'error'],
@@ -111,7 +113,6 @@ abstract class Controller extends AbstractController
 //                    [
 //                        'actions' => ['logout', 'index'],
 //                        'allow' => true,
-//                        '@' logged '*' all user. you can add custom role. like 'user','admin'
 //                        'roles' => ['@'],
 //                    ],
 //                ],

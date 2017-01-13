@@ -19,6 +19,12 @@ use slimExt\base\Response;
  */
 abstract class BaseFilter extends StdBase
 {
+    const MATCH_ALL = '*';
+    // logged user
+    const MATCH_LOGGED = '@';
+    // guest user
+    const MATCH_GUEST = '?';
+
     /**
      * @var Request
      */

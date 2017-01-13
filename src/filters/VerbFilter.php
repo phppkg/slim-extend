@@ -10,14 +10,40 @@ namespace slimExt\filters;
 
 /**
  * Class VerbFilter
+ *
+ * filter the request method
  * @package slimExt\filters
  */
 class VerbFilter extends BaseFilter
 {
+    /**
+     * in Controller:
+     *
+     * public function filters()
+     * {
+     *     return [
+     *       'verbs' => [
+     *           'handler' => VerbFilter::class,
+     *           'actions' => [
+     *               'index' => ['get'],
+     *               'add'   => ['post', 'put'],
+     *               'logout' => ['post'],
+     *           ],
+     *       ],
+     *   ];
+     * }
+     * @var array
+     */
+    public $actions = [];
+
     protected function doFilter($action)
     {
-        $method = $this->request->getMethod();
+        if ( !isset($this->actions[$action]) ) {
+            return true;
+        }
 
-        return true;
+        $method = strtolower($this->request->getMethod());
+
+        return in_array($method, (array)$this->actions[$action]);
     }
 }
