@@ -12,7 +12,7 @@ use slimExt\base\Response;
 class Permission
 {
     /**
-     * Auth middleware invokable class
+     * Permission middleware invokable class
      *
      * @param  Request   $request  PSR7 request
      * @param  Response  $response PSR7 response

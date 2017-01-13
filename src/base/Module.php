@@ -16,6 +16,28 @@ use slimExt\DataCollector;
  * Todo ...
  * Class Module
  * @package slimExt\base
+ *
+ * Recommend, For the module's controller:
+ *
+ * ```
+ *    use Slim;
+ *    use slimExt\base\Controller;
+ *    use app\modules\{admin}\Module;
+ *
+ *    ... ...
+ *
+ *    protected function addTwigGlobalVar()
+ *    {
+ *        $vars = parent::addTwigGlobalVar();
+ *
+ *        $module = Slim::$app->module(Module::NAME);
+ *
+ *        $vars[Module::NAME . 'Config'] = $module->config;
+ *        $vars[Module::NAME . 'Params'] = $module->config->get('params',[]);
+ *
+ *        return $vars;
+ *    }
+ * ```
  */
 abstract class Module
 {
