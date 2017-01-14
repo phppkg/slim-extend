@@ -208,9 +208,7 @@ abstract class Controller extends AbstractController
 
         // match like 'get.search' extra method
         if ($argument && isset($map[$extraKey])) {
-            $actionMethod = trim($map[$extraKey]) . $this->actionSuffix;
-
-            return [$actionMethod, $error];
+            return [trim($map[$extraKey]), $error];
         }
 
         foreach ($map as $key => $value) {
@@ -229,9 +227,7 @@ abstract class Controller extends AbstractController
             }
         }
 
-        $actionMethod = $action . $this->actionSuffix;
-
-        return [$actionMethod, $error];
+        return [$action, $error];
     }
 
     private function _parseSpecialSetting($key, $item, &$map)
@@ -307,10 +303,17 @@ abstract class Controller extends AbstractController
             return $this->errorHandler($error);
         }
 
-        if (method_exists($this, $action)) {
+        $actionMethod = $action . ucfirst($this->actionSuffix);
+
+        if (method_exists($this, $actionMethod)) {
+            // if enable request action security filter
+            if ( true !== ($result = $this->doSecurityFilter($action)) ) {
+                return $result;
+            }
+
             try {
                 /** @var Response $response */
-                $response = $this->$action(array_shift($args));
+                $response = $this->$actionMethod(array_shift($args));
 
                 // if the action return is array data
                 if (is_array($response)) {
