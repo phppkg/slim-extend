@@ -9,6 +9,7 @@
 namespace slimExt\filters;
 
 use Slim;
+use inhere\librarys\helpers\ArrHelper;
 
 /**
  * Class AccessFilter
@@ -36,7 +37,11 @@ class AccessFilter extends BaseFilter
             // use defined mark char: '?' guest user '@' logged user '*' all user.
             // use custom role name. like 'member', 'admin' (the role name is must be unique, and it is save on dabatase.)
             // can also use role id: 12 43 (it is not recommend)
+            // Notice: there are role relation is OR.
             'roles' => ['*'],
+
+            // can add a callback, is optional. TODO ...
+            'callback' => function ($action, $user) {}
         ],
         // more rule
         [ ... ],
@@ -44,9 +49,18 @@ class AccessFilter extends BaseFilter
     */
     ];
 
+    /**
+     * the role filed name in the user(Slim::$app->user).
+     * @var string
+     */
+    public $userRoleField = 'role';
+
     protected function doFilter( $action )
     {
-        // current user
+        /**
+         * current user
+         * @var \slimExt\base\User
+         */
         $user = Slim::$app->user;
         $allow = true;
 
@@ -73,19 +87,31 @@ class AccessFilter extends BaseFilter
             }
 
             // find match logged user, char: @
-            if ( false !== array_search(self::MATCH_LOGGED, $roles) ) {
-                # code...
+            if ( false !== array_search(self::MATCH_LOGGED, $roles) && $user->id ) {
+                break;
             }
 
             // find match guest user, char: ?
-            if ( false !== array_search(self::MATCH_LOGGED, $roles) ) {
-                # code...
+            if ( false !== array_search(self::MATCH_LOGGED, $roles) && !$user->id) {
+                break;
+            }
+
+            // user role: string OR array. e.g 'admin' OR [ 'admin', 'editer']
+            if ($userRoles = $user->{$this->userRoleField} && array_intersect((array)$userRoles, $roles) ) {
+                break;
             }
         }
 
         // deny access
         if ( !$allow ) {
-            return $this->response->withStatu(403);
+            // when is xhr
+            if ( $this->request->isXhr() ) {
+                $data = ['redirect' => $user->loginUrl];
+
+                return $this->response->withJson($data, __LINE__, slim_tl('http:403'), 403);
+            }
+
+            return $this->response->withRedirect($user->loginUrl, 403)->withMessage(slim_tl('http403'));
         }
 
         // allow access
