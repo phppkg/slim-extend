@@ -85,7 +85,7 @@ class User extends Collection
         }
 
         // if have already login
-        if ( session(self::$saveKey) ) {
+        if ( isset($_SESSION[static::$saveKey]) ) {
             $this->refreshIdentity();
         }
     }
@@ -171,7 +171,7 @@ class User extends Collection
      */
     public function getId()
     {
-        return $this->get($this->idColumn);
+        return $this->get($this->idColumn) ?: 0;
     }
 
     /**
@@ -290,4 +290,18 @@ class User extends Collection
         ]);
     }
 
+    /**
+     * @param $name
+     * @return mixed
+     */
+    public function __get($name)
+    {
+        $getter = 'get' . ucfirst($name);
+
+        if ( method_exists($this, $getter) ) {
+            return $this->$getter();
+        }
+
+        return parent::__get($name);
+    }
 }
