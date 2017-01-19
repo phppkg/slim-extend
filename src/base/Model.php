@@ -10,6 +10,7 @@
 namespace slimExt\base;
 
 use inhere\validate\ValidationTrait;
+use slimExt\DataType;
 
 /**
  * Class BaseModel
@@ -65,6 +66,24 @@ abstract class Model extends Collection
      * @return array
      */
     abstract public function columns();
+
+    /**
+     * format column's data type
+     * @inheritdoc
+     */
+    public function set($column, $value)
+    {
+        // belong to the model.
+        if ( isset($this->columns()[$column]) ) {
+            $type = $this->columns()[$column];
+
+            if ($type === DataType::T_INT ) {
+                $value = (int)$value;
+            }
+        }
+
+        return parent::set($column, $value);
+    }
 
     /**
      * @return array

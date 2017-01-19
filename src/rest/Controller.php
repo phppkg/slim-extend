@@ -61,10 +61,6 @@ abstract class Controller extends AbstractController
 
     protected $except = [];
 
-//    protected $extraMapping= [
-//        'GET,search' => 'search',
-//    ];
-
     /**
      * @return Response
      */
@@ -79,7 +75,7 @@ abstract class Controller extends AbstractController
      * @param $id
      * @return Response
      */
-    public function headAction($id)
+    public function headAction($id = 0)
     {
         return $this->response
             ->withHeader('X-Welcome', 'Hi, Welcome to the network.')
@@ -150,25 +146,29 @@ abstract class Controller extends AbstractController
     protected function methodMapping()
     {
         return [
-            //REQUEST_METHOD => method name
+            //REQUEST_METHOD => method name(no suffix)
             // 'gets' is special key.
-            'get*' => 'gets',    # GET /users
-            'get'   => 'get',       # GET /users/1
-            'post' => 'post',      # POST /users
-            'put'   => 'put',       # PUT /users/1
+            'get*'     => 'gets',      # GET /users
+            'get'      => 'get',       # GET /users/1
+            'post'     => 'post',      # POST /users
+            'put'      => 'put',       # PUT /users/1
             # usually PUT == PATCH
-            'patch' => 'patch',     # PATCH /users/1
-            'delete' => 'delete',    # DELETE /users/1
-            'head'    => 'head',      # HEAD /users/1
-            'head*' => 'heads',     # HEAD /users
-            'options' => 'option',    # OPTIONS /users/1
-            'options*' => 'options', # OPTIONS /users
+            'patch'    => 'patch',     # PATCH /users/1
+            'delete'   => 'delete',    # DELETE /users/1
+            'head'     => 'head',      # HEAD /users/1
+            'head*'    => 'heads',     # HEAD /users
+            'options'  => 'option',    # OPTIONS /users/1
+            'options*' => 'options',   # OPTIONS /users
+
+            'connect'  => 'connect',   # CONNECT /users
+            'trace'    => 'trace',     # TRACE /users
 
             // multi REQUEST_METHOD match
             // 'get|post' => 'index'
 
             // extra method mapping
             // 'get.search' => search
+            // 'post.save'  => save
         ];
     }
 

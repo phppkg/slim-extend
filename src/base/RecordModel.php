@@ -10,10 +10,10 @@ namespace slimExt\base;
 
 use inhere\librarys\exceptions\InvalidArgumentException;
 use inhere\librarys\exceptions\InvalidConfigException;
+use inhere\librarys\exceptions\UnknownMethodException;
 use inhere\librarys\helpers\ArrHelper;
 use Slim;
 use slimExt\database\AbstractDriver;
-use slimExt\DataType;
 use slimExt\helpers\ModelHelper;
 use Windwalker\Query\Query;
 
@@ -53,7 +53,7 @@ abstract class RecordModel extends Model
      */
     protected static $aliasName = 'mt';
 
-    protected static $baseOptions = [
+    protected static $defaultOptions = [
         /* data index column. */
         'indexKey' => null,
         /*
@@ -107,7 +107,7 @@ abstract class RecordModel extends Model
      ***********************************************************************************/
 
     /**
-     * 定义保存数据时,当前场景允许写入的属性字段
+     * TODO 定义保存数据时,当前场景允许写入的属性字段
      * @return array
      */
     public function sceneAttrs()
@@ -123,6 +123,7 @@ abstract class RecordModel extends Model
      */
     public static function tableName()
     {
+        // default is current class name
         $className = lcfirst( basename( str_replace('\\', '/', get_called_class()) ) );
 
         // '@@' -- is table prefix placeholder
@@ -137,12 +138,13 @@ abstract class RecordModel extends Model
      * if {@see static::$aliasName} not empty, return `tableName AS aliasName`
      * @return string
      */
-    public static function queryName()
+    final public static function queryName()
     {
         return static::$aliasName ? static::tableName() . ' AS ' . static::$aliasName : static::tableName();
     }
 
     /**
+     * the database driver instance
      * @return AbstractDriver
      */
     public static function getDb()
@@ -157,7 +159,7 @@ abstract class RecordModel extends Model
      */
     public static function query($where=null)
     {
-        return ModelHelper::handleWhere($where, static::class)->from(static::queryName());
+        return self::handleConditions($where, static::class)->from(static::queryName());
     }
 
     /***********************************************************************************
@@ -197,11 +199,11 @@ abstract class RecordModel extends Model
             ];
         }
 
-        $options = array_merge(static::$baseOptions, $options);
+        $options = array_merge(static::$defaultOptions, $options);
         $class = $options['class'] === 'model' ? static::class : $options['class'];
 
         unset($options['indexKey'], $options['class']);
-        $query = ModelHelper::applyAppendOptions($options, static::query($where));
+        $query = self::applyAppendOptions($options, static::query($where));
 
         $model = static::setQuery($query)->loadOne($class);
 
@@ -215,7 +217,7 @@ abstract class RecordModel extends Model
     }
 
     /**
-     * @param mixed $where {@see ModelHelper::handleWhere() }
+     * @param mixed $where {@see self::handleConditions() }
      * @param string|array $options
      * @return array
      */
@@ -228,7 +230,7 @@ abstract class RecordModel extends Model
             ];
         }
 
-        $options = array_merge(static::$baseOptions, ['class' => 'assoc'], $options);
+        $options = array_merge(static::$defaultOptions, ['class' => 'assoc'], $options);
         $indexKey = ArrHelper::remove('indexKey',$options, null);
         $class = $options['class'] === 'model' ? static::class : $options['class'];
 
@@ -426,16 +428,13 @@ abstract class RecordModel extends Model
      */
     public function delete()
     {
-        $this->beforeDelete();
-
         if ( !($priValue = $this->priValue()) ) {
             return 0;
         }
 
-        $query = ModelHelper::handleWhere([ static::$priKey => $priValue ], static::class)
-            ->delete(static::tableName());
+        $this->beforeDelete();
 
-        if ($affected = static::setQuery($query)->execute()->countAffected() ) {
+        if ($affected = self::deleteByPk($priValue)) {
             $this->afterDelete();
         }
 
@@ -453,12 +452,10 @@ abstract class RecordModel extends Model
 
         // many
         if ( is_array($priValue) ) {
-            $where = static::$priKey . ' in (' . implode(',', $priValue) . ')';
+            $where = static::$priKey . ' IN (' . implode(',', $priValue) . ')';
         }
 
-        $query = ModelHelper::handleWhere($where, static::class)->delete(static::tableName());
-
-        return static::setQuery($query)->execute()->countAffected();
+        return self::deleteBy($where);
     }
 
     /**
@@ -467,7 +464,7 @@ abstract class RecordModel extends Model
      */
     public static function deleteBy($where)
     {
-        $query = ModelHelper::handleWhere($where, static::class)->delete(static::tableName());
+        $query = self::handleConditions($where, static::class)->delete(static::tableName());
 
         return static::setQuery($query)->execute()->countAffected();
     }
@@ -642,24 +639,6 @@ abstract class RecordModel extends Model
     }
 
     /**
-     * format column's data type
-     * @inheritdoc
-     */
-    public function set($column, $value)
-    {
-        // belong to the model.
-        if ( isset($this->columns()[$column]) ) {
-            $type = $this->columns()[$column];
-
-            if ($type === DataType::T_INT ) {
-                $value = (int)$value;
-            }
-        }
-
-        return parent::set($column, $value);
-    }
-
-    /**
      * @return mixed
      */
     public function priValue()
@@ -702,41 +681,111 @@ abstract class RecordModel extends Model
         return isset($this->_backup[$column]) ? $this->_backup[$column] : null;
     }
 
-    /**
-     * @return array
-     */
-//    public static function callableList()
-//    {
-//        return static::$callableList;
-//    }
+    /***********************************************************************************
+     * helper method
+     ***********************************************************************************/
 
     /**
-     * @param $method
-     * @param array $args
-     * @return mixed
+     * apply Append Options
+     * @see self::$defaultOptions
+     * @param  array $options
+     * @param  Query $query
+     * @return Query
+     * @throws UnknownMethodException
      */
-    // public function __call($method, array $args)
-    // {
-    //     $db = static::getDb();
-    //     array_unshift($args, static::tableName());
-    //     if ( in_array($method, static::$callableList) AND method_exists($db, $method) ) {
-    //         return call_user_func_array( [$db, $method], $args);
-    //     }
-    //     throw new \RuntimeException("Called method [$method] don't exists!");
-    // }
+    public static function applyAppendOptions($options=[], Query $query)
+    {
+        foreach ($options as $method => $value) {
+            if ($value instanceof \Closure) {
+                $value($query);
+                continue;
+            }
+
+            if (!method_exists($query, $method)) {
+                throw new UnknownMethodException('The class method ['.get_class($query). ":$method] don't exists!");
+            }
+
+            is_array($value) ? call_user_func_array([$query,$method], $value) : $query->$method($value);
+        }
+
+        return $query;
+    }
 
     /**
-     * @param $method
-     * @param array $args
-     * @return mixed
+     * handle where condition
+     * @param mixed $wheres
+     * @param static|string $model the model class name, is a string
+     * @param Query $query
+     * @example
+     * ```
+     * ...
+     * $result = UserModel::findAll([
+     *      'userId = 23',      // ==> '`userId` = 23'
+     *      'publishTime > 0',  // ==> '`publishTime` > 0'
+     *      'title' => 'test',  // value will auto add quote, equal to "title = 'test'"
+     *      'id' => [4,5,56],   // ==> '`id` IN ('4','5','56')'
+     *      'id NOT IN' => [4,5,56], // ==> '`id` NOT IN ('4','5','56')'
+     *
+     *      // a closure
+     *      function (Query $q) {
+     *          $q->orWhere('a < 5', 'b > 6');
+     *          $q->where( 'column = ' . $q->q($value) );
+     *      }
+     * ]);
+     *
+     * ```
+     * @return Query
      */
-    // public static function __callStatic($method, array $args)
-    // {
-    //     $db = static::getDb();
-    //     array_unshift($args, static::tableName());
-    //     if ( in_array($method, static::$callableList) AND method_exists($db, $method) ) {
-    //         return call_user_func_array( [$db, $method], $args);
-    //     }
-    //     throw new \RuntimeException("Called static method [$method] don't exists!");
-    // }
+    public static function handleConditions($wheres, $model, Query $query = null)
+    {
+        $query = $query ?: $model::getQuery(true);
+
+        if (is_object($wheres) and $wheres instanceof \Closure) {
+            $wheres($query);
+
+            return $query;
+        }
+
+        if ( is_array($wheres) ) {
+            foreach ($wheres as $key => $where) {
+                if (is_object($where) and $where instanceof \Closure) {
+                    $where($query);
+                    continue;
+                }
+
+                $key = trim($key);
+
+                // string key: $key contain a column name, $where is column value
+                if ($key && !is_numeric($key) ) {
+
+                    // is a 'in|not in' statement. eg: $where link [2,3,5] ['foo', 'bar', 'baz']
+                    if ( is_array($where) || is_object($where) ) {
+                        $value = array_map(array($query, 'quote'), (array) $where);
+
+                        // check $key exists keyword 'in|not in|IN|NOT IN'
+                        $where = $key . (1 === preg_match('/ in$/i', $key) ? '' : ' IN' ) . ' (' . implode(',', $value) . ')';
+                    } else  {
+                        // check exists operator '<' '>' '<=' '>=' '!='
+                        $where = $key . ( 1 === preg_match('/[<>=]/', $key) ? ' ' : ' = ') . $query->q($where);
+                    }
+                }
+
+                // have table name
+                // eg: 'mt.field', 'mt.field >='
+                if ( strpos($where, '.') > 1 ) {
+                    $where = preg_replace('/^(\w+)\.(\w+)(.*)$/', '`$1`.`$2`$3', $where);
+                // eg: 'field >='
+                } elseif ( strpos($where, ' ') > 1 ) {
+                    $where = preg_replace('/^(\w+)(.*)$/', '`$1`$2', $where);
+                }
+
+                $query->where($where);
+            }// end foreach
+
+        } elseif ( $wheres && is_string($wheres) ) {
+            $query->where($wheres);
+        }
+
+        return $query;
+    }
 }

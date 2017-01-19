@@ -669,7 +669,7 @@ abstract class AbstractDriver
      */
     public function count()
     {
-        $this->query->select('count(*) AS total');
+        $this->query->select('COUNT(*) AS total');
 
         $result = $this->loadOne();
 
@@ -687,7 +687,7 @@ abstract class AbstractDriver
      */
     public function exists()
     {
-        $this->query = sprintf('SELECT exists(%s) AS `exists`', $this->query->select('*'));
+        $this->query = sprintf('SELECT EXISTS(%s) AS `exists`', $this->query->select('*'));
 
         $result = $this->loadOne();
 
@@ -819,7 +819,6 @@ abstract class AbstractDriver
     public function execute()
     {
         $this->connect();
-
         $sql = $this->replaceTablePrefix((string)$this->query);
 
         // add sql log
