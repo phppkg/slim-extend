@@ -14,7 +14,6 @@ use inhere\librarys\exceptions\UnknownMethodException;
 use inhere\librarys\helpers\ArrHelper;
 use Slim;
 use slimExt\database\AbstractDriver;
-use slimExt\helpers\ModelHelper;
 use Windwalker\Query\Query;
 
 /**
@@ -236,7 +235,7 @@ abstract class RecordModel extends Model
 
         unset($options['indexKey'], $options['class']);
 
-        $query = ModelHelper::applyAppendOptions($options, static::query($where));
+        $query = self::applyAppendOptions($options, static::query($where));
 
         return static::setQuery($query)->loadAll($indexKey, $class);
     }
@@ -269,7 +268,7 @@ abstract class RecordModel extends Model
      * @param bool|false $updateNulls
      * @return bool
      */
-    public function save($updateColumns = [], $updateNulls = false)
+    public function save(array $updateColumns = [], $updateNulls = false)
     {
         $this->isNew() ? $this->insert() : $this->update($updateColumns, $updateNulls);
 
@@ -348,7 +347,7 @@ abstract class RecordModel extends Model
      * @return static
      * @throws InvalidArgumentException
      */
-    public function update($updateColumns = [], $updateNulls = false)
+    public function update(array $updateColumns = [], $updateNulls = false)
     {
         $priKey = static::$priKey;
         $this->beforeUpdate();
@@ -397,7 +396,7 @@ abstract class RecordModel extends Model
      * @param bool|false $updateNulls
      * @return mixed
      */
-    public static function updateMulti($dataSet, $updateColumns = [], $updateNulls = false)
+    public static function updateMulti($dataSet, array $updateColumns = [], $updateNulls = false)
     {
         $res = [];
 
