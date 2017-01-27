@@ -5,6 +5,15 @@
  */
 
 /**
+ * @param null|string $name
+ * @return mixed|\slimExt\base\App
+ */
+function slim($name = null)
+{
+    return $name ? Slim::$app : Slim::get('name');
+}
+
+/**
  * @param $key
  * @param null $default
  * @return mixed|null

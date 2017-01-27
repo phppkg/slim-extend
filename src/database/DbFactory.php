@@ -12,7 +12,7 @@ namespace slimExt\database;
  * Class DbFactory
  * @package slimExt\database
  *
- * @see Windwalker\Database\DatabaseFactory
+ * @referrer Windwalker\Database\DatabaseFactory
  */
 class DbFactory
 {

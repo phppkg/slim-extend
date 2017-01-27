@@ -36,7 +36,7 @@ class ConnectionLocator
     ];
 
     /**
-     * instaneced connections
+     * instanced connections
      * @var AbstractDriver[]
      */
     private $connections = [
@@ -142,14 +142,14 @@ class ConnectionLocator
      */
     protected function getConnection($type, $name)
     {
-        // no reader/writer, return defualt
+        // no reader/writer, return default
         if ( !$this->keys[$type] ) {
             return $this->getDefault();
         }
 
         if ( !$name ) {
             // return a random reader
-            $name = array_rand(array_keys($this->keys[$type]));
+            $name = array_rand($this->keys[$type]);
         }
 
         $key = $type . '.' . $name;
@@ -157,7 +157,6 @@ class ConnectionLocator
         if ( !isset($this->keys[$type][$name]) ) {
             throw new \InvalidArgumentException("The connection [$type: $name] don't exists!");
         }
-
 
         // if not be instanced.
         if ( !$this->keys[$type][$name] ) {
