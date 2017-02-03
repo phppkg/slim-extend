@@ -93,7 +93,7 @@ abstract class Controller extends AbstractController
 
     /**
      * more information
-     * @see slimExt\AbstractController::doSecurityFilter()
+     * @see \slimExt\AbstractController::doSecurityFilter()
      * @return array
      */
     public function filters()
@@ -285,7 +285,7 @@ abstract class Controller extends AbstractController
      * @param Response $response
      * @param array $args
      * @return mixed
-     * @throws NotFoundException
+     * @throws \Exception
      */
     public function __invoke(Request $request, Response $response, array $args)
     {
@@ -311,17 +311,12 @@ abstract class Controller extends AbstractController
                 return $result;
             }
 
-            try {
-                /** @var Response $response */
-                $response = $this->$actionMethod(array_shift($args));
+            /** @var Response $response */
+            $response = $this->$actionMethod(array_shift($args));
 
-                // if the action return is array data
-                if (is_array($response)) {
-                    $response = $this->response->withJson($response);
-                }
-            } catch (\Exception $e) {
-                throw $e;
-//                return $this->errorHandler($e->getMessage(), $e->getCode() ?: 2);
+            // if the action return is array data
+            if (is_array($response)) {
+                $response = $this->response->withJson($response);
             }
 
             // Might want to customize to perform the action name
@@ -333,7 +328,8 @@ abstract class Controller extends AbstractController
         // throw new NotFoundException('Error Processing Request, Action [' . $action . '] don\'t exists!');
         $error = 'Error Processing Request, Action [' . $action . '] don\'t exists!';
 
-        return $this->errorHandler($error);
+        return $this->response->withJson([], 330, $error, 403);
+//        return $this->errorHandler($error);
     }
 
     /**

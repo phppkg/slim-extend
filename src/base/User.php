@@ -9,6 +9,7 @@
 namespace slimExt\base;
 
 use inhere\librarys\helpers\ObjectHelper;
+use Psr\Http\Message\ResponseInterface;
 use Slim;
 use inhere\librarys\exceptions\InvalidArgumentException;
 use inhere\librarys\exceptions\InvalidConfigException;
@@ -46,7 +47,17 @@ class User extends Collection
     /**
      * @var string
      */
+    public $loggedTo = '/';
+
+    /**
+     * @var string
+     */
     public $logoutUrl = '/logout';
+
+    /**
+     * @var string
+     */
+    public $logoutTo = '/';
 
     /**
      * @var CheckAccessInterface
@@ -112,7 +123,7 @@ class User extends Collection
     /**
      * @param Request $request
      * @param Response $response
-     * @return Response
+     * @return ResponseInterface
      * @throws InvalidConfigException
      */
     public function loginRequired(Request $request, Response $response)
@@ -253,12 +264,11 @@ class User extends Collection
     }
 
     /**
-     * @param string $default
      * @return string
      */
-    public function getLogoutTo($default='/')
+    public function getLogoutTo()
     {
-        return session(self::AFTER_LOGOUT_TO_KEY, $default);
+        return $this->logoutTo;
     }
 
     /**
@@ -266,18 +276,15 @@ class User extends Collection
      */
     public function setLogoutTo($url)
     {
-        session([
-            self::AFTER_LOGOUT_TO_KEY => trim($url)
-        ]);
+        $this->logoutTo = trim($url);
     }
 
     /**
-     * @param string $default
      * @return string
      */
-    public function getLoggedTo($default='/')
+    public function getLoggedTo()
     {
-        return session(self::AFTER_LOGGED_TO_KEY, $default);
+        return $this->loggedTo;
     }
 
     /**
@@ -285,9 +292,7 @@ class User extends Collection
      */
     public function setLoggedTo($url)
     {
-        session([
-            self::AFTER_LOGGED_TO_KEY => trim($url)
-        ]);
+        $this->loggedTo = trim($url);
     }
 
     /**

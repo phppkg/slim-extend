@@ -14,6 +14,7 @@ Some Feature :
 - Monolog
 - Pimple Dependency Injection Container
 - Controller layer for MVC
+- REST Controller
 - Model layer, database query builder.
 - Tracy Errors Handler(by whoops)
 

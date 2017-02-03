@@ -113,3 +113,24 @@ function get_extension($file)
 {
     return pathinfo($file, PATHINFO_EXTENSION);
 }
+
+
+
+if ( !function_exists('local_env')) {
+    function local_env($name = null, $default = null, $file = null)
+    {
+        return \inhere\librarys\helpers\DataHelper::localEnv($name, $default, $file);
+    }
+}
+
+if ( !function_exists('slim_request')) {
+    function slim_request($name = null, $default = null)
+    {
+        return $name === null ? \Slim::$app->request : \Slim::$app->request->getParam($name, $default);
+    }
+
+    function slim_response()
+    {
+        return \Slim::$app->response;
+    }
+}
