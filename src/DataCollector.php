@@ -32,7 +32,7 @@ use slimExt\exceptions\ParseDataException;
  * $config->get('foo');
  * ```
  */
-class DataCollector extends \inhere\librarys\collections\DataCollector
+class DataCollector extends \inhere\library\collections\DataCollector
 {
     /**
      * name

@@ -8,7 +8,7 @@
 
 namespace slimExt;
 
-use inhere\librarys\exceptions\NotFoundException;
+use inhere\library\exceptions\NotFoundException;
 use Slim;
 use slimExt\base\Request;
 use slimExt\base\Response;

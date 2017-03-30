@@ -8,7 +8,7 @@
 
 namespace slimExt\base;
 
-use inhere\librarys\helpers\PhpHelper;
+use inhere\library\helpers\PhpHelper;
 use Slim;
 use slimExt\DataCollector;
 

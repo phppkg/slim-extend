@@ -2,7 +2,7 @@
 
 namespace slimExt\buildIn\commands;
 
-use inhere\librarys\files\Directory;
+use inhere\library\files\Directory;
 use slimExt\base\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

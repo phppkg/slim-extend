@@ -136,7 +136,7 @@ abstract class Controller extends AbstractController
         // is pjax request
         if ( Slim::$app->request->isPjax() ) {
 
-            // X-PJAX-URL:https://github.com/inhere/php-librarys
+            // X-PJAX-URL:https://github.com/inhere/library
             // X-PJAX-Version: 23434
             /** @var Response $response */
             $response = $response

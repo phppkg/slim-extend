@@ -8,7 +8,7 @@
 
 namespace slimExt\base;
 
-use inhere\librarys\exceptions\LogicException;
+use inhere\library\exceptions\LogicException;
 use Slim\Container as SlimContainer;
 
 /**

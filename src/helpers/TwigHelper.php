@@ -4,8 +4,8 @@
  */
 namespace slimExt\helpers;
 
-use inhere\librarys\asset\AssetLoad;
-use inhere\librarys\exceptions\UnknownCalledException;
+use inhere\library\asset\AssetLoad;
+use inhere\library\exceptions\UnknownCalledException;
 use Slim;
 
 /**

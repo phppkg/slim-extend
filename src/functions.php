@@ -119,7 +119,7 @@ function get_extension($file)
 if ( !function_exists('local_env')) {
     function local_env($name = null, $default = null, $file = null)
     {
-        return \inhere\librarys\helpers\DataHelper::localEnv($name, $default, $file);
+        return \inhere\library\helpers\DataHelper::localEnv($name, $default, $file);
     }
 }
 

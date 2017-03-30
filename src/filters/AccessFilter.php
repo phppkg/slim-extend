@@ -9,7 +9,7 @@
 namespace slimExt\filters;
 
 use Slim;
-use inhere\librarys\helpers\ArrHelper;
+use inhere\library\helpers\ArrHelper;
 
 /**
  * Class AccessFilter

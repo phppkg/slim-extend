@@ -8,10 +8,10 @@
 
 namespace slimExt\base;
 
-use inhere\librarys\exceptions\InvalidArgumentException;
-use inhere\librarys\exceptions\InvalidConfigException;
-use inhere\librarys\exceptions\UnknownMethodException;
-use inhere\librarys\helpers\ArrHelper;
+use inhere\library\exceptions\InvalidArgumentException;
+use inhere\library\exceptions\InvalidConfigException;
+use inhere\library\exceptions\UnknownMethodException;
+use inhere\library\helpers\ArrHelper;
 use Slim;
 use slimExt\database\AbstractDriver;
 use Windwalker\Query\Query;

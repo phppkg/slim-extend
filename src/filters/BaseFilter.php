@@ -8,8 +8,8 @@
 
 namespace slimExt\filters;
 
-use inhere\librarys\helpers\ObjectHelper;
-use inhere\librarys\StdBase;
+use inhere\library\helpers\ObjectHelper;
+use inhere\library\StdBase;
 use slimExt\base\Request;
 use slimExt\base\Response;
 

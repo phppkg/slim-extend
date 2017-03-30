@@ -149,7 +149,7 @@ abstract class Slim
      * @param string $class
      * @param array $params
      * @return mixed
-     * @throws \inhere\librarys\exceptions\LogicException
+     * @throws \inhere\library\exceptions\LogicException
      */
     public static function make($id, $class = null, $params = null)
     {

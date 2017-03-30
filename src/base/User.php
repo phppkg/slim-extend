@@ -8,11 +8,11 @@
 
 namespace slimExt\base;
 
-use inhere\librarys\helpers\ObjectHelper;
+use inhere\library\helpers\ObjectHelper;
 use Psr\Http\Message\ResponseInterface;
 use Slim;
-use inhere\librarys\exceptions\InvalidArgumentException;
-use inhere\librarys\exceptions\InvalidConfigException;
+use inhere\library\exceptions\InvalidArgumentException;
+use inhere\library\exceptions\InvalidConfigException;
 
 /**
  * Class User
