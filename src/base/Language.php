@@ -9,7 +9,7 @@
 namespace slimExt\base;
 
 use Slim;
-use inhere\library\language\LanguageManager;
+use inhere\library\collections\LanguageManager;
 
 /**
  * Class Language
