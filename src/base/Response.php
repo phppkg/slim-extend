@@ -8,7 +8,7 @@
 
 namespace slimExt\base;
 
-use inhere\library\utils\JsonMessage;
+use inhere\library\collections\JsonMessage;
 use Slim;
 use Slim\Http\Response as SlimResponse;
 
@@ -27,9 +27,11 @@ class Response extends SlimResponse
      * @param int $status
      * @return SlimResponse
      */
-    public function withJson($data, $code = 0, $msg = '', $status = 200)
+    public function withJson($data, $code = null, $msg = '', $status = 200)
     {
-        if ( $data instanceof JsonMessage) {
+        $code = null === $code ? 0 : (int)$code;
+
+        if ($data instanceof JsonMessage) {
             return parent::withJson($data, $status, 0);
         }
 
@@ -52,15 +54,15 @@ class Response extends SlimResponse
     /**
      * set cookie
      * ```
-     * $res->withCookie(['name' => 'value']);
+     * $res->withCookie('name', 'value');
      * ```
-     * @param array $data
-     * @param array $params
+     * @param $name
+     * @param $value
      * @return static
      */
-    public function withCookie(array $data, array $params = [])
+    public function withCookie($name, $value)
     {
-        cookie($data, null, $params);
+        setcookie($name, $value);
 
         return $this;
     }
@@ -68,11 +70,11 @@ class Response extends SlimResponse
     /**
      * @param \Psr\Http\Message\UriInterface|string $url
      * @param int $status
-     * @return SlimResponse
+     * @return static
      */
-    public function withRedirect($url, $status = 301)
+    public function withRedirect($url, $status = null)
     {
-        return $this->withStatus($status)->withHeader('Location', (string)$url);
+        return $this->withStatus($status ? : 301)->withHeader('Location', (string)$url);
     }
 
     /**

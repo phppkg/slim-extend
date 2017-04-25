@@ -8,6 +8,7 @@
 
 namespace slimExt\base;
 
+use inhere\library\collections\SimpleCollection;
 use inhere\library\helpers\ObjectHelper;
 use Psr\Http\Message\ResponseInterface;
 use Slim;
@@ -20,12 +21,18 @@ use inhere\library\exceptions\InvalidConfigException;
  *
  * @property int id
  */
-class User extends Collection
+class User extends SimpleCollection
 {
     /**
      * @var string
      */
-    protected static $saveKey = '_slim_auth';
+    protected $saveKey = '_slim_auth';
+
+    /**
+     * data storage
+     * @var null|array|\ArrayAccess
+     */
+    protected $storage;
 
     /**
      * Exclude fields that don't need to be saved.
@@ -64,6 +71,9 @@ class User extends Collection
      */
     public $accessChecker;
 
+    /**
+     * @var string
+     */
     public $idColumn = 'id';
 
     /**
@@ -83,22 +93,27 @@ class User extends Collection
     /**
      * don't allow set attribute
      * @param array $options
+     * @param null|array|\ArrayAccess $storage
      * @throws InvalidConfigException
      */
-    public function __construct($options=[])
+    public function __construct($options = [], &$storage = null)
     {
-        parent::__construct();
-
         ObjectHelper::loadAttrs($this, $options);
 
-        if ($this->identityClass === null) {
-            throw new InvalidConfigException('User::identityClass must be set.');
+        // Set storage
+        if (is_array($storage) || $storage instanceof \ArrayAccess) {
+            $this->storage = &$storage;
+        } elseif (is_null($storage)) {
+            if (!isset($_SESSION)) {
+                throw new \RuntimeException('Flash messages middleware failed. Session not found.');
+            }
+            $this->storage = &$_SESSION;
+        } else {
+            throw new \InvalidArgumentException('Flash messages storage must be an array or implement \ArrayAccess');
         }
 
         // if have already login
-        if ( isset($_SESSION[static::$saveKey]) ) {
-            $this->refreshIdentity();
-        }
+        parent::__construct($this->getStorageData());
     }
 
     /**
@@ -113,11 +128,12 @@ class User extends Collection
         return $this->isLogin();
     }
 
+    /**
+     * logout
+     */
     public function logout()
     {
         $this->clear();
-
-        unset($_SESSION[static::$saveKey]);
     }
 
     /**
@@ -160,13 +176,13 @@ class User extends Collection
     }
     public function canAccess($permission, $params = [], $caching = true)
     {
-        if ( isset($this->_accesses[$permission]) ) {
+        if (isset($this->_accesses[$permission])) {
             return $this->_accesses[$permission];
         }
 
         $access = false;
 
-        if ( $checker = $this->getAccessChecker() ) {
+        if ($checker = $this->getAccessChecker()) {
             $access = $checker->checkAccess($this->getId(), $permission, $params);
 
             if ($caching) {
@@ -201,25 +217,33 @@ class User extends Collection
         return !$this->isLogin();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function clear()
     {
         $this->data = $this->_accesses = [];
+        unset($this->storage[$this->saveKey]);
     }
 
     /**
      * @param bool|false $force
+     * @throws InvalidConfigException
      */
     public function refreshIdentity($force=false)
     {
         $id = $this->getId();
-        $this->clear();
+
+        if ($this->identityClass === null) {
+            throw new InvalidConfigException('The property [identityClass] must be set.');
+        }
 
         /* @var $class IdentityInterface */
         $class = $this->identityClass;
 
-        if (!$force && ($data = session(self::$saveKey)) ) {
+        if (!$force && ($data = $this->getStorageData())) {
             $this->sets($data);
-        } elseif ( $user = $class::findIdentity($id) ) {
+        } elseif ($user = $class::findIdentity($id)) {
             $this->setIdentity($user);
         } else {
             throw new \RuntimeException('The refresh auth data is failure!!');
@@ -234,25 +258,38 @@ class User extends Collection
     {
         if ($identity instanceof IdentityInterface) {
             $this->sets((array)$identity);
-            session([ self::$saveKey => $identity->all()]);
+
+            $this->storage[$this->saveKey] = $this->all();
+
             $this->_accesses = [];
         } elseif ($identity === null) {
             $this->data = [];
         } else {
-            throw new InvalidArgumentException('The identity object must implement IdentityInterface.');
+            throw new InvalidArgumentException('The identity object must implement the ' . IdentityInterface::class);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function sets(array $data)
     {
         // except column at set.
         foreach ($this->excepted as $column) {
-            if ( isset($data[$column])) {
+            if (isset($data[$column])) {
                 unset($data[$column]);
             }
         }
 
         return parent::sets($data);
+    }
+
+    /**
+     * @return array
+     */
+    public function getStorageData()
+    {
+        return $this->storage[$this->saveKey] ? $this->storage[$this->saveKey] : [];
     }
 
     /**
