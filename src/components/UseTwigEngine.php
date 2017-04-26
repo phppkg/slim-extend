@@ -9,12 +9,13 @@
 namespace slimExt\components;
 
 use Slim;
-use slimExt\AbstractController;
-use slimExt\exceptions\NotFoundException;
+use slimExt\base\Response;
 
 /**
  * Class Controller
  * @package slimExt\components
+ *
+ * @property Response
  */
 trait UseTwigEngine
 {
@@ -22,7 +23,7 @@ trait UseTwigEngine
      * twig tpl render
      * @param $view
      * @param array $args
-     * @return Response|Slim\Http\Response
+     * @return Response
      */
     protected function renderTwig($view, array $args = [])
     {
@@ -79,7 +80,7 @@ trait UseTwigEngine
             'messages' => Slim::$app->request->getMessage(),
         ];
 
-        if ( $class = $this->tplHelperClass ) {
+        if ($class = $this->tplHelperClass) {
             $globalVar['helper'] = new $class;
         }
 

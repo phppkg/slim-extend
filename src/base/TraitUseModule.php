@@ -2,6 +2,10 @@
 
 namespace slimExt\base;
 
+/**
+ * Class TraitUseModule
+ * @package slimExt\base
+ */
 trait TraitUseModule
 {
     /**

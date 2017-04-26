@@ -86,39 +86,37 @@ class AbstractController
     /**
      * @param $action
      * @return mixed
+     * @throws NotFoundException
      */
     protected function doSecurityFilter($action)
     {
-        if ( !$this->filters()) {
-            return true;
-        }
-
         $defaultFilter = '\slimExt\filters\\%sFilter';
 
         foreach ($this->filters() as $name => $settings) {
             $filter = !empty($settings['filter']) ?
                 $settings['filter'] :
-                sprintf( $defaultFilter, ucfirst($name));
+                sprintf($defaultFilter, ucfirst($name));
 
             unset($settings['filter']);
 
             // filter is a Closure. call it.
-            if ( $filter instanceof \Closure ) {
+            if ($filter instanceof \Closure) {
                 return $filter($action, $this);
             }
 
-            if ( !class_exists($filter) ) {
+            if (!class_exists($filter)) {
                 throw new NotFoundException("Filter class [$filter] not found.");
             }
 
             $filter = new $filter($settings);
 
             if (!$filter instanceof BaseFilter) {
-                # code...
+                throw new NotFoundException("Filter class must be instanceof " . BaseFilter::class);
             }
-            $result = $filter($this->request, $this->response, $this, $action);
 
-            if ( true !== $result ) {
+            $result = $filter($this->request, $this->response, $action);
+
+            if (true !== $result) {
                 return $result;
             }
         }

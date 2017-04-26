@@ -5,9 +5,6 @@
 
 namespace slimExt;
 
-use RuntimeException;
-use slimExt\exceptions\ParseDataException;
-
 /**
  * Class DataCollector - 数据收集器 (数据存储器 - DataStorage)
  * @package slimExt

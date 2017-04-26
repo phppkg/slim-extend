@@ -8,10 +8,10 @@
 
 namespace slimExt\base;
 
-use inhere\library\exceptions\InvalidArgumentException;
-use inhere\library\exceptions\InvalidConfigException;
-use inhere\library\exceptions\UnknownMethodException;
-use inhere\library\helpers\ArrHelper;
+use inhere\exceptions\InvalidArgumentException;
+use inhere\exceptions\InvalidConfigException;
+use inhere\exceptions\UnknownMethodException;
+use inhere\library\helpers\ArrayHelper;
 use Slim;
 use slimExt\database\AbstractDriver;
 use Windwalker\Query\Query;
@@ -90,6 +90,13 @@ abstract class RecordModel extends Model
     {
         return new static($data, $scene);
     }
+
+    /**
+     * RecordModel constructor.
+     * @param array $items
+     * @param string $scene
+     * @throws InvalidConfigException
+     */
     public function __construct(array $items = [], $scene='')
     {
         parent::__construct($items);
@@ -230,7 +237,7 @@ abstract class RecordModel extends Model
         }
 
         $options = array_merge(static::$defaultOptions, ['class' => 'assoc'], $options);
-        $indexKey = ArrHelper::remove('indexKey',$options, null);
+        $indexKey = ArrayHelper::remove('indexKey', $options, null);
         $class = $options['class'] === 'model' ? static::class : $options['class'];
 
         unset($options['indexKey'], $options['class']);
@@ -737,6 +744,7 @@ abstract class RecordModel extends Model
      */
     public static function handleConditions($wheres, $model, Query $query = null)
     {
+        /** @var Query $query */
         $query = $query ?: $model::getQuery(true);
 
         if (is_object($wheres) and $wheres instanceof \Closure) {
@@ -745,7 +753,7 @@ abstract class RecordModel extends Model
             return $query;
         }
 
-        if ( is_array($wheres) ) {
+        if (is_array($wheres)) {
             foreach ($wheres as $key => $where) {
                 if (is_object($where) and $where instanceof \Closure) {
                     $where($query);
@@ -781,7 +789,7 @@ abstract class RecordModel extends Model
                 $query->where($where);
             }// end foreach
 
-        } elseif ( $wheres && is_string($wheres) ) {
+        } elseif ($wheres && is_string($wheres)) {
             $query->where($wheres);
         }
 

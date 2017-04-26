@@ -2,8 +2,7 @@
 
 namespace slimExt\rest;
 
-use inhere\library\exceptions\NotFoundException;
-use inhere\library\exceptions\UnknownMethodException;
+use inhere\exceptions\UnknownMethodException;
 use slimExt\AbstractController;
 use slimExt\base\Request;
 use slimExt\base\Response;

@@ -8,7 +8,6 @@
 
 namespace slimExt\database;
 
-use Windwalker\Query\Query;
 use Windwalker\Query\Sqlite\SqliteQuery;
 
 /**

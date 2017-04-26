@@ -120,7 +120,6 @@ abstract class Module
     /**
      * register route to web application
      * @param App $app
-     * @return mixed
      */
     protected function registerRoutes($app)
     {

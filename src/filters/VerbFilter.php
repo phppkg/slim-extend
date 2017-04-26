@@ -36,9 +36,12 @@ class VerbFilter extends BaseFilter
      */
     public $actions = [];
 
+    /**
+     * {@inheritDoc}
+     */
     protected function doFilter($action)
     {
-        if ( !isset($this->actions[$action]) ) {
+        if (!isset($this->actions[$action])) {
             return true;
         }
 

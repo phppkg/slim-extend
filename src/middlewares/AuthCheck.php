@@ -2,6 +2,7 @@
 
 namespace slimExt\middlewares;
 
+use Psr\Http\Message\ResponseInterface;
 use slimExt\exceptions\InvalidConfigException;
 use Slim;
 use slimExt\base\Request;
@@ -20,7 +21,7 @@ class AuthCheck
      * @param  Response  $response PSR7 response
      * @param  callable  $next     Next middleware
      *
-     * @return Response
+     * @return ResponseInterface
      * @throws InvalidConfigException
      * @throws \InvalidArgumentException
      */

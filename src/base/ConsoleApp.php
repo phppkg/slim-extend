@@ -8,11 +8,9 @@
 
 namespace slimExt\base;
 
-use slimExt\base\Container;
 use Interop\Container\ContainerInterface;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
-use slimExt\buildIn\commands;
 
 /**
  * Class ConsoleApp

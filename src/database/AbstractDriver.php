@@ -367,7 +367,8 @@ abstract class AbstractDriver
      * @param string $table
      * @param array|object $data
      * @param string $priKey
-     * @return array|int|bool
+     * @return array|bool|int
+     * @throws InvalidArgumentException
      */
     public function insert($table, $data, $priKey='')
     {
@@ -487,12 +488,12 @@ abstract class AbstractDriver
 
     /**
      * Updates a row in a table based on an object's properties.
-     * @param   string  $table       The name of the database table to update.
-     * @param   array   $data        A reference to an object whose public properties match the table fields.
-     * @param   array|string  $key         The name of the primary key.
+     * @param   string $table The name of the database table to update.
+     * @param   array $data A reference to an object whose public properties match the table fields.
+     * @param   array|string $key The name of the primary key.
      * @param   boolean $updateNulls True to update null fields or false to ignore them.
-     * @throws \InvalidArgumentException
-     * @return  boolean|int  True on success.
+     * @return bool|int
+     * @throws InvalidArgumentException
      */
     public function update($table, $data, $key= 'id', $updateNulls = false)
     {
@@ -615,7 +616,7 @@ abstract class AbstractDriver
      * @param   array   &$data        A reference to an object whose public properties match the table fields.
      * @param   string  $key          The name of the primary key.
      * @param   boolean $updateNulls  True to update null fields or false to ignore them.
-     * @return  bool|static
+     * @return  mixed
      * @throws \InvalidArgumentException
      */
     public function save($table, &$data, $key, $updateNulls = false)

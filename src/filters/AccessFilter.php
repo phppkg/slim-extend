@@ -55,7 +55,10 @@ class AccessFilter extends BaseFilter
      */
     public $userRoleField = 'role';
 
-    protected function doFilter( $action )
+    /**
+     * {@inheritDoc}
+     */
+    protected function doFilter($action)
     {
         /**
          * current user
@@ -96,14 +99,16 @@ class AccessFilter extends BaseFilter
                 break;
             }
 
-            // user role: string OR array. e.g 'admin' OR [ 'admin', 'editer']
-            if ($userRoles = $user->{$this->userRoleField} && array_intersect((array)$userRoles, $roles) ) {
+            // user role: string OR array. e.g 'admin' OR [ 'admin', 'editor']
+            $userRoles = $user->{$this->userRoleField};
+
+            if ($userRoles && array_intersect((array)$userRoles, $roles) ) {
                 break;
             }
         }
 
         // deny access
-        if ( !$allow ) {
+        if (!$allow) {
             // when is xhr
             if ( $this->request->isXhr() ) {
                 $data = ['redirect' => $user->loginUrl];
