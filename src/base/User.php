@@ -144,10 +144,8 @@ class User extends SimpleCollection
      */
     public function loginRequired(Request $request, Response $response)
     {
-        $authUrl = Slim::get('config')->get('urls.login', $this->loginUrl);
-
-        if (!$authUrl) {
-            throw new InvalidConfigException("require config 'urls.login' !");
+        if (!$authUrl = $this->loginUrl) {
+            throw new InvalidConfigException("require config property 'loginUrl'!");
         }
 
         $this->setLoggedTo($request->getRequestUri());
