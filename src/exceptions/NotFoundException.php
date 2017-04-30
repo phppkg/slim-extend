@@ -16,6 +16,6 @@ class NotFoundException extends \RuntimeException
 {
     public function __construct($msg = '', $code = 14, \Exception $previous = null)
     {
-        parent::__construct($msg ? : 'target not found!!', $code, $previous);
+        parent::__construct($msg ?: 'target not found!!', $code, $previous);
     }
 }

@@ -24,7 +24,7 @@ class TwigExtension extends \Twig_Extension
      */
     protected $csrf;
 
-    public function __construct( Request $request, Guard $csrf)
+    public function __construct(Request $request, Guard $csrf)
     {
         $this->request = $request;
         $this->csrf = $csrf;

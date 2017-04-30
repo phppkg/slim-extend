@@ -35,8 +35,8 @@ class DbFactory
     /**
      * getPdo
      * @param string $name
-     * @param array  $dbArgs
-     * @param bool   $forceNew
+     * @param array $dbArgs
+     * @param bool $forceNew
      * @throws \InvalidArgumentException
      * @return  AbstractDriver
      */
@@ -62,7 +62,7 @@ class DbFactory
 
     /**
      * setPdo
-     * @param string         $name
+     * @param string $name
      * @param AbstractDriver $db
      * @return  void
      */
@@ -78,14 +78,14 @@ class DbFactory
      */
     public static function setDefaultDbo($name, AbstractDriver $db)
     {
-        if ( $db ) {
+        if ($db) {
             self::$instances[$name] = self::$db = $db;
         }
     }
 
     /**
      * createPdo
-     * @param array  $options
+     * @param array $options
      * e.g.
      *
      * [
@@ -100,12 +100,12 @@ class DbFactory
      * @throws \RuntimeException
      * @return  AbstractDriver
      */
-    public static function createDbo( array $options )
+    public static function createDbo(array $options)
     {
         // Sanitize the database connector options.
-        $options['driver']   = preg_replace('/[^A-Z0-9_\.-]/i', '', $options['driver']);
+        $options['driver'] = preg_replace('/[^A-Z0-9_\.-]/i', '', $options['driver']);
         $options['database'] = (isset($options['database'])) ? $options['database'] : null;
-        $options['select']   = (isset($options['select'])) ? $options['select'] : true;
+        $options['select'] = (isset($options['select'])) ? $options['select'] : true;
 
         // Use custom Resource
 //        $resource = isset($options['resource']) ? $options['resource'] : null;
@@ -119,7 +119,7 @@ class DbFactory
         }
 
         /** @var AbstractDriver $class */
-        if ( !$class::isSupported() ) {
+        if (!$class::isSupported()) {
             throw new \RangeException('Database driver ' . $options['driver'] . ' not supported.');
         }
 

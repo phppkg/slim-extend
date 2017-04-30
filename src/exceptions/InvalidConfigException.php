@@ -16,6 +16,6 @@ class InvalidConfigException extends \RuntimeException
 {
     public function __construct($msg = '', $code = 17, \Exception $previous = null)
     {
-        parent::__construct($msg ? : 'invalid configuration information!!', $code, $previous);
+        parent::__construct($msg ?: 'invalid configuration information!!', $code, $previous);
     }
 }

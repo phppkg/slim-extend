@@ -35,8 +35,8 @@ use slimExt\DataType;
  */
 class Request extends SlimRequest
 {
-    const FLASH_MSG_KEY         = '_alert_messages';
-    const FLASH_OLD_INPUT_KEY   = '_last_inputs';
+    const FLASH_MSG_KEY = '_alert_messages';
+    const FLASH_OLD_INPUT_KEY = '_last_inputs';
 
     /**
      * return raw data
@@ -48,34 +48,34 @@ class Request extends SlimRequest
      */
     protected $filterList = [
         // return raw
-        'raw'     => '',
+        'raw' => '',
 
         // (int)$var
-        'int'     => 'int',
+        'int' => 'int',
         // (float)$var or floatval($var)
-        'float'   => 'float',
+        'float' => 'float',
         // (bool)$var
-        'bool'    => 'bool',
+        'bool' => 'bool',
         // (bool)$var
         'boolean' => 'bool',
         // (string)$var
-        'string'  => 'string',
+        'string' => 'string',
 
         // trim($var)
-        'trimmed'  => StrainerList::class . '::trim',
+        'trimmed' => StrainerList::class . '::trim',
 
         // safe data
-        'safe'  => 'htmlspecialchars',
+        'safe' => 'htmlspecialchars',
 
         // abs((int)$var)
-        'number'  => StrainerList::class . '::abs',
+        'number' => StrainerList::class . '::abs',
         // will use filter_var($var ,FILTER_SANITIZE_EMAIL)
-        'email'   => StrainerList::class . '::email',
+        'email' => StrainerList::class . '::email',
         // will use filter_var($var ,FILTER_SANITIZE_URL)
-        'url'     => StrainerList::class . '::url',
+        'url' => StrainerList::class . '::url',
 
         // will use filter_var($var ,FILTER_SANITIZE_ENCODED, $settings);
-        'encoded'     => StrainerList::class . '::encoded',
+        'encoded' => StrainerList::class . '::encoded',
     ];
 
     /**
@@ -125,7 +125,7 @@ class Request extends SlimRequest
      */
     public function getOldInput($default = [])
     {
-        if ( $data = Slim::get('flash')->getMessage(self::FLASH_OLD_INPUT_KEY) ) {
+        if ($data = Slim::get('flash')->getMessage(self::FLASH_OLD_INPUT_KEY)) {
             return json_decode($data[0], true);
         }
 
@@ -155,12 +155,12 @@ class Request extends SlimRequest
      * ]
      * @return array
      */
-    public function getMulti(array $needKeys=[])
+    public function getMulti(array $needKeys = [])
     {
         $needed = [];
 
         foreach ($needKeys as $key => $value) {
-            if ( is_int($key) ) {
+            if (is_int($key)) {
                 $needed[$value] = $this->getParam($value);
             } else {
                 $needed[$key] = $this->filtering($key, $value);
@@ -238,16 +238,16 @@ class Request extends SlimRequest
      */
     public function filtering($value, $filter)
     {
-        if ( $filter === static::FILTER_RAW) {
+        if ($filter === static::FILTER_RAW) {
             return $value;
         }
 
         // is a custom filter
-        if ( !is_string($filter) || !isset($this->filterList[$filter]) ) {
+        if (!is_string($filter) || !isset($this->filterList[$filter])) {
             $result = $value;
 
             // is custom callable filter
-            if ( is_callable($filter) ) {
+            if (is_callable($filter)) {
                 $result = call_user_func($filter, $value);
             }
 
@@ -257,10 +257,10 @@ class Request extends SlimRequest
         // is a defined filter
         $filter = $this->filterList[$filter];
 
-        if ( !in_array($filter, DataType::types()) ) {
+        if (!in_array($filter, DataType::types())) {
             $result = call_user_func($filter, $value);
         } else {
-            switch ( lcfirst(trim($filter)) ) {
+            switch (lcfirst(trim($filter))) {
                 case DataType::T_BOOL :
                 case DataType::T_BOOLEAN :
                     $result = (bool)$value;

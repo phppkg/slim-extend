@@ -17,9 +17,9 @@ class AuthCheck
     /**
      * Auth middleware invokable class
      *
-     * @param  Request   $request  PSR7 request
-     * @param  Response  $response PSR7 response
-     * @param  callable  $next     Next middleware
+     * @param  Request $request PSR7 request
+     * @param  Response $response PSR7 response
+     * @param  callable $next Next middleware
      *
      * @return ResponseInterface
      * @throws InvalidConfigException
@@ -28,7 +28,7 @@ class AuthCheck
     public function __invoke(Request $request, Response $response, $next)
     {
         // if have been login
-        if( Slim::$app->user->isLogin() ) {
+        if (Slim::$app->user->isLogin()) {
             return $next($request, $response);
         }
 

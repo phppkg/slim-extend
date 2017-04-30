@@ -16,6 +16,6 @@ class ParseDataException extends \RuntimeException
 {
     public function __construct($msg = '', $code = 14, \Exception $previous = null)
     {
-        parent::__construct($msg ? : 'data parse failure!!!', $code, $previous);
+        parent::__construct($msg ?: 'data parse failure!!!', $code, $previous);
     }
 }

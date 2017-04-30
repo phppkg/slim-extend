@@ -74,10 +74,10 @@ abstract class Model extends Collection
     public function set($column, $value)
     {
         // belong to the model.
-        if ( isset($this->columns()[$column]) ) {
+        if (isset($this->columns()[$column])) {
             $type = $this->columns()[$column];
 
-            if ($type === DataType::T_INT ) {
+            if ($type === DataType::T_INT) {
                 $value = (int)$value;
             }
         }
@@ -94,7 +94,7 @@ abstract class Model extends Collection
         $data = [];
 
         foreach ($source as $col => $val) {
-            if ( isset($this->columns()[$col]) ) {
+            if (isset($this->columns()[$col])) {
                 $data[$col] = $val;
             }
         }

@@ -36,7 +36,7 @@ class Container extends SlimContainer
     {
         $callable = $this->raw($id);
 
-        if ( !($callable instanceof \Closure) ) {
+        if (!($callable instanceof \Closure)) {
             throw new LogicException('The service must is a Closure by the method(Container::call) call.');
         }
 

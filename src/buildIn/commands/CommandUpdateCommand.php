@@ -24,13 +24,12 @@ class CommandUpdateCommand extends Command
             // 命令描述
             ->setDescription('Will scan <info>@src/commands</info> directory for update application command list.')
             ->addOption(
-               'force',
-               'f',
-               InputOption::VALUE_OPTIONAL,
-               'If set, will force update <info>@project/bootstrap/console/commands.php</info>',
+                'force',
+                'f',
+                InputOption::VALUE_OPTIONAL,
+                'If set, will force update <info>@project/bootstrap/console/commands.php</info>',
                 false
-            )
-        ;
+            );
     }
 
     protected $targetFile = '@project/bootstrap/console/commands.php';
@@ -66,7 +65,7 @@ class CommandUpdateCommand extends Command
         $cmdList = [];
 
         foreach ($ret as $value) {
-            $class = $namespace . substr(str_replace('/', '\\',$value), 0, -4);
+            $class = $namespace . substr(str_replace('/', '\\', $value), 0, -4);
             $cmdList[] = sprintf($tplCmd, $class);
             $output->writeln('  ' . $class);
         }
@@ -96,15 +95,15 @@ EOF;
 
         $content .= "\n" . implode("\n", $cmdList);
 
-        if ( file_put_contents($targetFile, $content) ) {
+        if (file_put_contents($targetFile, $content)) {
 
             // $this->getIO()->success('   Update commands class successful!');
-            $output->writeln("\n" .'<info>Update commands class successful!</info>');
+            $output->writeln("\n" . '<info>Update commands class successful!</info>');
 
             return 0;
         }
 
-        $output->writeln("\n" .'<error>Update commands class failure!</error>');
+        $output->writeln("\n" . '<error>Update commands class failure!</error>');
 
         return 1;
     }

@@ -2,6 +2,7 @@
 /**
  *
  */
+
 namespace slimExt\helpers;
 
 use inhere\library\asset\AssetLoad;
@@ -33,7 +34,7 @@ class TwigHelper
      * @param bool $addId
      * @return string
      */
-    public function csrfField($addId=true)
+    public function csrfField($addId = true)
     {
         /** @var Slim\Csrf\Guard */
         // $csrf = Slim::get('csrf');
@@ -43,8 +44,8 @@ class TwigHelper
         // $valueKey = Slim::get('csrf')->getTokenValueKey();
 
         $data = Slim::get('csrf')->generateToken();
-        list($nameKey,$valueKey) = array_keys($data);
-        list($name,$value) = array_values($data);
+        list($nameKey, $valueKey) = array_keys($data);
+        list($name, $value) = array_values($data);
 
         $nameId = $addId ? 'csrf_name' : '';
         $valueId = $addId ? 'csrf_value' : '';
@@ -63,9 +64,9 @@ EOF;
         return Slim::get('csrf')->generateToken();
     }
 
-    public function __call($method, array $args=[])
+    public function __call($method, array $args = [])
     {
-        if ( function_exists($method) ) {
+        if (function_exists($method)) {
             return call_user_func_array($method, $args);
         }
 

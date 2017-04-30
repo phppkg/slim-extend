@@ -94,13 +94,13 @@ abstract class Controller extends AbstractController
      */
     protected function render($view, array $args = [])
     {
-        if ( $this->tplEngine === self::ENGINE_TWIG ) {
+        if ($this->tplEngine === self::ENGINE_TWIG) {
             return $this->renderTwig($view, $args);
         }
 
         $response = $this->response ?: Slim::get('response');
         $settings = Slim::get('settings')['renderer'];
-        $view  = $this->getViewPath($view, $settings);
+        $view = $this->getViewPath($view, $settings);
 
         // add tpl global var
         list($varKey, $varList) = $this->handleGlobalVar($settings);
@@ -121,7 +121,7 @@ abstract class Controller extends AbstractController
     {
         $response = $this->response;
         $settings = Slim::get('settings')['twigRenderer'];
-        $view  = $this->getViewPath($view, $settings);
+        $view = $this->getViewPath($view, $settings);
 
         // use twig render
         $twig = Slim::get('twigRenderer');
@@ -134,14 +134,14 @@ abstract class Controller extends AbstractController
         $this->appendVarToView($args);
 
         // is pjax request
-        if ( Slim::$app->request->isPjax() ) {
+        if (Slim::$app->request->isPjax()) {
 
             // X-PJAX-URL:https://github.com/inhere/library
             // X-PJAX-Version: 23434
             /** @var Response $response */
             $response = $response
-                            ->withHeader('X-PJAX-URL', (string)Slim::$app->request->getUri())
-                            ->withHeader('X-PJAX-Version', Slim::config('pjax_version', '1.0'));
+                ->withHeader('X-PJAX-URL', (string)Slim::$app->request->getUri())
+                ->withHeader('X-PJAX-Version', Slim::config('pjax_version', '1.0'));
 
             $args[$globalKey] = $globalVar;
             $rendered = $twig->getEnvironment()->loadTemplate($view)->renderBlock($this->bodyBlock, $args);
@@ -165,14 +165,14 @@ abstract class Controller extends AbstractController
     protected function addTwigGlobalVar()
     {
         $globalVar = [
-            'user'     => Slim::$app->user,
-            'config'   => Slim::get('config'),
-            'params'   => Slim::get('config')->get('params', []),
-            'lang'     => Slim::get('language'),
+            'user' => Slim::$app->user,
+            'config' => Slim::get('config'),
+            'params' => Slim::get('config')->get('params', []),
+            'lang' => Slim::get('language'),
             'messages' => Slim::$app->request->getMessage(),
         ];
 
-        if ( $class = $this->tplHelperClass ) {
+        if ($class = $this->tplHelperClass) {
             $globalVar['helper'] = new $class;
         }
 
@@ -190,37 +190,37 @@ abstract class Controller extends AbstractController
         }
     }
 
-    const GLOBAL_VAR_NAME_CONFIG_KEY  = 'global_var_key';
-    const GLOBAL_VAR_LIST_CONFIG_KEY  = 'global_var_list';
+    const GLOBAL_VAR_NAME_CONFIG_KEY = 'global_var_key';
+    const GLOBAL_VAR_LIST_CONFIG_KEY = 'global_var_list';
 
     /**
      * @param array $settings
      * @param array $varList
      * @return array
      */
-    protected function handleGlobalVar(array $settings, array $varList=[])
+    protected function handleGlobalVar(array $settings, array $varList = [])
     {
         // form settings
-        if ( !empty($settings[static::GLOBAL_VAR_LIST_CONFIG_KEY]) ) {
+        if (!empty($settings[static::GLOBAL_VAR_LIST_CONFIG_KEY])) {
             $varList = $varList ?
                 array_merge($varList, $settings[static::GLOBAL_VAR_LIST_CONFIG_KEY]) :
                 $settings[static::GLOBAL_VAR_LIST_CONFIG_KEY];
         }
 
         // form current controller
-        if ( $this->tplGlobalVarList ) {
+        if ($this->tplGlobalVarList) {
             $varList = $varList ?
                 array_merge($varList, $this->tplGlobalVarList) :
                 $this->tplGlobalVarList;
         }
 
         // global var name at template
-        if ( $this->tplGlobalVarKey ) {
+        if ($this->tplGlobalVarKey) {
             $varKey = $this->tplGlobalVarKey;
         } else {
             $varKey = empty($settings[static::GLOBAL_VAR_NAME_CONFIG_KEY]) ? '' : $settings[static::GLOBAL_VAR_NAME_CONFIG_KEY];
 
-            if ( !$varKey ) {
+            if (!$varKey) {
                 $varKey = static::DEFAULT_VAR_KEY;
             }
         }
@@ -234,11 +234,11 @@ abstract class Controller extends AbstractController
      */
     protected function getTplPath()
     {
-        if ( !$this->tplPath ) {
+        if (!$this->tplPath) {
             $calledClass = get_class($this);
-            $ctrlName = trim(strrchr($calledClass,'\\'),'\\');
+            $ctrlName = trim(strrchr($calledClass, '\\'), '\\');
 
-            $prefix = $this->tplPathPrefix ? '/'.$this->tplPathPrefix : '';
+            $prefix = $this->tplPathPrefix ? '/' . $this->tplPathPrefix : '';
             $this->tplPath = $prefix . '/' . lcfirst($ctrlName);
         }
 
@@ -257,13 +257,13 @@ abstract class Controller extends AbstractController
         $suffix = get_extension($view);
 
         // no extension
-        if ( !$suffix ||  $suffix !== trim($tpl_suffix,'. ') ) {
-            $view .= '.' . trim($tpl_suffix,'. ');
+        if (!$suffix || $suffix !== trim($tpl_suffix, '. ')) {
+            $view .= '.' . trim($tpl_suffix, '. ');
         }
 
         // if only file name, will auto add this tplPath.
         // e.g: $this->tplPath = '/blog/news'; $view = 'index.twig' --> `/blog/news/index.twig`
-        if ( $view[0] !== '/' ) {
+        if ($view[0] !== '/') {
             $view = $this->getTplPath() . '/' . $view;
         }
 
@@ -278,7 +278,9 @@ abstract class Controller extends AbstractController
      * @param array $args
      * @return void
      */
-    protected function beforeInvoke(array $args) {}
+    protected function beforeInvoke(array $args)
+    {
+    }
 
     /**
      * when route setting as (no define action name):
@@ -305,17 +307,17 @@ abstract class Controller extends AbstractController
         $action = !empty($args['action']) ? $args['action'] : $this->defaultAction;
 
         // convert 'first-second' to 'firstSecond'
-        if ( strpos($action, '-') ) {
+        if (strpos($action, '-')) {
             $action = ucwords(str_replace('-', ' ', $action));
-            $action = str_replace(' ','',lcfirst($action));
+            $action = str_replace(' ', '', lcfirst($action));
         }
 
-        Slim::config()->set('urls.action',$action);
+        Slim::config()->set('urls.action', $action);
         $actionMethod = $action . ucfirst($this->actionSuffix);
 
-        if ( method_exists($this, $actionMethod) ) {
+        if (method_exists($this, $actionMethod)) {
             // if enable request action security filter
-            if ( true !== ($result = $this->doSecurityFilter($action)) ) {
+            if (true !== ($result = $this->doSecurityFilter($action))) {
                 return $result;
             }
 
@@ -323,7 +325,7 @@ abstract class Controller extends AbstractController
             $response = $this->$actionMethod($args);
 
             // if the action return is array data
-            if ( is_array($response) ) {
+            if (is_array($response)) {
                 $response = $this->response->withJson($response);
             }
 
@@ -341,7 +343,9 @@ abstract class Controller extends AbstractController
      * @param Response $response
      * @return void
      */
-    protected function afterInvoke(array $args, $response) {}
+    protected function afterInvoke(array $args, $response)
+    {
+    }
 
     /**
      * when route have been setting action name:

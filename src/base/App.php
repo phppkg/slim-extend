@@ -14,17 +14,17 @@ use Slim\App as SlimApp;
  * Class App
  * @package slimExt\base
  *
- * @property-read Request                    request
- * @property-read Response                   response
+ * @property-read Request request
+ * @property-read Response response
  *
- * @property \slimExt\base\Container         container
- * @property \Monolog\Logger                 logger
- * @property \slimExt\base\User       user
- * @property \Slim\Flash\Messages            flash
- * @property \slimExt\base\Language   language
+ * @property \slimExt\base\Container container
+ * @property \Monolog\Logger logger
+ * @property \slimExt\base\User user
+ * @property \Slim\Flash\Messages flash
+ * @property \slimExt\base\Language language
  *
- * @property \slimExt\database\AbstractDriver   db
- * @property \slimExt\DataCollector   config
+ * @property \slimExt\database\AbstractDriver db
+ * @property \slimExt\DataCollector config
  *
  */
 class App extends SlimApp
@@ -41,7 +41,7 @@ class App extends SlimApp
             return $this->getContainer();
         }
 
-        if ( $this->getContainer()->has($id) ) {
+        if ($this->getContainer()->has($id)) {
             return $this->getContainer()->get($id);
         }
 

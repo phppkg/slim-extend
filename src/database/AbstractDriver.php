@@ -73,11 +73,11 @@ abstract class AbstractDriver
     public function __construct(array $options = [], PDO $pdo = null)
     {
         $defaultOptions = array(
-            'driver'   => 'odbc',
-            'dsn'      => '',
-            'host'     => 'localhost',
+            'driver' => 'odbc',
+            'dsn' => '',
+            'host' => 'localhost',
             'database' => '',
-            'user'     => '',
+            'user' => '',
             'password' => '',
             'driverOptions' => array()
         );
@@ -85,12 +85,12 @@ abstract class AbstractDriver
         $options = array_merge($defaultOptions, $options);
 
         $this->options = $options;
-        $this->pdo     = $pdo;
+        $this->pdo = $pdo;
         $this->driverOptions = $this->getOption('driverOptions');
 
         $this->debug = $this->getOption('debug', false);
 
-        if ( !$pdo && $this->getOption('autoConnect', false) ) {
+        if (!$pdo && $this->getOption('autoConnect', false)) {
             $this->connect();
         }
     }
@@ -101,7 +101,7 @@ abstract class AbstractDriver
      */
     public function connect()
     {
-        if ( $this->pdo ) {
+        if ($this->pdo) {
             return $this;
         }
 
@@ -219,7 +219,7 @@ abstract class AbstractDriver
 
         // Get all of the rows from the result set as arrays.
         while ($row = $this->fetchArray()) {
-            if ($key !== null && is_array($row) ) {
+            if ($key !== null && is_array($row)) {
                 $array[$row[$key]] = $row;
             } else {
                 $array[] = $row;
@@ -254,8 +254,7 @@ abstract class AbstractDriver
         while ($row = $this->fetchAssoc()) {
             if ($key) {
                 $array[$row[$key]] = $row;
-            }
-            else {
+            } else {
                 $array[] = $row;
             }
         }
@@ -288,8 +287,7 @@ abstract class AbstractDriver
         while ($row = $this->fetchObject($class)) {
             if ($key) {
                 $array[$row->$key] = $row;
-            }
-            else {
+            } else {
                 $array[] = $row;
             }
         }
@@ -319,7 +317,7 @@ abstract class AbstractDriver
 
     /**
      * Method to fetch a row from the result set cursor as an object.
-     * @param   string  $class  Unused, only necessary so method signature will be the same as parent.
+     * @param   string $class Unused, only necessary so method signature will be the same as parent.
      * @return  mixed   Either the next row from the result set or false if there are no more rows.
      */
     public function fetchObject($class = '\\stdClass')
@@ -329,9 +327,9 @@ abstract class AbstractDriver
 
     /**
      * fetch
-     * @param int  $type
-     * @param int  $ori
-     * @param int  $offset
+     * @param int $type
+     * @param int $ori
+     * @param int $offset
      * @see http://php.net/manual/en/pdostatement.fetch.php
      * @return  bool|mixed
      */
@@ -342,7 +340,7 @@ abstract class AbstractDriver
 
     /**
      * fetchAll
-     * @param int   $type
+     * @param int $type
      * @param array $args
      * @param array $ctorArgs
      * @see http://php.net/manual/en/pdostatement.fetchall.php
@@ -350,7 +348,7 @@ abstract class AbstractDriver
      */
     public function fetchAll($type = \PDO::FETCH_ASSOC, $args = null, $ctorArgs = null)
     {
-        return $this->getCursor()->fetchAll($type,$args , $ctorArgs);
+        return $this->getCursor()->fetchAll($type, $args, $ctorArgs);
     }
 
 
@@ -370,7 +368,7 @@ abstract class AbstractDriver
      * @return array|bool|int
      * @throws InvalidArgumentException
      */
-    public function insert($table, $data, $priKey='')
+    public function insert($table, $data, $priKey = '')
     {
         if (!$data) {
             throw new InvalidArgumentException('Insert data is empty. Please check it.');
@@ -383,7 +381,7 @@ abstract class AbstractDriver
         foreach ($data as $k => $v) {
             // Convert stringable object
             if (is_object($v) && is_callable(array($v, '__toString'))) {
-                $v = (string) $v;
+                $v = (string)$v;
             }
 
             // Only process non-null scalars.
@@ -427,9 +425,9 @@ abstract class AbstractDriver
     /**
      * insertMultiple
      *
-     * @param   string $table    The name of the database table to update.
-     * @param   array  &$dataSet A reference to an object whose public properties match the table fields.
-     * @param   array  $key      The name of the primary key.
+     * @param   string $table The name of the database table to update.
+     * @param   array &$dataSet A reference to an object whose public properties match the table fields.
+     * @param   array $key The name of the primary key.
      *
      * @throws \InvalidArgumentException
      * @return  mixed
@@ -495,7 +493,7 @@ abstract class AbstractDriver
      * @return bool|int
      * @throws InvalidArgumentException
      */
-    public function update($table, $data, $key= 'id', $updateNulls = false)
+    public function update($table, $data, $key = 'id', $updateNulls = false)
     {
         if (!is_array($data) && !is_object($data)) {
             throw new \InvalidArgumentException('Please give me array or object to update.');
@@ -506,20 +504,20 @@ abstract class AbstractDriver
         }
 
         $query = $this->newQuery(true);
-        $key = (array) $key;
+        $key = (array)$key;
 
         // Create the base update statement.
         $query->update($query->quoteName($table));
 
         // Iterate over the object variables to build the query fields/value pairs.
-        foreach (get_object_vars((object) $data) as $k => $v) {
+        foreach (get_object_vars((object)$data) as $k => $v) {
             // Convert stringable object
             if (is_object($v) && is_callable(array($v, '__toString'))) {
-                $v = (string) $v;
+                $v = (string)$v;
             }
 
             // Only process scalars that are not internal fields.
-            if (is_array($v) || is_object($v) || ( $k && is_string($k) && $k[0] === '_') ) {
+            if (is_array($v) || is_object($v) || ($k && is_string($k) && $k[0] === '_')) {
                 continue;
             }
 
@@ -536,12 +534,12 @@ abstract class AbstractDriver
                 if ($updateNulls) {
                     $val = 'NULL';
 
-                // If the value is null and we do not want to update nulls then ignore this field.
+                    // If the value is null and we do not want to update nulls then ignore this field.
                 } else {
                     continue;
                 }
             } else { // The field is not null so we prep it for update.
-               $val = $query->quote($v);
+                $val = $query->quote($v);
             }
 
             // Add the field to be updated.
@@ -555,9 +553,9 @@ abstract class AbstractDriver
     /**
      * updateMultiple
      *
-     * @param   string  $table       The name of the database table to update.
-     * @param   array   $dataSet     A reference to an object whose public properties match the table fields.
-     * @param   array   $key         The name of the primary key.
+     * @param   string $table The name of the database table to update.
+     * @param   array $dataSet A reference to an object whose public properties match the table fields.
+     * @param   array $key The name of the primary key.
      * @param   boolean $updateNulls True to update null fields or false to ignore them.
      *
      * @throws \InvalidArgumentException
@@ -578,9 +576,9 @@ abstract class AbstractDriver
 
     /**
      * Batch update some data.
-     * @param string $table      Table name.
-     * @param array  $data       Data you want to update.
-     * @param mixed  $conditions Where conditions, you can use array or Compare object.
+     * @param string $table Table name.
+     * @param array $data Data you want to update.
+     * @param mixed $conditions Where conditions, you can use array or Compare object.
      *                           Example:
      *                           - `array('id' => 5)` => id = 5
      *                           - `new GteCompare('id', 20)` => 'id >= 20'
@@ -595,7 +593,7 @@ abstract class AbstractDriver
         $query = QueryHelper::buildWheres($query, $conditions);
         $hasField = false;
 
-        foreach ((array) $data as $field => $value) {
+        foreach ((array)$data as $field => $value) {
             $query->set($query->format('%n = %q', $field, $value));
 
             $hasField = true;
@@ -612,16 +610,16 @@ abstract class AbstractDriver
 
     /**
      * save
-     * @param   string  $table        The name of the database table to update.
-     * @param   array   &$data        A reference to an object whose public properties match the table fields.
-     * @param   string  $key          The name of the primary key.
-     * @param   boolean $updateNulls  True to update null fields or false to ignore them.
+     * @param   string $table The name of the database table to update.
+     * @param   array &$data A reference to an object whose public properties match the table fields.
+     * @param   string $key The name of the primary key.
+     * @param   boolean $updateNulls True to update null fields or false to ignore them.
      * @return  mixed
      * @throws \InvalidArgumentException
      */
     public function save($table, &$data, $key, $updateNulls = false)
     {
-        if ( !is_scalar($key) ) {
+        if (!is_scalar($key)) {
             throw new \InvalidArgumentException(__NAMESPACE__ . '::save() dose not support multiple keys, please give me only one key.');
         }
 
@@ -708,12 +706,13 @@ abstract class AbstractDriver
         $this->connect();
         $result = $this->pdo->beginTransaction();
 
-        if ( $throwException && false === $result ) {
+        if ($throwException && false === $result) {
             throw new \RuntimeException('Begin a transaction is failure!!');
         }
 
         return $result;
     }
+
     public function beginTransaction()
     {
         return $this->beginTrans();
@@ -728,13 +727,13 @@ abstract class AbstractDriver
      */
     public function commit($throwException = true)
     {
-        if ( !$this->inTransaction() ) {
+        if (!$this->inTransaction()) {
             throw new \LogicException('Transaction must be turned on before committing a transaction!!');
         }
 
         $result = $this->pdo->commit();
 
-        if ( $throwException && false === $result ) {
+        if ($throwException && false === $result) {
             throw new \RuntimeException('Committing a transaction is failure!!');
         }
 
@@ -750,13 +749,13 @@ abstract class AbstractDriver
      */
     public function rollBack($throwException = true)
     {
-        if ( !$this->inTransaction() ) {
+        if (!$this->inTransaction()) {
             throw new \LogicException('Transaction must be turned on before rolls back a transaction!!');
         }
 
         $result = $this->pdo->rollBack();
 
-        if ( $throwException && false === $result ) {
+        if ($throwException && false === $result) {
             throw new \RuntimeException('Committing a transaction is failure!!');
         }
 
@@ -772,6 +771,7 @@ abstract class AbstractDriver
 
         return $this->pdo->inTransaction();
     }
+
     public function inTransaction()
     {
         return $this->inTrans();
@@ -799,15 +799,15 @@ abstract class AbstractDriver
      * @param string $statement
      * @return int
      */
-    public function exec($statement='')
+    public function exec($statement = '')
     {
         $this->connect();
         $sql = $statement ?: (string)$this->query;
         $sql = $this->replaceTablePrefix(trim($sql));
 
         // add sql log
-        if ( $this->debug ) {
-            $this->dbLogger()->debug( $sql.';');
+        if ($this->debug) {
+            $this->dbLogger()->debug($sql . ';');
         }
 
         return $this->pdo->exec($sql);
@@ -823,8 +823,8 @@ abstract class AbstractDriver
         $sql = $this->replaceTablePrefix((string)$this->query);
 
         // add sql log
-        if ( $this->debug ) {
-            $this->dbLogger()->debug( $sql.'; ');
+        if ($this->debug) {
+            $this->dbLogger()->debug($sql . '; ');
         }
 
         $this->cursor = $this->pdo->prepare($sql, $this->driverOptions);
@@ -861,9 +861,9 @@ abstract class AbstractDriver
         return $this;
     }
 
-    public function newQuery($forceNew=false)
+    public function newQuery($forceNew = false)
     {
-        if ( $forceNew || self::$newQueryCache === null ) {
+        if ($forceNew || self::$newQueryCache === null) {
             self::$newQueryCache = new Query($this->pdo);
         }
         return self::$newQueryCache;
@@ -885,7 +885,7 @@ abstract class AbstractDriver
      */
     public function freeResult($cursor = null)
     {
-        $cursor = $cursor ? : $this->cursor;
+        $cursor = $cursor ?: $this->cursor;
 
         if ($cursor instanceof \PDOStatement) {
             $cursor->closeCursor();

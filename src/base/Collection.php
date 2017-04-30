@@ -9,6 +9,7 @@
 namespace slimExt\base;
 
 use inhere\library\collections\SimpleCollection;
+
 //use Slim\Collection as SlimCollection;
 
 /**

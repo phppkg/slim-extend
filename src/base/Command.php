@@ -71,12 +71,16 @@ class Command extends SfCommand
         $this->afterConstruct();
     }
 
-    protected function beforeConstruct(){}
+    protected function beforeConstruct()
+    {
+    }
 
-    protected function afterConstruct(){}
+    protected function afterConstruct()
+    {
+    }
 
     /**
-     * @param InputInterface  $input  An InputInterface instance
+     * @param InputInterface $input An InputInterface instance
      * @param OutputInterface $output An OutputInterface instance
      */
     protected function initialize(InputInterface $input, OutputInterface $output)
@@ -86,11 +90,12 @@ class Command extends SfCommand
     }
 
     /**
-     * @param  InputInterface  $input  [description]
+     * @param  InputInterface $input [description]
      * @param  OutputInterface $output [description]
      */
     protected function interact(InputInterface $input, OutputInterface $output)
-    {}
+    {
+    }
 
     /**
      * @return SymfonyStyle

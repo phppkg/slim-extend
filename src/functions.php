@@ -18,15 +18,16 @@ function slim($name = null)
  * @param null $default
  * @return mixed|null
  */
-function slim_config($key,$default=null)
+function slim_config($key, $default = null)
 {
-    return \Slim::config($key,$default);
+    return \Slim::config($key, $default);
 }
 
 function slim_tl($key, $args = [], $default = 'No translate.')
 {
     return \Slim::get('language')->tl($key, $args, $default);
 }
+
 function slim_tran($key, $args = [], $default = 'No translate.')
 {
     return \Slim::get('language')->tl($key, $args, $default);
@@ -52,10 +53,10 @@ function is_pdt_env()
  * @param mixed $msg
  * @return array|bool
  */
-function alert_messages($msg='')
+function alert_messages($msg = '')
 {
     // get all alert message
-    if ( !$msg ) {
+    if (!$msg) {
         return Slim::$app->request->getMessage();
     }
 
@@ -77,17 +78,17 @@ function alert_messages($msg='')
 function format_messages($data, $code = 0, $msg = '')
 {
     // if $data is integer format_messages(int $code, string $msg )
-    if ( is_numeric($data) ) {
+    if (is_numeric($data)) {
         $jsonData = [
-            'code'     => (int)$data,
-            'msg'      => $code,
-            'data'     => [],
+            'code' => (int)$data,
+            'msg' => $code,
+            'data' => [],
         ];
     } else {
         $jsonData = [
-            'code'     => (int)$code,
-            'msg'      => $msg ?: 'successful!',
-            'data'     => (array)$data,
+            'code' => (int)$code,
+            'msg' => $msg ?: 'successful!',
+            'data' => (array)$data,
         ];
     }
 
@@ -100,7 +101,7 @@ function format_messages($data, $code = 0, $msg = '')
  * @param int $status
  * @return slimExt\base\Response
  */
-function redirect_to($url='/', $status=301)
+function redirect_to($url = '/', $status = 301)
 {
     return Slim::get('response')->withStatus($status)->withHeader('Location', $url);
 }
@@ -115,15 +116,14 @@ function get_extension($file)
 }
 
 
-
-if ( !function_exists('local_env')) {
+if (!function_exists('local_env')) {
     function local_env($name = null, $default = null, $file = null)
     {
         return \inhere\library\helpers\DataHelper::localEnv($name, $default, $file);
     }
 }
 
-if ( !function_exists('slim_request')) {
+if (!function_exists('slim_request')) {
     function slim_request($name = null, $default = null)
     {
         return $name === null ? \Slim::$app->request : \Slim::$app->request->getParam($name, $default);

@@ -147,20 +147,20 @@ abstract class Controller extends AbstractController
         return [
             //REQUEST_METHOD => method name(no suffix)
             // 'gets' is special key.
-            'get*'     => 'gets',      # GET /users
-            'get'      => 'get',       # GET /users/1
-            'post'     => 'post',      # POST /users
-            'put'      => 'put',       # PUT /users/1
+            'get*' => 'gets',      # GET /users
+            'get' => 'get',       # GET /users/1
+            'post' => 'post',      # POST /users
+            'put' => 'put',       # PUT /users/1
             # usually PUT == PATCH
-            'patch'    => 'patch',     # PATCH /users/1
-            'delete'   => 'delete',    # DELETE /users/1
-            'head'     => 'head',      # HEAD /users/1
-            'head*'    => 'heads',     # HEAD /users
-            'options'  => 'option',    # OPTIONS /users/1
+            'patch' => 'patch',     # PATCH /users/1
+            'delete' => 'delete',    # DELETE /users/1
+            'head' => 'head',      # HEAD /users/1
+            'head*' => 'heads',     # HEAD /users
+            'options' => 'option',    # OPTIONS /users/1
             'options*' => 'options',   # OPTIONS /users
 
-            'connect'  => 'connect',   # CONNECT /users
-            'trace'    => 'trace',     # TRACE /users
+            'connect' => 'connect',   # CONNECT /users
+            'trace' => 'trace',     # TRACE /users
 
             // multi REQUEST_METHOD match
             // 'get|post' => 'index'
@@ -198,9 +198,9 @@ abstract class Controller extends AbstractController
         $argument = !empty($args[self::RESOURCE_ARG_KEY]) ? trim($args[self::RESOURCE_ARG_KEY]) : '';
 
         // convert 'first-second' to 'firstSecond'
-        if ( $argument && strpos($argument, '-') ) {
+        if ($argument && strpos($argument, '-')) {
             $argument = ucwords(str_replace('-', ' ', $argument));
-            $argument = str_replace(' ','',lcfirst($argument));
+            $argument = str_replace(' ', '', lcfirst($argument));
         }
 
         $extraKey = $method . self::M2A_CHAR . $argument;
@@ -215,7 +215,7 @@ abstract class Controller extends AbstractController
             if (!$argument && $key === $method . self::MARK_MORE && in_array($method, $allowMore)) {
                 $action = $value;
 
-            // have argument. like '/users/1' '/users/username'
+                // have argument. like '/users/1' '/users/username'
             } else if ($key === $method) {
                 $action = $method === 'options' ? 'option' : $value;
             }
@@ -242,13 +242,13 @@ abstract class Controller extends AbstractController
 
             if (strpos($m, '|')) {
                 foreach (explode('|', $m) as $k) {
-                    $map[$k.self::M2A_CHAR.$a] = $item;
+                    $map[$k . self::M2A_CHAR . $a] = $item;
                 }
             } else {
-                $map[$m.self::M2A_CHAR.$a] = $item;
+                $map[$m . self::M2A_CHAR . $a] = $item;
             }
 
-        // get|post => index
+            // get|post => index
         } elseif (strpos($key, '|')) {
             $key = strtolower($key);
 
@@ -306,7 +306,7 @@ abstract class Controller extends AbstractController
 
         if (method_exists($this, $actionMethod)) {
             // if enable request action security filter
-            if ( true !== ($result = $this->doSecurityFilter($action)) ) {
+            if (true !== ($result = $this->doSecurityFilter($action))) {
                 return $result;
             }
 

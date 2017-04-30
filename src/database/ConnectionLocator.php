@@ -81,11 +81,11 @@ class ConnectionLocator
      */
     public function getDefault()
     {
-        if ( !$this->values[self::DEFAULT_KEY] ) {
+        if (!$this->values[self::DEFAULT_KEY]) {
             throw new \InvalidArgumentException("The default connection don't setting!");
         }
 
-        if ( !isset($this->connections[self::DEFAULT_KEY]) ) {
+        if (!isset($this->connections[self::DEFAULT_KEY])) {
             $this->connections[self::DEFAULT_KEY] = $this->values[self::DEFAULT_KEY]();
         }
 
@@ -94,7 +94,7 @@ class ConnectionLocator
 
     /**
      * set Writer
-     * @param string   $name
+     * @param string $name
      * @param callable $cb
      */
     public function setWriter($name, callable $cb)
@@ -115,7 +115,7 @@ class ConnectionLocator
 
     /**
      * [setReader
-     * @param string   $name
+     * @param string $name
      * @param callable $cb
      */
     public function setReader($name, callable $cb)
@@ -143,23 +143,23 @@ class ConnectionLocator
     protected function getConnection($type, $name)
     {
         // no reader/writer, return default
-        if ( !$this->keys[$type] ) {
+        if (!$this->keys[$type]) {
             return $this->getDefault();
         }
 
-        if ( !$name ) {
+        if (!$name) {
             // return a random reader
             $name = array_rand($this->keys[$type]);
         }
 
         $key = $type . '.' . $name;
 
-        if ( !isset($this->keys[$type][$name]) ) {
+        if (!isset($this->keys[$type][$name])) {
             throw new \InvalidArgumentException("The connection [$type: $name] don't exists!");
         }
 
         // if not be instanced.
-        if ( !$this->keys[$type][$name] ) {
+        if (!$this->keys[$type][$name]) {
             $this->connections[$key] = $instance = $this->values[$key]();
         }
 
@@ -168,7 +168,7 @@ class ConnectionLocator
 
     public function getValue($name, $type = self::TYPE_READER)
     {
-        if ( !isset($this->keys[$type][$name]) ) {
+        if (!isset($this->keys[$type][$name])) {
             throw new \InvalidArgumentException("The connection [$type: $name] don't exists!");
         }
 

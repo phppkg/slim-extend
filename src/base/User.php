@@ -87,8 +87,8 @@ class User extends SimpleCollection
      */
     private $_accesses = [];
 
-    const AFTER_LOGGED_TO_KEY  = '_after_logged_to';
-    const AFTER_LOGOUT_TO_KEY  = '_after_logout_to';
+    const AFTER_LOGGED_TO_KEY = '_after_logged_to';
+    const AFTER_LOGOUT_TO_KEY = '_after_logout_to';
 
     /**
      * don't allow set attribute
@@ -152,7 +152,7 @@ class User extends SimpleCollection
         $msg = Slim::$app->language->tran('needLogin');
 
         // when is xhr
-        if ( $request->isXhr() ) {
+        if ($request->isXhr()) {
             $data = ['redirect' => $authUrl];
 
             return $response->withJson($data, __LINE__, $msg);
@@ -172,6 +172,7 @@ class User extends SimpleCollection
     {
         return $this->canAccess($permission, $params, $caching);
     }
+
     public function canAccess($permission, $params = [], $caching = true)
     {
         if (isset($this->_accesses[$permission])) {
@@ -228,7 +229,7 @@ class User extends SimpleCollection
      * @param bool|false $force
      * @throws InvalidConfigException
      */
-    public function refreshIdentity($force=false)
+    public function refreshIdentity($force = false)
     {
         $id = $this->getId();
 
@@ -295,7 +296,7 @@ class User extends SimpleCollection
      */
     public function getAccessChecker()
     {
-        return $this->accessChecker ? : \Slim::get('accessChecker');
+        return $this->accessChecker ?: \Slim::get('accessChecker');
     }
 
     /**
@@ -338,7 +339,7 @@ class User extends SimpleCollection
     {
         $getter = 'get' . ucfirst($name);
 
-        if ( method_exists($this, $getter) ) {
+        if (method_exists($this, $getter)) {
             return $this->$getter();
         }
 

@@ -49,7 +49,7 @@ abstract class BaseFilter extends StdBase
     public function __invoke(Request $request, Response $response, $action)
     {
         // setting...
-        $this->request  = $request;
+        $this->request = $request;
         $this->response = $response;
 
         return $this->doFilter($action);

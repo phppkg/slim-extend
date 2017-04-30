@@ -20,8 +20,8 @@ trait TraitUseModule
      */
     public function loadModule($name, Module $module)
     {
-        if ( $this->hasModule($name) ) {
-            throw new \RuntimeException('Module ['.$name.'] have been loaded. don\'t allow override.');
+        if ($this->hasModule($name)) {
+            throw new \RuntimeException('Module [' . $name . '] have been loaded. don\'t allow override.');
         }
 
         $this->loadedModules[$name] = $this->loadedModules['__last'] = $module;
@@ -42,7 +42,7 @@ trait TraitUseModule
      * @param string $name
      * @return Module
      */
-    public function module($name='__last')
+    public function module($name = '__last')
     {
         return isset($this->loadedModules[$name]) ? $this->loadedModules[$name] : null;
     }

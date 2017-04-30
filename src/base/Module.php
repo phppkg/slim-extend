@@ -72,7 +72,7 @@ abstract class Module
     {
         $name = static::NAME;
 
-        if ( !$name || !preg_match('/^[a-zA-Z][\w-]+$/i', $name)) {
+        if (!$name || !preg_match('/^[a-zA-Z][\w-]+$/i', $name)) {
             throw new \RuntimeException('required define module name (property $name)');
         }
 
@@ -85,7 +85,7 @@ abstract class Module
 
         // runtime env config
         $this->config = DataCollector::make($configFile, DataCollector::FORMAT_YML)
-                        ->loadYaml(is_file($globalFile) ? $globalFile : '');
+            ->loadYaml(is_file($globalFile) ? $globalFile : '');
 
         //add path alias
         // Slim::alias('@' . $name, $this->path);
@@ -110,7 +110,7 @@ abstract class Module
     {
         $module = $app->loadModule(static::NAME, new static($app));
 
-        if ( PhpHelper::isCli() ) {
+        if (PhpHelper::isCli()) {
             $module->registerCommands($app);
         } else {
             $module->registerRoutes($app);
@@ -123,7 +123,7 @@ abstract class Module
      */
     protected function registerRoutes($app)
     {
-         // require __DIR__ . '/routes.php';
+        // require __DIR__ . '/routes.php';
     }
 
     /**

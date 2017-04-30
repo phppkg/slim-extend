@@ -30,7 +30,7 @@ class AccessChecker implements CheckAccessInterface
     public function checkAccess($userId, $permission, $params = [])
     {
         // use url path
-        if ( $permission{0} === '/' ) {
+        if ($permission{0} === '/') {
             # code...
         } else {
 

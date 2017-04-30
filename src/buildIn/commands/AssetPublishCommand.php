@@ -44,7 +44,7 @@ command example:
             // 配置选项
             // e.g. $ console asset:publish [name] [--yell|-y value]
             ->addOption(
-                // 选项名 '--sourcePath value'
+            // 选项名 '--sourcePath value'
                 'source-path',
                 // 选项名缩写 '-s value'
                 // 注意 选项名缩写首字母不能出现相同的,不然会解析混乱. 这里使用了 s, 后面的选项缩写就不能再有以 s 开头的缩写名了
@@ -71,12 +71,12 @@ command example:
                 InputOption::VALUE_OPTIONAL,
                 'If set, will print published asset list',
                 true
-            )
-        ;
+            );
     }
 
     protected function interact(InputInterface $input, OutputInterface $output)
-    {}
+    {
+    }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -84,7 +84,7 @@ command example:
         $publishPath = \Slim::alias($input->getOption('publish-path'));
 
         $publisher = new AssetPublisher([
-            'sourcePath'  => $sourcePath,
+            'sourcePath' => $sourcePath,
             'publishPath' => $publishPath,
         ]);
 
@@ -103,7 +103,7 @@ command example:
 
         $io->title('    Asset Publish Information    ');
         $io->writeln([
-            'Will publish: [<info>' . ( $asset ? implode(',',$asset) : 'ALL FILES' ) . '</info>]',
+            'Will publish: [<info>' . ($asset ? implode(',', $asset) : 'ALL FILES') . '</info>]',
             "source in path: <info>$sourcePath</info>",
             "publish to path: <info>$publishPath</info>",
             'override existing asset: <info>' . ($override ? 'Yes' : 'No') . '</info>',
@@ -119,16 +119,16 @@ command example:
 
         $publisher->add($asset)->publish();
 
-        if ( $input->getOption('show-published') ) {
+        if ($input->getOption('show-published')) {
             $published = $publisher->getPublishedAssets();
 
             // $output->writeln('<info>-- Created asset publish:</info>');
             $io->section('-- Created asset publish:');
-            $output->writeln($published['created'] ? : 'No file created.');
+            $output->writeln($published['created'] ?: 'No file created.');
             $output->writeln('');
 
             $io->section('-- Skipped asset publish:');
-            $output->writeln($published['skipped'] ? : 'No file skipped.');
+            $output->writeln($published['skipped'] ?: 'No file skipped.');
             $output->writeln('');
         }
 

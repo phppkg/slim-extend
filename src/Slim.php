@@ -30,18 +30,18 @@ abstract class Slim
      */
     protected static $aliases = [
         '@project' => PROJECT_PATH,
-        '@public'  => PROJECT_PATH . DIR_SEP . 'public',
-        '@config'  => PROJECT_PATH . DIR_SEP . 'config',
+        '@public' => PROJECT_PATH . DIR_SEP . 'public',
+        '@config' => PROJECT_PATH . DIR_SEP . 'config',
 
-        '@src'     => PROJECT_PATH . DIR_SEP . 'src',
-        '@res'      => PROJECT_PATH . DIR_SEP . 'res',
+        '@src' => PROJECT_PATH . DIR_SEP . 'src',
+        '@res' => PROJECT_PATH . DIR_SEP . 'res',
         '@resources' => PROJECT_PATH . DIR_SEP . 'res',
-        '@temp'    => PROJECT_PATH . DIR_SEP . 'temp',
+        '@temp' => PROJECT_PATH . DIR_SEP . 'temp',
 
         // '@assets'  => PROJECT_PATH . DIR_SEP . 'public' . DIR_SEP . 'assets',
-        '@modules'   => PROJECT_PATH . DIR_SEP . 'src' . DIR_SEP . 'modules',
+        '@modules' => PROJECT_PATH . DIR_SEP . 'src' . DIR_SEP . 'modules',
 
-        '@vendor'    => PROJECT_PATH . DIR_SEP . 'vendor',
+        '@vendor' => PROJECT_PATH . DIR_SEP . 'vendor',
     ];
 
     /**
@@ -50,19 +50,19 @@ abstract class Slim
      * @param string|null $value
      * @return bool|string
      */
-    public static function alias($path, $value=null)
+    public static function alias($path, $value = null)
     {
         // get path by alias
-        if ( is_string($path) && !$value ) {
+        if (is_string($path) && !$value) {
             // don't use alias
-            if ( $path[0] !== '@' ) {
+            if ($path[0] !== '@') {
                 return $path;
             }
 
-            $path = str_replace(['/','\\'], DIR_SEP , $path);
+            $path = str_replace(['/', '\\'], DIR_SEP, $path);
 
             // only a alias. e.g. @project
-            if ( !strpos($path, DIR_SEP) ) {
+            if (!strpos($path, DIR_SEP)) {
                 return isset(static::$aliases[$path]) ? static::$aliases[$path] : $path;
             }
 
@@ -70,22 +70,22 @@ abstract class Slim
             $realPath = $path;
             list($alias, $other) = explode(DIR_SEP, $path, 2);
 
-            if ( isset(static::$aliases[$alias]) ) {
+            if (isset(static::$aliases[$alias])) {
                 $realPath = static::$aliases[$alias] . DIR_SEP . $other;
             }
 
             return $realPath;
         }
 
-        if ( $path && $value && is_string($path) && is_string($value) ) {
+        if ($path && $value && is_string($path) && is_string($value)) {
             $path = [$path => $value];
         }
 
         // custom set path's alias. e.g: Slim::alias([ 'alias' => 'path' ]);
-        if ( is_array($path) ) {
+        if (is_array($path)) {
             foreach ($path as $alias => $realPath) {
                 // 1th char must is '@'
-                if ( $alias[0] !== '@' ) {
+                if ($alias[0] !== '@') {
                     continue;
                 }
 
@@ -110,7 +110,7 @@ abstract class Slim
      */
     public static function has($id)
     {
-        if ( !static::$app ) {
+        if (!static::$app) {
             return null;
         }
 
@@ -123,7 +123,7 @@ abstract class Slim
      */
     public static function get($id)
     {
-        if ( !static::$app ) {
+        if (!static::$app) {
             return null;
         }
 
@@ -135,13 +135,13 @@ abstract class Slim
      * @param array $params
      * @return mixed
      */
-    public static function call($id,$params = [])
+    public static function call($id, $params = [])
     {
-        if ( !static::$app ) {
+        if (!static::$app) {
             return null;
         }
 
-        return static::$app->container->call($id,$params);
+        return static::$app->container->call($id, $params);
     }
 
     /**
@@ -153,7 +153,7 @@ abstract class Slim
      */
     public static function make($id, $class = null, $params = null)
     {
-        if ( !static::$app ) {
+        if (!static::$app) {
             return null;
         }
 
@@ -170,7 +170,7 @@ abstract class Slim
      */
     public static function set($id, $value)
     {
-        if ( static::$app ) {
+        if (static::$app) {
             static::$app->$id = $value;
         }
     }
@@ -180,17 +180,17 @@ abstract class Slim
      * @param mixed $default
      * @return \slimExt\DataCollector|mixed
      */
-    public static function config($key=null, $default=null)
+    public static function config($key = null, $default = null)
     {
         /** @var \slimExt\DataCollector $config */
         $config = static::$app->getContainer()['config'];
 
-        if ($key &&  is_string($key) ) {
-            return $config->get($key,$default);
+        if ($key && is_string($key)) {
+            return $config->get($key, $default);
         }
 
         // set, when $key is array
-        if ($key && is_array($key) ) {
+        if ($key && is_array($key)) {
             return $config->loadArray($key);
         }
 
@@ -201,7 +201,7 @@ abstract class Slim
      * @param string $name
      * @return \Monolog\Logger
      */
-    public static function logger($name='logger')
+    public static function logger($name = 'logger')
     {
         return static::$app->getContainer()[$name];
     }

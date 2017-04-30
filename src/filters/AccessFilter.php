@@ -23,30 +23,30 @@ class AccessFilter extends BaseFilter
      * @var array
      */
     public $rules = [
-    /*
-        // first rule
-        [
-            // action list
-            // ['logout', 'index'], ['*']
-            'actions' => [],
+        /*
+            // first rule
+            [
+                // action list
+                // ['logout', 'index'], ['*']
+                'actions' => [],
 
-            // true - allow access
-            // false - deny access
-            'allow' => true,
+                // true - allow access
+                // false - deny access
+                'allow' => true,
 
-            // use defined mark char: '?' guest user '@' logged user '*' all user.
-            // use custom role name. like 'member', 'admin' (the role name is must be unique, and it is save on dabatase.)
-            // can also use role id: 12 43 (it is not recommend)
-            // Notice: there are role relation is OR.
-            'roles' => ['*'],
+                // use defined mark char: '?' guest user '@' logged user '*' all user.
+                // use custom role name. like 'member', 'admin' (the role name is must be unique, and it is save on dabatase.)
+                // can also use role id: 12 43 (it is not recommend)
+                // Notice: there are role relation is OR.
+                'roles' => ['*'],
 
-            // can add a callback, is optional. TODO ...
-            'callback' => function ($action, $user) {}
-        ],
-        // more rule
-        [ ... ],
-        [ ... ],
-    */
+                // can add a callback, is optional. TODO ...
+                'callback' => function ($action, $user) {}
+            ],
+            // more rule
+            [ ... ],
+            [ ... ],
+        */
     ];
 
     /**
@@ -85,24 +85,24 @@ class AccessFilter extends BaseFilter
             $allow = ArrHelper::get('allow', $rule, false);
 
             // find match all user, char: *
-            if ( false !== array_search(self::MATCH_ALL, $roles) ) {
+            if (false !== array_search(self::MATCH_ALL, $roles)) {
                 break;
             }
 
             // find match logged user, char: @
-            if ( false !== array_search(self::MATCH_LOGGED, $roles) && $user->id ) {
+            if (false !== array_search(self::MATCH_LOGGED, $roles) && $user->id) {
                 break;
             }
 
             // find match guest user, char: ?
-            if ( false !== array_search(self::MATCH_LOGGED, $roles) && !$user->id) {
+            if (false !== array_search(self::MATCH_LOGGED, $roles) && !$user->id) {
                 break;
             }
 
             // user role: string OR array. e.g 'admin' OR [ 'admin', 'editor']
             $userRoles = $user->{$this->userRoleField};
 
-            if ($userRoles && array_intersect((array)$userRoles, $roles) ) {
+            if ($userRoles && array_intersect((array)$userRoles, $roles)) {
                 break;
             }
         }
@@ -110,7 +110,7 @@ class AccessFilter extends BaseFilter
         // deny access
         if (!$allow) {
             // when is xhr
-            if ( $this->request->isXhr() ) {
+            if ($this->request->isXhr()) {
                 $data = ['redirect' => $user->loginUrl];
 
                 return $this->response->withJson($data, __LINE__, slim_tl('http:403'), 403);

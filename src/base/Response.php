@@ -74,7 +74,7 @@ class Response extends SlimResponse
      */
     public function withRedirect($url, $status = null)
     {
-        return $this->withStatus($status ? : 301)->withHeader('Location', (string)$url);
+        return $this->withStatus($status ?: 301)->withHeader('Location', (string)$url);
     }
 
     /**
@@ -93,15 +93,15 @@ class Response extends SlimResponse
     {
         // add a new alert message
         $alert = [
-            'type'      => 'info', // info success primary warning danger
-            'title'     => 'Info!',
-            'msg'       => '',
-            'closeBtn'  => true
+            'type' => 'info', // info success primary warning danger
+            'title' => 'Info!',
+            'msg' => '',
+            'closeBtn' => true
         ];
 
-        if ( is_string($msg) ) {
+        if (is_string($msg)) {
             $alert['msg'] = $msg;
-        } elseif ( is_array($msg) ) {
+        } elseif (is_array($msg)) {
             $alert = array_merge($alert, $msg);
             $alert['title'] = ucfirst($alert['type']);
         } else {
@@ -115,7 +115,7 @@ class Response extends SlimResponse
 
     /**
      * withInputs
-     * @param  array  $data
+     * @param  array $data
      * @return self
      */
     public function withInput(array $data)

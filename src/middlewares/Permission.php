@@ -15,9 +15,9 @@ class Permission
     /**
      * Permission middleware invokable class
      *
-     * @param  Request   $request  PSR7 request
-     * @param  Response  $response PSR7 response
-     * @param  callable  $next     Next middleware
+     * @param  Request $request PSR7 request
+     * @param  Response $response PSR7 response
+     * @param  callable $next Next middleware
      *
      * @return ResponseInterface
      */
@@ -26,7 +26,7 @@ class Permission
         $passed = $this->doCheck($request);
 
         // if passed == true, go on ...
-        if($passed) {
+        if ($passed) {
             return $next($request, $response);
         }
 

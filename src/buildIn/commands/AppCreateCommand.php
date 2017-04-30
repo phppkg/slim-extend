@@ -30,12 +30,11 @@ class AppCreateCommand extends Command
                 'Who do you want to clear cache of type?'
             )
             ->addOption(
-               'yell',
-               null,
-               InputOption::VALUE_NONE,
-               'If set, the task will yell in uppercase letters'
-            )
-        ;
+                'yell',
+                null,
+                InputOption::VALUE_NONE,
+                'If set, the task will yell in uppercase letters'
+            );
     }
 
 

@@ -13,9 +13,9 @@ class Prepared
     /**
      * Auth middleware invokable class
      *
-     * @param  Request   $request  PSR7 request
-     * @param  Response  $response PSR7 response
-     * @param  callable  $next     Next middleware
+     * @param  Request $request PSR7 request
+     * @param  Response $response PSR7 response
+     * @param  callable $next Next middleware
      *
      * @return Response
      * @throws InvalidConfigException
@@ -23,7 +23,7 @@ class Prepared
      */
     public function __invoke(Request $request, Response $response, callable $next)
     {
-        Slim::config()->set('urls.route',$request->getUri()->getPath());
+        Slim::config()->set('urls.route', $request->getUri()->getPath());
 
         return $next($request, $response);
     }

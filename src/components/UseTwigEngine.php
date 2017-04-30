@@ -29,7 +29,7 @@ trait UseTwigEngine
     {
         $response = $this->response;
         $settings = Slim::get('settings')['twigRenderer'];
-        $view  = $this->getViewPath($view, $settings);
+        $view = $this->getViewPath($view, $settings);
 
         // use twig render
         $twig = Slim::get('twigRenderer');
@@ -42,14 +42,14 @@ trait UseTwigEngine
         $this->appendVarToView($args);
 
         // is pjax request
-        if ( Slim::$app->request->isPjax() ) {
+        if (Slim::$app->request->isPjax()) {
 
             // X-PJAX-URL:https://github.com/inhere/php-library
             // X-PJAX-Version: 23434
             /** @var Response $response */
             $response = $response
-                            ->withHeader('X-PJAX-URL', (string)Slim::$app->request->getUri())
-                            ->withHeader('X-PJAX-Version', Slim::config('pjax_version', '1.0'));
+                ->withHeader('X-PJAX-URL', (string)Slim::$app->request->getUri())
+                ->withHeader('X-PJAX-Version', Slim::config('pjax_version', '1.0'));
 
             $args[$globalKey] = $globalVar;
             $rendered = $twig->getEnvironment()->loadTemplate($view)->renderBlock($this->bodyBlock, $args);
@@ -73,10 +73,10 @@ trait UseTwigEngine
     protected function addTwigGlobalVar()
     {
         $globalVar = [
-            'user'     => Slim::$app->user,
-            'config'   => Slim::get('config'),
-            'params'   => Slim::get('config')->get('params', []),
-            'lang'     => Slim::get('language'),
+            'user' => Slim::$app->user,
+            'config' => Slim::get('config'),
+            'params' => Slim::get('config')->get('params', []),
+            'lang' => Slim::get('language'),
             'messages' => Slim::$app->request->getMessage(),
         ];
 

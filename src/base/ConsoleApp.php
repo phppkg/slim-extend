@@ -39,7 +39,7 @@ class ConsoleApp extends Application
      * @param string $name The name of the application
      * @param string $version The version of the application
      */
-    public function __construct( array $settings = [], array $services = [], $name = 'Inhere Console', $version = '1.0.1')
+    public function __construct(array $settings = [], array $services = [], $name = 'Inhere Console', $version = '1.0.1')
     {
         $this->container = new Container($settings, $services);
 
@@ -72,7 +72,7 @@ class ConsoleApp extends Application
      */
     public function create($command)
     {
-        if ( is_string($command) ) {
+        if (is_string($command)) {
             $command = new $command;
         }
 

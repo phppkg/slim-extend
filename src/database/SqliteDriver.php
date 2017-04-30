@@ -20,9 +20,9 @@ class SqliteDriver extends AbstractDriver
 
     protected $supportBatchSave = true;
 
-    public function newQuery($forceNew=false)
+    public function newQuery($forceNew = false)
     {
-        if ( $forceNew || self::$newQueryCache === null ) {
+        if ($forceNew || self::$newQueryCache === null) {
             self::$newQueryCache = new SqliteQuery($this->pdo);
         }
         return self::$newQueryCache;
