@@ -12,8 +12,8 @@ use inhere\library\collections\SimpleCollection;
 use inhere\library\helpers\ObjectHelper;
 use Psr\Http\Message\ResponseInterface;
 use Slim;
-use inhere\library\exceptions\InvalidArgumentException;
-use inhere\library\exceptions\InvalidConfigException;
+use inhere\exceptions\InvalidArgumentException;
+use inhere\exceptions\InvalidConfigException;
 
 /**
  * Class User

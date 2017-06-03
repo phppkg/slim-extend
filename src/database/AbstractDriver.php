@@ -8,7 +8,7 @@
 
 namespace slimExt\database;
 
-use inhere\library\exceptions\InvalidArgumentException;
+use inhere\exceptions\InvalidArgumentException;
 use Slim;
 use PDO;
 use PDOStatement;
