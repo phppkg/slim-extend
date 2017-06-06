@@ -34,8 +34,8 @@ abstract class Slim
         '@config' => PROJECT_PATH . DIR_SEP . 'config',
 
         '@src' => PROJECT_PATH . DIR_SEP . 'src',
-        '@res' => PROJECT_PATH . DIR_SEP . 'res',
-        '@resources' => PROJECT_PATH . DIR_SEP . 'res',
+        '@res' => PROJECT_PATH . DIR_SEP . 'resources',
+        '@resources' => PROJECT_PATH . DIR_SEP . 'resources',
         '@temp' => PROJECT_PATH . DIR_SEP . 'temp',
 
         // '@assets'  => PROJECT_PATH . DIR_SEP . 'public' . DIR_SEP . 'assets',
@@ -162,6 +162,8 @@ abstract class Slim
         });
 
         static::$app->container[$id] = $callable;
+
+        return true;
     }
 
     /**
