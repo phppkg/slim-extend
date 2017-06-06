@@ -9,13 +9,14 @@
 namespace slimExt\base;
 
 use inhere\exceptions\LogicException;
+use inhere\library\collections\SimpleCollection;
 use Slim\Container as SlimContainer;
 
 /**
  * Class Container
  * @package slimExt\base
  *
- * @property-read Collection settings
+ * @property-read SimpleCollection settings
  */
 class Container extends SlimContainer
 {

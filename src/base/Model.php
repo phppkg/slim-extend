@@ -9,6 +9,7 @@
 
 namespace slimExt\base;
 
+use inhere\library\collections\SimpleCollection;
 use inhere\validate\ValidationTrait;
 use slimExt\DataType;
 
@@ -17,7 +18,7 @@ use slimExt\DataType;
  * @package slimExt
  *
  */
-abstract class Model extends Collection
+abstract class Model extends SimpleCollection
 {
     use ValidationTrait;
 

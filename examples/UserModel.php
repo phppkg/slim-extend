@@ -4,7 +4,7 @@ namespace app\models;
 
 use Slim;
 use slimExt\base\RecordModel;
-use slimExt\base\IdentityInterface;
+use inhere\libraryPlus\auth\IdentityInterface;
 
 /**
  * Class Users

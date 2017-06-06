@@ -19,7 +19,7 @@ use Slim\App as SlimApp;
  *
  * @property \slimExt\base\Container container
  * @property \Monolog\Logger logger
- * @property \slimExt\base\User user
+ * @property \inhere\libraryPlus\auth\User user
  * @property \Slim\Flash\Messages flash
  * @property \slimExt\base\Language language
  *

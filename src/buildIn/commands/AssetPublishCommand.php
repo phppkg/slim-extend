@@ -8,7 +8,7 @@
 
 namespace slimExt\buildIn\commands;
 
-use inhere\library\asset\AssetPublisher;
+use inhere\libraryPlus\asset\AssetPublisher;
 use slimExt\base\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;

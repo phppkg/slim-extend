@@ -8,6 +8,7 @@
 
 namespace slimExt\filters;
 
+use inhere\libraryPlus\auth\User;
 use Slim;
 use inhere\library\helpers\ArrHelper;
 
@@ -62,7 +63,7 @@ class AccessFilter extends BaseFilter
     {
         /**
          * current user
-         * @var \slimExt\base\User
+         * @var User
          */
         $user = Slim::$app->user;
         $allow = true;
