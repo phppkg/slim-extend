@@ -32,12 +32,12 @@ class Response extends SlimResponse
         $code = null === $code ? 0 : (int)$code;
 
         if ($data instanceof JsonMessage) {
-            return parent::withJson($data, $status, 0);
+            return parent::withJson($data, $status);
         }
 
         $data = format_messages($data, $code, $msg);
 
-        return parent::withJson($data, $status, 0);
+        return parent::withJson($data, $status);
     }
 
     /**

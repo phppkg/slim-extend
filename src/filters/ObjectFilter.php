@@ -8,8 +8,7 @@
 
 namespace slimExt\filters;
 
-use inhere\library\helpers\ObjectHelper;
-use inhere\library\StdBase;
+use inhere\library\StdObject;
 use slimExt\base\Request;
 use slimExt\base\Response;
 
@@ -17,11 +16,13 @@ use slimExt\base\Response;
  * Class BaseFilter
  * @package slimExt\filters
  */
-abstract class BaseFilter extends StdBase
+abstract class ObjectFilter extends StdObject
 {
     const MATCH_ALL = '*';
+
     // logged user
     const MATCH_LOGGED = '@';
+
     // guest user
     const MATCH_GUEST = '?';
 
@@ -34,11 +35,6 @@ abstract class BaseFilter extends StdBase
      * @var Response
      */
     protected $response;
-
-    public function __construct(array $options = [])
-    {
-        ObjectHelper::loadAttrs($this, $options);
-    }
 
     /**
      * @param Request $request

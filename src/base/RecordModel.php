@@ -237,7 +237,7 @@ abstract class RecordModel extends Model
         }
 
         $options = array_merge(static::$defaultOptions, ['class' => 'assoc'], $options);
-        $indexKey = ArrayHelper::remove('indexKey', $options, null);
+        $indexKey = ArrayHelper::remove($options, 'indexKey', null);
         $class = $options['class'] === 'model' ? static::class : $options['class'];
 
         unset($options['indexKey'], $options['class']);

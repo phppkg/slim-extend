@@ -14,7 +14,7 @@ namespace slimExt\filters;
  * filter the request method
  * @package slimExt\filters
  */
-class VerbFilter extends BaseFilter
+class VerbFilter extends ObjectFilter
 {
     /**
      * in Controller:

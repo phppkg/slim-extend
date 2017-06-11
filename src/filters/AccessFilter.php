@@ -10,14 +10,14 @@ namespace slimExt\filters;
 
 use inhere\libraryPlus\auth\User;
 use Slim;
-use inhere\library\helpers\ArrHelper;
+use inhere\library\helpers\ArrayHelper;
 
 /**
  * Class AccessFilter
  * auth/permission check
  * @package slimExt\filters
  */
-class AccessFilter extends BaseFilter
+class AccessFilter extends ObjectFilter
 {
     /**
      * access rules
@@ -72,8 +72,8 @@ class AccessFilter extends BaseFilter
             // no limit
             if (
                 !$rule
-                || ($actions = (array)ArrHelper::get('actions', $rule))
-                || ($roles = (array)ArrHelper::get('roles', $rule))
+                || ($actions = (array)ArrayHelper::get($rule,'actions'))
+                || ($roles = (array)ArrayHelper::get($rule,'roles'))
             ) {
                 continue;
             }
@@ -83,7 +83,7 @@ class AccessFilter extends BaseFilter
                 continue;
             }
 
-            $allow = ArrHelper::get('allow', $rule, false);
+            $allow = ArrayHelper::get($rule, 'allow', false);
 
             // find match all user, char: *
             if (false !== array_search(self::MATCH_ALL, $roles)) {

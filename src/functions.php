@@ -8,6 +8,11 @@
  * @param null|string $name
  * @return mixed|\slimExt\base\App
  */
+function app($name = null)
+{
+    return $name ? Slim::$app : Slim::get('name');
+}
+
 function slim($name = null)
 {
     return $name ? Slim::$app : Slim::get('name');
@@ -23,12 +28,12 @@ function slim_config($key, $default = null)
     return \Slim::config($key, $default);
 }
 
-function slim_tl($key, $args = [], $default = 'No translate.')
+function slim_tl($key, array $args = [], $default = 'No translate.')
 {
     return \Slim::get('language')->tl($key, $args, $default);
 }
 
-function slim_tran($key, $args = [], $default = 'No translate.')
+function slim_tran($key, array $args = [], $default = 'No translate.')
 {
     return \Slim::get('language')->tl($key, $args, $default);
 }
@@ -113,14 +118,6 @@ function redirect_to($url = '/', $status = 301)
 function get_extension($file)
 {
     return pathinfo($file, PATHINFO_EXTENSION);
-}
-
-
-if (!function_exists('local_env')) {
-    function local_env($name = null, $default = null, $file = null)
-    {
-        return \inhere\library\helpers\DataHelper::localEnv($name, $default, $file);
-    }
 }
 
 if (!function_exists('slim_request')) {

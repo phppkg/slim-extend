@@ -12,7 +12,7 @@ use inhere\exceptions\NotFoundException;
 use Slim;
 use slimExt\base\Request;
 use slimExt\base\Response;
-use slimExt\filters\BaseFilter;
+use slimExt\filters\ObjectFilter;
 
 /**
  * Class AbstractController
@@ -110,8 +110,8 @@ class AbstractController
 
             $filter = new $filter($settings);
 
-            if (!$filter instanceof BaseFilter) {
-                throw new NotFoundException("Filter class must be instanceof " . BaseFilter::class);
+            if (!$filter instanceof ObjectFilter) {
+                throw new NotFoundException("Filter class must be instanceof " . ObjectFilter::class);
             }
 
             $result = $filter($this->request, $this->response, $action);
