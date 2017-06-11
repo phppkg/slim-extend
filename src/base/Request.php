@@ -46,7 +46,7 @@ class Request extends SlimRequest
     /**
      * @var array
      */
-    protected $filterList = [
+    protected static $filterList = [
         // return raw
         'raw' => '',
 
@@ -88,7 +88,7 @@ class Request extends SlimRequest
     }
 
     /**
-     * @return array|null|object
+     * @return array|null
      */
     public function post()
     {
@@ -101,7 +101,7 @@ class Request extends SlimRequest
      */
     public function getUploadedFile($name)
     {
-        return isset($this->getUploadedFiles()[$name]) ? $this->getUploadedFiles()[$name] : null;
+        return $this->getUploadedFiles()[$name] ?? null;
     }
 
     /**
@@ -123,7 +123,7 @@ class Request extends SlimRequest
      * @param array $default
      * @return array
      */
-    public function getOldInput($default = [])
+    public function getOldInput(array $default = [])
     {
         if ($data = Slim::get('flash')->getMessage(self::FLASH_OLD_INPUT_KEY)) {
             return json_decode($data[0], true);
@@ -140,7 +140,7 @@ class Request extends SlimRequest
      */
     public function get($name, $default = null, $filter = 'raw')
     {
-        $value = !isset($this->getParams()[$name]) ? $default : $this->getParams()[$name];
+        $value = $this->getParams()[$name] ?? $default;
 
         return $this->filtering($value, $filter);
     }
@@ -221,9 +221,9 @@ class Request extends SlimRequest
      */
     public function __call($name, array $arguments)
     {
-        if (substr($name, 0, 3) === 'get' && $arguments) {
+        if ($arguments && (0 === strpos($name, 'get'))) {
             $filter = substr($name, 3);
-            $default = isset($arguments[1]) ? $arguments[1] : null;
+            $default = $arguments[1] ?? null;
 
             return $this->get($arguments[0], $default, lcfirst($filter));
         }
@@ -243,7 +243,7 @@ class Request extends SlimRequest
         }
 
         // is a custom filter
-        if (!is_string($filter) || !isset($this->filterList[$filter])) {
+        if (!is_string($filter) || !isset(self::$filterList[$filter])) {
             $result = $value;
 
             // is custom callable filter
@@ -255,9 +255,9 @@ class Request extends SlimRequest
         }
 
         // is a defined filter
-        $filter = $this->filterList[$filter];
+        $filter = self::$filterList[$filter];
 
-        if (!in_array($filter, DataType::types())) {
+        if (!in_array($filter, DataType::types(), true)) {
             $result = call_user_func($filter, $value);
         } else {
             switch (lcfirst(trim($filter))) {

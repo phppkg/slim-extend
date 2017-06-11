@@ -8,7 +8,7 @@
 
 namespace slimExt\base;
 
-use inhere\library\collections\JsonMessage;
+use inhere\slimExt\components\JsonMessage;
 use Slim;
 use Slim\Http\Response as SlimResponse;
 

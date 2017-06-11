@@ -72,8 +72,8 @@ class AccessFilter extends ObjectFilter
             // no limit
             if (
                 !$rule
-                || ($actions = (array)ArrayHelper::get($rule,'actions'))
-                || ($roles = (array)ArrayHelper::get($rule,'roles'))
+                || ($actions = (array)ArrayHelper::get($rule, 'actions'))
+                || ($roles = (array)ArrayHelper::get($rule, 'roles'))
             ) {
                 continue;
             }

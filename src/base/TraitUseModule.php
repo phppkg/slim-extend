@@ -44,7 +44,7 @@ trait TraitUseModule
      */
     public function module($name = '__last')
     {
-        return isset($this->loadedModules[$name]) ? $this->loadedModules[$name] : null;
+        return $this->loadedModules[$name] ?? null;
     }
 
 }

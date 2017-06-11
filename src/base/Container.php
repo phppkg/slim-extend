@@ -33,7 +33,7 @@ class Container extends SlimContainer
      * @return mixed
      * @throws LogicException
      */
-    public function call($id, $params = [])
+    public function call($id, array $params = [])
     {
         $callable = $this->raw($id);
 

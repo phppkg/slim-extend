@@ -49,12 +49,21 @@ class App extends SlimApp
     }
 
     /**
-     * @param $id
-     * @param $value
+     * @param string $id
+     * @param mixed $value
      * @return mixed
      */
     public function __set($id, $value)
     {
         return $this->getContainer()[$id] = $value;
+    }
+
+    /**
+     * @param string $id
+     * @return bool
+     */
+    public function __isset($id)
+    {
+        return $this->getContainer()->has($id);
     }
 }

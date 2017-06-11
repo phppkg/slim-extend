@@ -2,9 +2,11 @@
 
 namespace slimExt\base;
 
+use Psr\Http\Message\ResponseInterface;
 use Slim;
 use slimExt\AbstractController;
 use slimExt\exceptions\NotFoundException;
+use slimExt\helpers\TwigHelper;
 
 /**
  * Class Controller
@@ -44,7 +46,7 @@ abstract class Controller extends AbstractController
      * access instance of the $tplHelperClass
      * @var string
      */
-    protected $tplHelperClass = '\slimExt\helpers\TwigHelper';
+    protected $tplHelperClass = TwigHelper::class;
 
     /**
      * current controller's default templates path.
@@ -103,7 +105,7 @@ abstract class Controller extends AbstractController
         $view = $this->getViewPath($view, $settings);
 
         // add tpl global var
-        list($varKey, $varList) = $this->handleGlobalVar($settings);
+        [$varKey, $varList] = $this->handleGlobalVar($settings);
         $args[$varKey] = $varList;
 
         $this->appendVarToView($args);
@@ -127,7 +129,7 @@ abstract class Controller extends AbstractController
         $twig = Slim::get('twigRenderer');
 
         $globalVar = $this->addTwigGlobalVar();
-        list($globalKey, $globalVar) = $this->handleGlobalVar($settings, $globalVar);
+        [$globalKey, $globalVar] = $this->handleGlobalVar($settings, $globalVar);
 
         // add custom extension
         // $twig->addExtension(new \slimExt\twig\TwigExtension( $c['request'], $c['csrf'] ));
@@ -292,7 +294,7 @@ abstract class Controller extends AbstractController
      * @param Request $request
      * @param Response $response
      * @param array $args
-     * @return mixed
+     * @return ResponseInterface
      * @throws NotFoundException
      */
     public function __invoke(Request $request, Response $response, array $args)
@@ -321,18 +323,17 @@ abstract class Controller extends AbstractController
                 return $result;
             }
 
-            /** @var Response $response */
-            $response = $this->$actionMethod($args);
+            $resp = $this->$actionMethod($args);
 
             // if the action return is array data
-            if (is_array($response)) {
-                $response = $this->response->withJson($response);
+            if (is_array($resp)) {
+                $resp = $this->response->withJson($resp);
             }
 
             // Might want to customize to perform the action name
-            $this->afterInvoke($args, $response);
+            $this->afterInvoke($args, $resp);
 
-            return $response;
+            return $resp;
         }
 
         throw new NotFoundException('Error Processing Request, Action [' . $actionMethod . '] don\'t exists!');
@@ -340,7 +341,7 @@ abstract class Controller extends AbstractController
 
     /**
      * @param array $args
-     * @param Response $response
+     * @param ResponseInterface $response
      * @return void
      */
     protected function afterInvoke(array $args, $response)
@@ -360,6 +361,6 @@ abstract class Controller extends AbstractController
     {
         $args[2]['action'] = $method;
 
-        return $this->__invoke($args[0], $args[1], $args[2]);
+        return $this($args[0], $args[1], $args[2]);
     }
 }

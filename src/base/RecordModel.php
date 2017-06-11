@@ -130,7 +130,7 @@ abstract class RecordModel extends Model
     public static function tableName()
     {
         // default is current class name
-        $className = lcfirst(basename(str_replace('\\', '/', get_called_class())));
+        $className = lcfirst(basename(str_replace('\\', '/', static::class)));
 
         // '@@' -- is table prefix placeholder
         // return '@@articles';
@@ -178,13 +178,13 @@ abstract class RecordModel extends Model
      * @param string|array $options
      * @return static
      */
-    public static function findByPk($priValue, $options = [])
+    public static function findByPk($priValue, $options = null)
     {
+        // only one
+        $where = [static::$priKey => $priValue];
+
         if (is_array($priValue)) {// many
             $where = static::$priKey . ' IN (' . implode(',', $priValue) . ')';
-
-        } else { // only one
-            $where = [static::$priKey => $priValue];
         }
 
         return static::findOne($where, $options);
@@ -196,7 +196,7 @@ abstract class RecordModel extends Model
      * @param string|array $options
      * @return static|array
      */
-    public static function findOne($where, $options = [])
+    public static function findOne($where, $options = null)
     {
         // as select
         if (is_string($options)) {
@@ -205,7 +205,7 @@ abstract class RecordModel extends Model
             ];
         }
 
-        $options = array_merge(static::$defaultOptions, $options);
+        $options = array_merge(static::$defaultOptions, (array)$options);
         $class = $options['class'] === 'model' ? static::class : $options['class'];
 
         unset($options['indexKey'], $options['class']);
@@ -227,7 +227,7 @@ abstract class RecordModel extends Model
      * @param string|array $options
      * @return array
      */
-    public static function findAll($where, $options = [])
+    public static function findAll($where, $options = null)
     {
         // as select
         if (is_string($options)) {
@@ -236,8 +236,8 @@ abstract class RecordModel extends Model
             ];
         }
 
-        $options = array_merge(static::$defaultOptions, ['class' => 'assoc'], $options);
-        $indexKey = ArrayHelper::remove($options, 'indexKey', null);
+        $options = array_merge(static::$defaultOptions, ['class' => 'assoc'], (array)$options);
+        $indexKey = ArrayHelper::remove($options, 'indexKey');
         $class = $options['class'] === 'model' ? static::class : $options['class'];
 
         unset($options['indexKey'], $options['class']);
@@ -361,7 +361,7 @@ abstract class RecordModel extends Model
         $this->beforeSave();
 
         // the primary column is must be exists.
-        if ($updateColumns && !in_array($priKey, $updateColumns)) {
+        if ($updateColumns && !in_array($priKey, $updateColumns, true)) {
             $updateColumns[] = $priKey;
         }
 
@@ -376,7 +376,7 @@ abstract class RecordModel extends Model
         if ($this->onlyUpdateChanged) {
             // Exclude the column if it value not change
             foreach ($data as $column => $value) {
-                if (!$this->valueIsChanged($column) && $column !== $priKey) {
+                if ($column !== $priKey && !$this->valueIsChanged($column)) {
                     unset($data[$column]);
                 }
             }
@@ -398,12 +398,12 @@ abstract class RecordModel extends Model
     }
 
     /**
-     * @param $dataSet
+     * @param array $dataSet
      * @param array $updateColumns
      * @param bool|false $updateNulls
      * @return mixed
      */
-    public static function updateMulti($dataSet, array $updateColumns = [], $updateNulls = false)
+    public static function updateMulti(array $dataSet, array $updateColumns = [], $updateNulls = false)
     {
         $res = [];
 
@@ -419,7 +419,7 @@ abstract class RecordModel extends Model
      * @param array $conditions
      * @return bool
      */
-    public static function updateBatch($data, $conditions = [])
+    public static function updateBatch($data, array $conditions = [])
     {
         return static::getDb()->updateBatch(static::tableName(), $data, $conditions);
     }
@@ -701,7 +701,7 @@ abstract class RecordModel extends Model
      */
     public function getOld($column)
     {
-        return isset($this->_backup[$column]) ? $this->_backup[$column] : null;
+        return $this->_backup[$column] ?? null;
     }
 
     /***********************************************************************************
@@ -716,7 +716,7 @@ abstract class RecordModel extends Model
      * @return Query
      * @throws UnknownMethodException
      */
-    public static function applyAppendOptions($options = [], Query $query)
+    public static function applyAppendOptions(array $options = [], Query $query)
     {
         foreach ($options as $method => $value) {
             if ($value instanceof \Closure) {
@@ -736,7 +736,7 @@ abstract class RecordModel extends Model
 
     /**
      * handle where condition
-     * @param mixed $wheres
+     * @param array|string|\Closure $wheres
      * @param static|string $model the model class name, is a string
      * @param Query $query
      * @example
@@ -764,15 +764,15 @@ abstract class RecordModel extends Model
         /** @var Query $query */
         $query = $query ?: $model::getQuery(true);
 
-        if (is_object($wheres) and $wheres instanceof \Closure) {
+        if (is_object($wheres) && $wheres instanceof \Closure) {
             $wheres($query);
 
             return $query;
         }
 
         if (is_array($wheres)) {
-            foreach ($wheres as $key => $where) {
-                if (is_object($where) and $where instanceof \Closure) {
+            foreach ((array)$wheres as $key => $where) {
+                if (is_object($where) && $where instanceof \Closure) {
                     $where($query);
                     continue;
                 }
