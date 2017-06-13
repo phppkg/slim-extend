@@ -1,16 +1,18 @@
 <?php
 
-namespace slimExt\base;
+namespace slimExt\web;
 
 use Psr\Http\Message\ResponseInterface;
 use Slim;
-use slimExt\AbstractController;
+use slimExt\base\AbstractController;
+use slimExt\base\Request;
+use slimExt\base\Response;
 use slimExt\exceptions\NotFoundException;
 use slimExt\helpers\TwigHelper;
 
 /**
  * Class Controller
- * @package slimExt\base
+ * @package slimExt\web
  */
 abstract class Controller extends AbstractController
 {
@@ -82,6 +84,9 @@ abstract class Controller extends AbstractController
      */
     protected $appendTplVar = [];
 
+    /**
+     * @var string
+     */
     protected $bodyBlock = 'body';
 
     /**********************************************************
@@ -277,35 +282,19 @@ abstract class Controller extends AbstractController
      **********************************************************/
 
     /**
-     * @param array $args
-     * @return void
-     */
-    protected function beforeInvoke(array $args)
-    {
-    }
-
-    /**
      * when route setting as (no define action name):
      *
      * ```
      * $app->any('/users/{action}', controllers\User::class);
      * $app->any('/users/{action:index|add|edit}', controllers\User::class);
      * ```
-     * @param Request $request
-     * @param Response $response
+     *
      * @param array $args
      * @return ResponseInterface
      * @throws NotFoundException
      */
-    public function __invoke(Request $request, Response $response, array $args)
+    protected function processInvoke(array $args)
     {
-        // setting...
-        $this->request = $request;
-        $this->response = $response;
-
-        // Maybe want to do something
-        $this->beforeInvoke($args);
-
         $action = !empty($args['action']) ? $args['action'] : $this->defaultAction;
 
         // convert 'first-second' to 'firstSecond'
@@ -317,35 +306,23 @@ abstract class Controller extends AbstractController
         Slim::config()->set('urls.action', $action);
         $actionMethod = $action . ucfirst($this->actionSuffix);
 
-        if (method_exists($this, $actionMethod)) {
-            // if enable request action security filter
-            if (true !== ($result = $this->doSecurityFilter($action))) {
-                return $result;
-            }
-
-            $resp = $this->$actionMethod($args);
-
-            // if the action return is array data
-            if (is_array($resp)) {
-                $resp = $this->response->withJson($resp);
-            }
-
-            // Might want to customize to perform the action name
-            $this->afterInvoke($args, $resp);
-
-            return $resp;
+        if (!method_exists($this, $actionMethod)) {
+            throw new NotFoundException('Error Processing Request, Action [' . $actionMethod . '] don\'t exists!');
         }
 
-        throw new NotFoundException('Error Processing Request, Action [' . $actionMethod . '] don\'t exists!');
-    }
+        // if enable request action security filter
+        if (true !== ($result = $this->doSecurityFilter($action))) {
+            return $result;
+        }
 
-    /**
-     * @param array $args
-     * @param ResponseInterface $response
-     * @return void
-     */
-    protected function afterInvoke(array $args, $response)
-    {
+        $resp = $this->$actionMethod($args);
+
+        // if the action return is array data
+        if (is_array($resp)) {
+            $resp = $this->response->withJson($resp);
+        }
+
+        return $resp;
     }
 
     /**

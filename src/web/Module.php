@@ -6,16 +6,18 @@
  * Time: 下午9:48
  */
 
-namespace slimExt\base;
+namespace slimExt\web;
 
+use inhere\library\helpers\EnvHelper;
 use inhere\library\helpers\PhpHelper;
 use Slim;
+use slimExt\base\App;
 use slimExt\DataCollector;
 
 /**
  * Todo ...
  * Class Module
- * @package slimExt\base
+ * @package slimExt\web
  *
  * Recommend, For the module's controller:
  *
@@ -45,6 +47,11 @@ abstract class Module
      * @var string
      */
     const NAME = '';
+
+    /**
+     * @var string
+     */
+    public $name;
 
     /**
      * @var string
@@ -108,12 +115,10 @@ abstract class Module
      */
     public static function register($app)
     {
-        $module = $app->loadModule(static::NAME, new static($app));
-
-        if (PhpHelper::isCli()) {
-            $module->registerCommands($app);
+        if (EnvHelper::isCli()) {
+            static::registerCommands($app);
         } else {
-            $module->registerRoutes($app);
+            static::registerRoutes($app);
         }
     }
 
@@ -121,7 +126,7 @@ abstract class Module
      * register route to web application
      * @param App $app
      */
-    protected function registerRoutes($app)
+    protected static function registerRoutes($app)
     {
         // require __DIR__ . '/routes.php';
     }
@@ -130,8 +135,9 @@ abstract class Module
      * register command to console application
      * @param App $app
      */
-    protected function registerCommands($app)
+    protected static function registerCommands($app)
     {
         // $app->add('...');
     }
+
 }

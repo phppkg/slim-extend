@@ -2,6 +2,8 @@
 
 namespace slimExt\base;
 
+use slimExt\web\Module;
+
 /**
  * Class TraitUseModule
  * @package slimExt\base
@@ -9,22 +11,42 @@ namespace slimExt\base;
 trait TraitUseModule
 {
     /**
+     *  current module instance
+     * @var Module
+     */
+    public $module;
+
+    /**
      * @var array
      */
     public $loadedModules = [];
 
     /**
-     * @param $name
-     * @param Module $module
+     * @param array $classes
+     */
+    public function registerModules($classes)
+    {
+        /** @var Module $class */
+        foreach ($classes as $class) {
+            /** @var App $this */
+            $class::register($this);
+        }
+    }
+
+    /**
+     * @param string $class
      * @return Module
      */
-    public function loadModule($name, Module $module)
+    public function activeModule($class)
     {
-        if ($this->hasModule($name)) {
-            throw new \RuntimeException('Module [' . $name . '] have been loaded. don\'t allow override.');
+        /** @var Module $module */
+        $module = new $class;
+
+        if ($this->hasModule($module->name)) {
+            throw new \LogicException("Module [$class] has been activated!");
         }
 
-        $this->loadedModules[$name] = $this->loadedModules['__last'] = $module;
+        $this->module = $this->loadedModules[$module->name] = $module;
 
         return $module;
     }
@@ -42,8 +64,12 @@ trait TraitUseModule
      * @param string $name
      * @return Module
      */
-    public function module($name = '__last')
+    public function module($name = '')
     {
+        if (!$name) {
+            return $this->module;
+        }
+
         return $this->loadedModules[$name] ?? null;
     }
 

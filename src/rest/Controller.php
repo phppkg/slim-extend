@@ -3,7 +3,7 @@
 namespace slimExt\rest;
 
 use inhere\exceptions\UnknownMethodException;
-use slimExt\AbstractController;
+use slimExt\base\AbstractController;
 use slimExt\base\Request;
 use slimExt\base\Response;
 
@@ -92,7 +92,7 @@ abstract class Controller extends AbstractController
 
     /**
      * more information
-     * @see \slimExt\AbstractController::doSecurityFilter()
+     * @see \slimExt\base\AbstractController::doSecurityFilter()
      * @return array
      */
     public function filters()
@@ -212,7 +212,7 @@ abstract class Controller extends AbstractController
 
         foreach ($map as $key => $value) {
             // like 'get*' 'head*'
-            if (!$argument && $key === $method . self::MARK_MORE && in_array($method, $allowMore)) {
+            if (!$argument && $key === $method . self::MARK_MORE && in_array($method, $allowMore, true)) {
                 $action = $value;
 
                 // have argument. like '/users/1' '/users/username'
@@ -229,6 +229,11 @@ abstract class Controller extends AbstractController
         return [$action, $error];
     }
 
+    /**
+     * @param $key
+     * @param $item
+     * @param $map
+     */
     private function _parseSpecialSetting($key, $item, &$map)
     {
         $key = str_replace(' ', '', $key);
@@ -236,7 +241,7 @@ abstract class Controller extends AbstractController
 
         // get.search get|post.search
         if (strpos($key, '.')) {
-            list($m, $a) = explode('.', $key);
+            [$m, $a] = explode('.', $key);
 
             $m = strtolower($m);
 
@@ -267,36 +272,20 @@ abstract class Controller extends AbstractController
      **********************************************************/
 
     /**
-     * @param array $args
-     * @return void
-     */
-    protected function beforeInvoke(array $args)
-    {
-    }
-
-    /**
      * e.g.
      * define route:
      * ```
      *   $app->any('/test[/{resource}]', controllers\api\Test::class);
      * ```
-     * @param Request $request
-     * @param Response $response
+     *
      * @param array $args
      * @return mixed
      * @throws \Exception
      */
-    public function __invoke(Request $request, Response $response, array $args)
+    protected function processInvoke(array $args)
     {
-        // setting...
-        $this->request = $request;
-        $this->response = $response;
-
-        // Maybe want to do something
-        $this->beforeInvoke($args);
-
         // default restFul action name
-        list($action, $error) = $this->handleMethodMapping($request, $args);
+        [$action, $error] = $this->handleMethodMapping($this->request, $args);
 
         if ($error) {
             return $this->errorHandler($error);
@@ -304,41 +293,30 @@ abstract class Controller extends AbstractController
 
         $actionMethod = $action . ucfirst($this->actionSuffix);
 
-        if (method_exists($this, $actionMethod)) {
-            // if enable request action security filter
-            if (true !== ($result = $this->doSecurityFilter($action))) {
-                return $result;
-            }
+        if (!method_exists($this, $actionMethod)) {
+            // throw new NotFoundException('Error Processing Request, Action [' . $action . '] don\'t exists!');
+            $error = 'Error Processing Request, Action [' . $action . '] don\'t exists!';
 
-            /** @var Response $response */
-            $response = $this->$actionMethod(array_shift($args));
-
-            // if the action return is array data
-            if (is_array($response)) {
-                $response = $this->response->withJson($response);
-            }
-
-            // Might want to customize to perform the action name
-            $this->afterInvoke($args, $response);
-
-            return $response;
+            return $this->response->withJson([], 330, $error, 403);
+//          return $this->errorHandler($error);
         }
 
-        // throw new NotFoundException('Error Processing Request, Action [' . $action . '] don\'t exists!');
-        $error = 'Error Processing Request, Action [' . $action . '] don\'t exists!';
+        // if enable request action security filter
+        if (true !== ($result = $this->doSecurityFilter($action))) {
+            return $result;
+        }
 
-        return $this->response->withJson([], 330, $error, 403);
-//        return $this->errorHandler($error);
+        /** @var Response $response */
+        $resp = $this->$actionMethod(array_shift($args));
+
+        // if the action return is array data
+        if (is_array($resp)) {
+            $resp = $this->response->withJson($resp);
+        }
+
+        return $resp;
     }
 
-    /**
-     * @param array $args
-     * @param Response $response
-     * @return void
-     */
-    protected function afterInvoke(array $args, $response)
-    {
-    }
 
     /**
      * @param string $error

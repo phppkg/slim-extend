@@ -20,8 +20,8 @@ use slimExt\DataType;
  * @package slimExt\base
  *
  * @method      string   getRaw($name, $default = null)      Get raw data
- * @method      integer  getInt($name, $default = null)      Get a signed integer.
- * @method      integer  getNumber($name, $default = null)   Get an unsigned integer.
+ * @method      integer  getInt($name, $default = 0)      Get a signed integer.
+ * @method      integer  getNumber($name, $default = 0)   Get an unsigned integer.
  * @method      float    getFloat($name, $default = null)    Get a floating-point number.
  * @method      boolean  getBool($name, $default = null)     Get a boolean.
  * @method      boolean  getBoolean($name, $default = null)  Get a boolean.

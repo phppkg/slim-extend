@@ -6,21 +6,18 @@
  * Time: 下午4:08
  */
 
-namespace slimExt;
+namespace slimExt\base;
 
 use inhere\exceptions\NotFoundException;
-use Slim;
-use slimExt\base\Request;
-use slimExt\base\Response;
+use Psr\Http\Message\ResponseInterface;
 use slimExt\filters\ObjectFilter;
 
 /**
  * Class AbstractController
  * @package slimExt
  */
-class AbstractController
+abstract class AbstractController
 {
-
     /**
      * @var Request
      */
@@ -32,12 +29,18 @@ class AbstractController
     protected $response;
 
     /**
+     * module class
+     * @var string
+     */
+    protected $moduleId = '';
+
+    /**
      * __construct
      */
     public function __construct()
     {
         // save to container
-        Slim::set('controller', $this);
+        \Slim::set('controller', $this);
 
         $this->init();
     }
@@ -47,6 +50,50 @@ class AbstractController
         // Some init logic
     }
 
+    public function __invoke(Request $request, Response $response, array $args)
+    {
+        // setting...
+        $this->request = $request;
+        $this->response = $response;
+
+        // active module
+        if ($this->moduleId) {
+            \Slim::$app->activeModule($this->moduleId);
+        }
+
+        // Maybe want to do something
+        $this->beforeInvoke($args);
+
+        $resp = $this->processInvoke($args);
+
+        // Might want to customize to perform the action name
+        $this->afterInvoke($args, $resp);
+
+        return $resp;
+    }
+
+    /**
+     * @param array $args
+     * @return void
+     */
+    protected function beforeInvoke(array $args)
+    {
+    }
+
+    /**
+     * @param array $args
+     * @return ResponseInterface
+     */
+    abstract protected function processInvoke(array $args);
+
+    /**
+     * @param array $args
+     * @param ResponseInterface $response
+     * @return void
+     */
+    protected function afterInvoke(array $args, $response)
+    {
+    }
 
     /**********************************************************
      * request method security check @todo ...
@@ -111,7 +158,7 @@ class AbstractController
             $filter = new $filter($settings);
 
             if (!$filter instanceof ObjectFilter) {
-                throw new NotFoundException("Filter class must be instanceof " . ObjectFilter::class);
+                throw new NotFoundException('Filter class must be instanceof ' . ObjectFilter::class);
             }
 
             $result = $filter($this->request, $this->response, $action);
