@@ -29,7 +29,7 @@ namespace slimExt;
  * $config->get('foo');
  * ```
  */
-class DataCollector extends \inhere\library\collections\DataCollector
+class Collection extends \inhere\library\collections\Collection
 {
     /**
      * name

@@ -11,9 +11,9 @@ namespace slimExt\base;
 use inhere\exceptions\InvalidArgumentException;
 use inhere\exceptions\InvalidConfigException;
 use inhere\exceptions\UnknownMethodException;
-use inhere\library\helpers\ArrayHelper;
-use Slim;
+use inhere\library\helpers\Arr;
 use slimExt\database\AbstractDriver;
+use slimExt\helpers\ModelHelper;
 use Windwalker\Query\Query;
 
 /**
@@ -52,6 +52,9 @@ abstract class RecordModel extends Model
      */
     protected static $aliasName = 'mt';
 
+    /**
+     * @var array
+     */
     protected static $defaultOptions = [
         /* data index column. */
         'indexKey' => null,
@@ -155,7 +158,7 @@ abstract class RecordModel extends Model
      */
     public static function getDb()
     {
-        return Slim::get('db');
+        return \Slim::get('db');
     }
 
     /**
@@ -165,7 +168,7 @@ abstract class RecordModel extends Model
      */
     public static function query($where = null)
     {
-        return self::handleConditions($where, static::class)->from(static::queryName());
+        return ModelHelper::handleConditions($where, static::class)->from(static::queryName());
     }
 
     /***********************************************************************************
@@ -237,7 +240,7 @@ abstract class RecordModel extends Model
         }
 
         $options = array_merge(static::$defaultOptions, ['class' => 'assoc'], (array)$options);
-        $indexKey = ArrayHelper::remove($options, 'indexKey');
+        $indexKey = Arr::remove($options, 'indexKey');
         $class = $options['class'] === 'model' ? static::class : $options['class'];
 
         unset($options['indexKey'], $options['class']);
@@ -470,7 +473,7 @@ abstract class RecordModel extends Model
      */
     public static function deleteBy($where)
     {
-        $query = self::handleConditions($where, static::class)->delete(static::tableName());
+        $query = ModelHelper::handleConditions($where, static::class)->delete(static::tableName());
 
         return static::setQuery($query)->execute()->countAffected();
     }
@@ -718,98 +721,6 @@ abstract class RecordModel extends Model
      */
     public static function applyAppendOptions(array $options = [], Query $query)
     {
-        foreach ($options as $method => $value) {
-            if ($value instanceof \Closure) {
-                $value($query);
-                continue;
-            }
-
-            if (!method_exists($query, $method)) {
-                throw new UnknownMethodException('The class method [' . get_class($query) . ":$method] don't exists!");
-            }
-
-            is_array($value) ? call_user_func_array([$query, $method], $value) : $query->$method($value);
-        }
-
-        return $query;
-    }
-
-    /**
-     * handle where condition
-     * @param array|string|\Closure $wheres
-     * @param static|string $model the model class name, is a string
-     * @param Query $query
-     * @example
-     * ```
-     * ...
-     * $result = UserModel::findAll([
-     *      'userId = 23',      // ==> '`userId` = 23'
-     *      'publishTime > 0',  // ==> '`publishTime` > 0'
-     *      'title' => 'test',  // value will auto add quote, equal to "title = 'test'"
-     *      'id' => [4,5,56],   // ==> '`id` IN ('4','5','56')'
-     *      'id NOT IN' => [4,5,56], // ==> '`id` NOT IN ('4','5','56')'
-     *
-     *      // a closure
-     *      function (Query $q) {
-     *          $q->orWhere('a < 5', 'b > 6');
-     *          $q->where( 'column = ' . $q->q($value) );
-     *      }
-     * ]);
-     *
-     * ```
-     * @return Query
-     */
-    public static function handleConditions($wheres, $model, Query $query = null)
-    {
-        /** @var Query $query */
-        $query = $query ?: $model::getQuery(true);
-
-        if (is_object($wheres) && $wheres instanceof \Closure) {
-            $wheres($query);
-
-            return $query;
-        }
-
-        if (is_array($wheres)) {
-            foreach ((array)$wheres as $key => $where) {
-                if (is_object($where) && $where instanceof \Closure) {
-                    $where($query);
-                    continue;
-                }
-
-                $key = trim($key);
-
-                // string key: $key contain a column name, $where is column value
-                if ($key && !is_numeric($key)) {
-
-                    // is a 'in|not in' statement. eg: $where link [2,3,5] ['foo', 'bar', 'baz']
-                    if (is_array($where) || is_object($where)) {
-                        $value = array_map(array($query, 'quote'), (array)$where);
-
-                        // check $key exists keyword 'in|not in|IN|NOT IN'
-                        $where = $key . (1 === preg_match('/ in$/i', $key) ? '' : ' IN') . ' (' . implode(',', $value) . ')';
-                    } else {
-                        // check exists operator '<' '>' '<=' '>=' '!='
-                        $where = $key . (1 === preg_match('/[<>=]/', $key) ? ' ' : ' = ') . $query->q($where);
-                    }
-                }
-
-                // have table name
-                // eg: 'mt.field', 'mt.field >='
-                if (strpos($where, '.') > 1) {
-                    $where = preg_replace('/^(\w+)\.(\w+)(.*)$/', '`$1`.`$2`$3', $where);
-                    // eg: 'field >='
-                } elseif (strpos($where, ' ') > 1) {
-                    $where = preg_replace('/^(\w+)(.*)$/', '`$1`$2', $where);
-                }
-
-                $query->where($where);
-            }// end foreach
-
-        } elseif ($wheres && is_string($wheres)) {
-            $query->where($wheres);
-        }
-
-        return $query;
+        return ModelHelper::applyQueryOptions($options, $query);
     }
 }

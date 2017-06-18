@@ -63,12 +63,12 @@ abstract class Slim
 
             // only a alias. e.g. @project
             if (!strpos($path, DIR_SEP)) {
-                return isset(static::$aliases[$path]) ? static::$aliases[$path] : $path;
+                return static::$aliases[$path] ?? $path;
             }
 
             // have other partial. e.g: @project/temp/logs
             $realPath = $path;
-            list($alias, $other) = explode(DIR_SEP, $path, 2);
+            [$alias, $other] = explode(DIR_SEP, $path, 2);
 
             if (isset(static::$aliases[$alias])) {
                 $realPath = static::$aliases[$alias] . DIR_SEP . $other;
@@ -135,7 +135,7 @@ abstract class Slim
      * @param array $params
      * @return mixed
      */
-    public static function call($id, $params = [])
+    public static function call($id, array $params = [])
     {
         if (!static::$app) {
             return null;
@@ -180,11 +180,11 @@ abstract class Slim
     /**
      * @param mixed $key
      * @param mixed $default
-     * @return \slimExt\DataCollector|mixed
+     * @return \slimExt\Collection|mixed
      */
     public static function config($key = null, $default = null)
     {
-        /** @var \slimExt\DataCollector $config */
+        /** @var \slimExt\Collection $config */
         $config = static::$app->getContainer()['config'];
 
         if ($key && is_string($key)) {

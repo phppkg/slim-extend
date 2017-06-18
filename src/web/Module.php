@@ -12,7 +12,7 @@ use inhere\library\helpers\EnvHelper;
 use inhere\library\helpers\PhpHelper;
 use Slim;
 use slimExt\base\App;
-use slimExt\DataCollector;
+use slimExt\Collection;
 
 /**
  * Todo ...
@@ -61,7 +61,7 @@ abstract class Module
     public $layout = 'default';
 
     /**
-     * @var DataCollector
+     * @var Collection
      */
     public $config;
 
@@ -91,7 +91,7 @@ abstract class Module
         $configFile = $this->path . '/config.yml';
 
         // runtime env config
-        $this->config = DataCollector::make($configFile, DataCollector::FORMAT_YML)
+        $this->config = Collection::make($configFile, Collection::FORMAT_YML)
             ->loadYaml(is_file($globalFile) ? $globalFile : '');
 
         //add path alias

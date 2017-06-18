@@ -24,7 +24,7 @@ use Slim\App as SlimApp;
  * @property \slimExt\base\Language language
  *
  * @property \slimExt\database\AbstractDriver db
- * @property \slimExt\DataCollector config
+ * @property \slimExt\Collection config
  *
  */
 class App extends SlimApp

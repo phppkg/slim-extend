@@ -33,12 +33,10 @@ abstract class Model extends SimpleCollection
      */
     protected $onlySaveSafeData = true;
 
-
     /**
      * Validation class name
      */
     //protected $validateHandler = '\inhere\validate\Validation';
-
 
     /**
      * @param $data
