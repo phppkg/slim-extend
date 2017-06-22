@@ -18,6 +18,11 @@ abstract class Controller extends AbstractController
     const ENGINE_TWIG = 'twig';
     const ENGINE_PHP = 'php';
 
+    const TOP_JS = 'topJsFiles';
+    const TOP_JS_CODE = 'topJsCode';
+    const BTM_JS = 'btmJsFiles';
+    const BTM_JS_CODE = 'btmJsCode';
+
     /**
      * @var string
      */
@@ -81,7 +86,22 @@ abstract class Controller extends AbstractController
      * append variable to templates, if variable not exists.
      * @var array
      */
-    protected $appendTplVar = [];
+    protected $appendTplVars = [
+        '_assets' => [
+            'cssCode'  => '',
+            'cssFiles' => [],
+            'topJsCode'  => '',
+            'btmJsCode'  => '',
+            'topJsFiles'  => [],
+            'btmJsFiles'  => [],
+        ],
+        '_page' => [
+            'title' => 'My Site',
+            'language' => 'en',
+            'description' => 'My Site\'s description',
+            'keywords' => 'My Site\' keywords',
+        ]
+    ];
 
     /**
      * @var string
@@ -96,7 +116,7 @@ abstract class Controller extends AbstractController
      * php tpl render
      * @param $view
      * @param array $args
-     * @return Response
+     * @return ResponseInterface
      */
     protected function render($view, array $args = [])
     {
@@ -114,14 +134,17 @@ abstract class Controller extends AbstractController
 
         $this->appendVarToView($args);
 
-        return Slim::get('renderer')->render($response, $view, $args);
+        /** @var \Slim\Views\PhpRenderer $renderer */
+        $renderer = Slim::get('renderer');
+
+        return $renderer->render($response, $view, $args);
     }
 
     /**
      * twig tpl render
      * @param $view
      * @param array $args
-     * @return Response|Slim\Http\Response
+     * @return ResponseInterface
      */
     protected function renderTwig($view, array $args = [])
     {
@@ -130,6 +153,7 @@ abstract class Controller extends AbstractController
         $view = $this->getViewPath($view, $settings);
 
         // use twig render
+        /** @var \Slim\Views\Twig $twig */
         $twig = Slim::get('twigRenderer');
 
         $globalVar = $this->addTwigGlobalVar();
@@ -141,7 +165,6 @@ abstract class Controller extends AbstractController
 
         // is pjax request
         if (Slim::$app->request->isPjax()) {
-
             // X-PJAX-URL:https://github.com/inhere/library
             // X-PJAX-Version: 23434
             /** @var Response $response */
@@ -165,6 +188,97 @@ abstract class Controller extends AbstractController
         return $response->write($rendered);
     }
 
+    /////////////////////////////////////////////////////////////
+    /// assets manage
+    /////////////////////////////////////////////////////////////
+
+    /**
+     * @param $title
+     * @return $this
+     */
+    protected function setTitle($title)
+    {
+        $this->appendTplVars['_page']['title'] = $title;
+
+        return $this;
+    }
+
+    /**
+     * @param string $code
+     * @return $this
+     */
+    protected function addCssCode($code)
+    {
+        $this->appendTplVars['_assets']['cssCode'] .= "$code\n";
+
+        return $this;
+    }
+
+    /**
+     * @param string|array $file
+     * @param null|string $key
+     * @return $this
+     */
+    protected function addCss($file, $key = null)
+    {
+        $jsFiles = $this->appendTplVars['_assets']['cssFiles'];
+
+        if (is_string($file)) {
+            if ($key) {
+                $jsFiles[$key] = $file;
+            } else {
+                $jsFiles[] = $file;
+            }
+        } else {
+            $jsFiles = array_merge($jsFiles, $file);
+        }
+
+        $this->appendTplVars['_assets']['cssFiles'] = $jsFiles;
+
+        return $this;
+    }
+
+    /**
+     * @param string $code
+     * @param string $pos
+     * @return $this
+     */
+    protected function addJsCode($code, $pos = self::BTM_JS_CODE)
+    {
+        $this->appendTplVars['_assets'][$pos] .= "$code\n";
+
+        return $this;
+    }
+
+    /**
+     * @param string|array $file
+     * @param string $pos
+     * @param null|string $key
+     * @return $this
+     */
+    protected function addJs($file, $pos = self::BTM_JS, $key = null)
+    {
+        $jsFiles = $this->appendTplVars['_assets'][$pos];
+
+        if (is_string($file)) {
+            if ($key) {
+                $jsFiles[$key] = $file;
+            } else {
+                $jsFiles[] = $file;
+            }
+        } else {
+            $jsFiles = array_merge($jsFiles, $file);
+        }
+
+        $this->appendTplVars['_assets'][$pos] = $jsFiles;
+
+        return $this;
+    }
+
+    /////////////////////////////////////////////////////////////
+    /// view variable collection
+    /////////////////////////////////////////////////////////////
+
     /**
      * @return array
      */
@@ -187,13 +301,36 @@ abstract class Controller extends AbstractController
 
     protected function appendVarToView(array &$args)
     {
-        if ($this->appendTplVar) {
-            foreach ($this->appendTplVar as $key => $value) {
-                if (!isset($args[$key])) {
-                    $args[$key] = $value;
-                }
+        foreach ($this->appendTplVars as $key => $value) {
+            if (!isset($args[$key])) {
+                $args[$key] = $value;
             }
         }
+    }
+
+    /**
+     * @param $var
+     * @param $val
+     * @return $this
+     */
+    protected function addTplVar($var, $val)
+    {
+        $this->appendTplVars[$var] = $val;
+
+        return $this;
+    }
+
+    /**
+     * @param array $vars
+     * @return $this
+     */
+    protected function addTplVars(array $vars)
+    {
+        foreach ($vars as $var => $val) {
+            $this->appendTplVars[$var] = $val;
+        }
+
+        return $this;
     }
 
     const GLOBAL_VAR_NAME_CONFIG_KEY = 'global_var_key';

@@ -8,8 +8,7 @@
 
 namespace slimExt\base;
 
-use inhere\validate\StrainerList;
-use Slim;
+use inhere\validate\FilterList;
 use Slim\Http\Request as SlimRequest;
 use Slim\Http\Uri;
 use slimExt\DataType;
@@ -62,20 +61,20 @@ class Request extends SlimRequest
         'string' => 'string',
 
         // trim($var)
-        'trimmed' => StrainerList::class . '::trim',
+        'trimmed' => FilterList::class . '::trim',
 
         // safe data
         'safe' => 'htmlspecialchars',
 
         // abs((int)$var)
-        'number' => StrainerList::class . '::abs',
+        'number' => FilterList::class . '::abs',
         // will use filter_var($var ,FILTER_SANITIZE_EMAIL)
-        'email' => StrainerList::class . '::email',
+        'email' => FilterList::class . '::email',
         // will use filter_var($var ,FILTER_SANITIZE_URL)
-        'url' => StrainerList::class . '::url',
+        'url' => FilterList::class . '::url',
 
         // will use filter_var($var ,FILTER_SANITIZE_ENCODED, $settings);
-        'encoded' => StrainerList::class . '::encoded',
+        'encoded' => FilterList::class . '::encoded',
     ];
 
     /**
@@ -110,7 +109,7 @@ class Request extends SlimRequest
     public function getMessage()
     {
         $messageList = [];
-        $messages = Slim::$app->flash->getMessage(self::FLASH_MSG_KEY) ?: [];
+        $messages = \Slim::$app->flash->getMessage(self::FLASH_MSG_KEY) ?: [];
 
         foreach ($messages as $alert) {
             $messageList[] = json_decode($alert, true);
@@ -125,7 +124,7 @@ class Request extends SlimRequest
      */
     public function getOldInput(array $default = [])
     {
-        if ($data = Slim::get('flash')->getMessage(self::FLASH_OLD_INPUT_KEY)) {
+        if ($data = \Slim::$app->flash->getMessage(self::FLASH_OLD_INPUT_KEY)) {
             return json_decode($data[0], true);
         }
 
