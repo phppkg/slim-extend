@@ -6,9 +6,9 @@
  * Time: 23:35
  */
 
-namespace slimExt\base;
+namespace slimExt\web;
 
-use Slim\App as SlimApp;
+use slimExt\base\TraitUseModule;
 
 /**
  * Class App
@@ -27,9 +27,16 @@ use Slim\App as SlimApp;
  * @property \slimExt\Collection config
  *
  */
-class App extends SlimApp
+class App extends \Slim\App
 {
     use TraitUseModule;
+
+    public function __construct($container = [])
+    {
+        \Slim::$app = $this;
+
+        parent::__construct($container);
+    }
 
     /**
      * @param $id

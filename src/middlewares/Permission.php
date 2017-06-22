@@ -3,8 +3,8 @@
 namespace slimExt\middlewares;
 
 use Psr\Http\Message\ResponseInterface;
-use slimExt\base\Request;
-use slimExt\base\Response;
+use slimExt\web\Request;
+use slimExt\web\Response;
 
 /**
  * Class Permission

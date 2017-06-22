@@ -9,7 +9,7 @@
 namespace slimExt\components;
 
 use Slim;
-use slimExt\base\Response;
+use slimExt\web\Response;
 
 /**
  * Class Controller

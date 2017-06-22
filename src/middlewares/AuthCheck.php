@@ -5,8 +5,8 @@ namespace slimExt\middlewares;
 use Psr\Http\Message\ResponseInterface;
 use slimExt\exceptions\InvalidConfigException;
 use Slim;
-use slimExt\base\Request;
-use slimExt\base\Response;
+use slimExt\web\Request;
+use slimExt\web\Response;
 
 /**
  * Class AuthCheck  - 是否登录检查

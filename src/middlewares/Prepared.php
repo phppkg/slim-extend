@@ -4,8 +4,8 @@ namespace slimExt\middlewares;
 
 use slimExt\exceptions\InvalidConfigException;
 use Slim;
-use slimExt\base\Request;
-use slimExt\base\Response;
+use slimExt\web\Request;
+use slimExt\web\Response;
 
 class Prepared
 {

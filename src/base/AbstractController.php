@@ -11,6 +11,8 @@ namespace slimExt\base;
 use inhere\exceptions\NotFoundException;
 use Psr\Http\Message\ResponseInterface;
 use slimExt\filters\ObjectFilter;
+use slimExt\web\Request;
+use slimExt\web\Response;
 
 /**
  * Class AbstractController

@@ -2,11 +2,8 @@
 
 namespace slimExt\buildIn\commands;
 
+use inhere\console\Command;
 use inhere\library\files\Directory;
-use slimExt\base\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * jump to the project root directory. run:
@@ -16,9 +13,11 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class CommandUpdateCommand extends Command
 {
+    public static $name = 'command:update';
+
     protected function configure()
     {
-        $this
+        /*$this
             ->setName('command:update')
             // 命令描述
             ->setDescription('Will scan <info>@src/commands</info> directory for update application command list.')
@@ -28,20 +27,15 @@ class CommandUpdateCommand extends Command
                 InputOption::VALUE_OPTIONAL,
                 'If set, will force update <info>@project/bootstrap/console/commands.php</info>',
                 false
-            );
+            );*/
     }
 
     protected $targetFile = '@project/bootstrap/console/commands.php';
     protected $tplFile = '@project/resources/templates/commands.tpl';
 
-    /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     * @return int|null
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute($input, $output)
     {
-        $force = $input->getOption('force');
+        $force = $input->boolOpt('force');
         $namespace = '\app\commands\\';
         $dir = \Slim::alias('@src/commands');
 
@@ -74,7 +68,7 @@ class CommandUpdateCommand extends Command
         if (
             !$force &&
             file_exists($targetFile) &&
-            false === $this->getIO()->confirm('Found commands.php, are you want to override it!', false)
+            false === $this->confirm('Found commands.php, are you want to override it!', false)
         ) {
             $output->writeln('  Exists update. Bye!');
 

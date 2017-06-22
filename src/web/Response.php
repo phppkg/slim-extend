@@ -6,7 +6,7 @@
  * Time: 23:05
  */
 
-namespace slimExt\base;
+namespace slimExt\web;
 
 use inhere\slimExt\components\JsonMessage;
 use Slim;
@@ -16,7 +16,7 @@ use Slim\Http\Response as SlimResponse;
  * extension Slim's Response class
  *
  * Class Response
- * @package slimExt\base
+ * @package slimExt\web
  */
 class Response extends SlimResponse
 {

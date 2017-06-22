@@ -8,8 +8,8 @@
 
 namespace slimExt\middlewares;
 
-use slimExt\base\Request;
-use slimExt\base\Response;
+use slimExt\web\Request;
+use slimExt\web\Response;
 
 /**
  * Class ModuleMiddleware
@@ -36,7 +36,7 @@ class ModuleMiddleware
      */
     public function __invoke(Request $request, Response $response, $next)
     {
-        \Slim::$app->currentModule = $this->name;
+        // \Slim::$app->currentModule = $this->name;
 
         return $next($request, $response);
     }

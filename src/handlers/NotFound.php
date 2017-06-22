@@ -20,9 +20,12 @@ class NotFound extends \Slim\Handlers\NotFound
 
     private $viewFile;
 
-    private $appendParams = [];
+    /**
+     * @var array
+     */
+    private $appendParams;
 
-    public function __construct($file, $renderer = [], array $appendParams = [])
+    public function __construct($file, array $renderer = [], array $appendParams = [])
     {
         $this->viewFile = $file;
         $this->renderer = $renderer;
@@ -35,7 +38,7 @@ class NotFound extends \Slim\Handlers\NotFound
             return parent::renderHtmlNotFoundOutput($request);
         }
 
-        $this->appendParams['homeUrl'] = (string)($request->getUri()->withPath('')->withQuery('')->withFragment(''));
+        $this->appendParams['homeUrl'] = (string)$request->getUri()->withPath('')->withQuery('')->withFragment('');
 
         if (($renderer = $this->renderer) && is_object($renderer) && method_exists($renderer, 'fetch')) {
             return $renderer->fetch($this->viewFile, $this->appendParams);
@@ -48,9 +51,7 @@ class NotFound extends \Slim\Handlers\NotFound
     {
         ob_start();
         $this->protectedIncludeScope($viewFile, $data);
-        $output = ob_get_clean();
-
-        return $output;
+        return ob_get_clean();
     }
 
     /**
@@ -59,7 +60,7 @@ class NotFound extends \Slim\Handlers\NotFound
      */
     protected function protectedIncludeScope($template, array $data)
     {
-        extract($data);
+        extract($data, EXTR_OVERWRITE);
         include $template;
     }
 }

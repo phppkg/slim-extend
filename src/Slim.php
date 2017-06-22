@@ -20,7 +20,7 @@
 abstract class Slim
 {
     /**
-     * @var $app \slimExt\base\App
+     * @var $app \slimExt\web\App
      */
     public static $app;
 
@@ -68,7 +68,7 @@ abstract class Slim
 
             // have other partial. e.g: @project/temp/logs
             $realPath = $path;
-            [$alias, $other] = explode(DIR_SEP, $path, 2);
+            list($alias, $other) = explode(DIR_SEP, $path, 2);
 
             if (isset(static::$aliases[$alias])) {
                 $realPath = static::$aliases[$alias] . DIR_SEP . $other;

@@ -48,7 +48,7 @@ class DbFactory
         }
 
         // Create new instance if this name not exists.
-        if (empty(self::$instances[$name]) || $forceNew) {
+        if ($forceNew || empty(self::$instances[$name])) {
             self::$instances[$name] = static::createDbo($dbArgs);
 
             // Set default DB object.
@@ -104,8 +104,8 @@ class DbFactory
     {
         // Sanitize the database connector options.
         $options['driver'] = preg_replace('/[^A-Z0-9_\.-]/i', '', $options['driver']);
-        $options['database'] = (isset($options['database'])) ? $options['database'] : null;
-        $options['select'] = (isset($options['select'])) ? $options['select'] : true;
+        $options['database'] = $options['database'] ?? null;
+        $options['select'] = $options['select'] ?? true;
 
         // Use custom Resource
 //        $resource = isset($options['resource']) ? $options['resource'] : null;

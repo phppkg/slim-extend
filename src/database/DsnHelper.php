@@ -30,9 +30,8 @@ abstract class DsnHelper
     {
         // Parse DSN to array
         $dsn = str_replace(';', "\n", $dsn);
-        $dsn = parse_ini_string($dsn);
 
-        return $dsn;
+        return parse_ini_string($dsn);
     }
 
     /**
@@ -42,11 +41,11 @@ abstract class DsnHelper
      * @throws  \DomainException
      * @return  string
      */
-    public static function getDsn($driver, $options = array())
+    public static function getDsn($driver, array $options = [])
     {
         self::$options = $options;
 
-        if (!is_callable(array(get_called_class(), $driver))) {
+        if (!is_callable([static::class, $driver])) {
             throw new \DomainException('The ' . $driver . ' driver is not supported.');
         }
 
@@ -54,7 +53,7 @@ abstract class DsnHelper
 
         $dsn = strtr($dsn, $replace);
 
-        self::$options = array();
+        self::$options = [];
 
         return $dsn;
     }
@@ -65,14 +64,14 @@ abstract class DsnHelper
      */
     protected static function cubrid()
     {
-        return array(
+        return [
             'cubrid:host={HOST};port={PORT};dbname={DBNAME}',
-            array(
+            [
                 '{HOST}' => static::getOption('host', 'localhost'),
                 '{PORT}' => static::getOption('port', 33000),
                 '{DBNAME}' => static::getOption('database')
-            )
-        );
+            ]
+        ];
     }
 
     /**
@@ -81,14 +80,14 @@ abstract class DsnHelper
      */
     protected static function dblib()
     {
-        return array(
+        return [
             'dblib:host={HOST};port={PORT};dbname={DBNAME}',
-            array(
+            [
                 '{HOST}' => static::getOption('host', 'localhost'),
                 '{PORT}' => static::getOption('port', 1433),
                 '{DBNAME}' => static::getOption('database')
-            )
-        );
+            ]
+        ];
     }
 
     /**
@@ -97,12 +96,12 @@ abstract class DsnHelper
      */
     protected static function firebird()
     {
-        return array(
+        return [
             'firebird:dbname={DBNAME}',
-            array(
+            [
                 '{DBNAME}' => static::getOption('database')
-            )
-        );
+            ]
+        ];
     }
 
     /**
@@ -112,22 +111,22 @@ abstract class DsnHelper
     protected static function ibm()
     {
         if ($dsn = static::getOption('dsn')) {
-            return array(
+            return [
                 'ibm:DSN={DSN}',
-                array(
+                [
                     '{DSN}' => $dsn
-                )
-            );
+                ]
+            ];
         }
 
-        return array(
+        return [
             'ibm:hostname={HOST};port={PORT};database={DBNAME}',
-            array(
+            [
                 '{HOST}' => static::getOption('host', 'localhost'),
                 '{PORT}' => static::getOption('port', 56789),
                 '{DBNAME}' => static::getOption('database')
-            )
-        );
+            ]
+        ];
     }
 
     /**
@@ -137,24 +136,24 @@ abstract class DsnHelper
     protected static function informix()
     {
         if ($dsn = static::getOption('dsn')) {
-            return array(
+            return [
                 'informix:DSN={DSN}',
-                array(
+                [
                     '{DSN}' => $dsn
-                )
-            );
+                ]
+            ];
         }
 
-        return array(
+        return [
             'informix:host={HOST};service={PORT};database={DBNAME};server={SERVER};protocol={PROTOCOL}',
-            array(
+            [
                 '{HOST}' => static::getOption('host', 'localhost'),
                 '{PORT}' => static::getOption('port', 1526),
                 '{DBNAME}' => static::getOption('database'),
                 '{SERVER}' => static::getOption('server'),
                 '{PROTOCOL}' => static::getOption('protocol')
-            )
-        );
+            ]
+        ];
     }
 
     /**
@@ -163,14 +162,14 @@ abstract class DsnHelper
      */
     protected static function mssql()
     {
-        return array(
+        return [
             'mssql:host={HOST};port={PORT};dbname={DBNAME}',
-            array(
+            [
                 '{HOST}' => static::getOption('host', 'localhost'),
                 '{PORT}' => static::getOption('port', 1433),
                 '{DBNAME}' => static::getOption('database')
-            )
-        );
+            ]
+        ];
     }
 
     /**
@@ -179,15 +178,15 @@ abstract class DsnHelper
      */
     protected static function mysql()
     {
-        return array(
+        return [
             'mysql:host={HOST};port={PORT};dbname={DBNAME};charset={CHARSET}',
-            array(
+            [
                 '{HOST}' => static::getOption('host', 'localhost'),
                 '{PORT}' => static::getOption('port', 3306),
                 '{DBNAME}' => static::getOption('database'),
                 '{CHARSET}' => static::getOption('charset', 'utf8')
-            )
-        );
+            ]
+        ];
     }
 
     /**
@@ -197,24 +196,24 @@ abstract class DsnHelper
     protected static function oci()
     {
         if ($dsn = static::getOption('dsn')) {
-            return array(
+            return [
                 'oci:dbname={DSN};charset={CHARSET}',
-                array(
+                [
                     '{DSN}' => $dsn,
                     '{CHARSET}' => static::getOption('charset', 'AL32UTF8')
-                )
-            );
+                ]
+            ];
         }
 
-        return array(
+        return [
             'oci:dbname=//#HOST#:#PORT#/#DBNAME};charset={CHARSET}',
-            array(
+            [
                 '{HOST}' => static::getOption('host', 'localhost'),
                 '{PORT}' => static::getOption('port', 56789),
                 '{DBNAME}' => static::getOption('database'),
                 '{CHARSET}' => static::getOption('charset', 'AL32UTF8')
-            )
-        );
+            ]
+        ];
     }
 
     /**
@@ -223,14 +222,14 @@ abstract class DsnHelper
      */
     protected static function odbc()
     {
-        return array(
+        return [
             'odbc:DSN={DSN};UID:#USER};PWD={PASSWORD}',
-            array(
+            [
                 '{HOST}' => static::getOption('host', 'localhost'),
                 '{USER}' => static::getOption('user', 1433),
                 '{PASSWORD}' => static::getOption('password')
-            )
-        );
+            ]
+        ];
     }
 
     /**
@@ -239,14 +238,14 @@ abstract class DsnHelper
      */
     protected static function pgsql()
     {
-        return array(
+        return [
             'pgsql:host={HOST};port={PORT};dbname={DBNAME}',
-            array(
+            [
                 '{HOST}' => static::getOption('host', 'localhost'),
                 '{PORT}' => static::getOption('port', 5432),
                 '{DBNAME}' => static::getOption('database', 'postgres')
-            )
-        );
+            ]
+        ];
     }
 
     /**
@@ -264,20 +263,16 @@ abstract class DsnHelper
      */
     protected static function sqlite()
     {
-        $version = static::getOption('version');
+        $version = (int)static::getOption('version');
 
-        if ($version == 2) {
-            $format = 'sqlite2:{DBNAME}';
-        } else {
-            $format = 'sqlite:{DBNAME}';
-        }
+        $format = $version === 2 ? 'sqlite2:{DBNAME}' : 'sqlite:{DBNAME}';
 
-        return array(
+        return [
             $format,
-            array(
+            [
                 '{DBNAME}' => static::getOption('database')
-            )
-        );
+            ]
+        ];
     }
 
     /**
@@ -286,14 +281,14 @@ abstract class DsnHelper
      */
     protected static function sybase()
     {
-        return array(
+        return [
             'pgsql:host={HOST};port={PORT};dbname={DBNAME}',
-            array(
+            [
                 '{HOST}' => static::getOption('host', 'localhost'),
                 '{PORT}' => static::getOption('port', 1433),
                 '{DBNAME}' => static::getOption('database')
-            )
-        );
+            ]
+        ];
     }
 
     /**
@@ -302,13 +297,13 @@ abstract class DsnHelper
      */
     protected static function fourd()
     {
-        return array(
+        return [
             '4D:host={HOST};charset=UTF-8',
-            array(
+            [
                 '{HOST}' => static::getOption('host', 'localhost'),
                 '{CHARSET}' => static::getOption('charset', 'UTF-8')
-            )
-        );
+            ]
+        ];
     }
 
     /**
@@ -319,7 +314,7 @@ abstract class DsnHelper
      */
     protected static function getOption($name, $default = null)
     {
-        return isset(self::$options[$name]) ? self::$options[$name] : $default;
+        return self::$options[$name] ?? $default;
     }
 }
 

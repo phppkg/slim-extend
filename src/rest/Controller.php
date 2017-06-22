@@ -4,8 +4,8 @@ namespace slimExt\rest;
 
 use inhere\exceptions\UnknownMethodException;
 use slimExt\base\AbstractController;
-use slimExt\base\Request;
-use slimExt\base\Response;
+use slimExt\web\Request;
+use slimExt\web\Response;
 
 /**
  * Class RestFulController
@@ -241,7 +241,7 @@ abstract class Controller extends AbstractController
 
         // get.search get|post.search
         if (strpos($key, '.')) {
-            [$m, $a] = explode('.', $key);
+            list($m, $a) = explode('.', $key);
 
             $m = strtolower($m);
 
@@ -285,7 +285,7 @@ abstract class Controller extends AbstractController
     protected function processInvoke(array $args)
     {
         // default restFul action name
-        [$action, $error] = $this->handleMethodMapping($this->request, $args);
+        list($action, $error) = $this->handleMethodMapping($this->request, $args);
 
         if ($error) {
             return $this->errorHandler($error);

@@ -2,6 +2,7 @@
 
 namespace slimExt\base;
 
+use slimExt\web\App;
 use slimExt\web\Module;
 
 /**

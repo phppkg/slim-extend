@@ -9,9 +9,7 @@
 namespace slimExt\web;
 
 use inhere\library\helpers\EnvHelper;
-use inhere\library\helpers\PhpHelper;
 use Slim;
-use slimExt\base\App;
 use slimExt\Collection;
 
 /**

@@ -9,11 +9,7 @@
 namespace slimExt\buildIn\commands;
 
 use inhere\libraryPlus\asset\AssetPublisher;
-use slimExt\base\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
+use inhere\console\Command;
 
 /**
  * Class AssetPublishCommand
@@ -21,13 +17,14 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class AssetPublishCommand extends Command
 {
+    public static $name = 'asset:publish';
+
     /**
      * {@inheritDoc}
      */
     protected function configure()
     {
-        $this
-            ->setName('asset:publish')
+        /*$this
             // 命令描述
             ->setDescription('publish static asset to web access directory. [<info>built in</info>]
 command example:
@@ -71,24 +68,18 @@ command example:
                 InputOption::VALUE_OPTIONAL,
                 'If set, will print published asset list',
                 true
-            );
+            );*/
     }
 
-    protected function interact(InputInterface $input, OutputInterface $output)
+    protected function execute($input, $output)
     {
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
-        $sourcePath = \Slim::alias($input->getOption('source-path'));
-        $publishPath = \Slim::alias($input->getOption('publish-path'));
+        $sourcePath = \Slim::alias($input->getOpt('source-path'));
+        $publishPath = \Slim::alias($input->getOpt('publish-path'));
 
         $publisher = new AssetPublisher([
             'sourcePath' => $sourcePath,
             'publishPath' => $publishPath,
         ]);
-
-        $io = $this->getIO();
 
         /*
          e.g.
@@ -99,35 +90,33 @@ command example:
         ]
          */
         $asset = $input->getArgument('asset');
-        $override = $input->getOption('override');
+        $override = $input->boolOpt('override');
 
-        $io->title('    Asset Publish Information    ');
-        $io->writeln([
+        $output->title('    Asset Publish Information    ');
+        $output->write([
             'Will publish: [<info>' . ($asset ? implode(',', $asset) : 'ALL FILES') . '</info>]',
             "source in path: <info>$sourcePath</info>",
             "publish to path: <info>$publishPath</info>",
             'override existing asset: <info>' . ($override ? 'Yes' : 'No') . '</info>',
         ]);
 
-        $answer = $io->confirm('Are you sure publish?', true);
-
-        if (!$answer) {
-            $this->info($output, 'You want\'t to do publish, at now. GoodBye!!');
+        if (!$this->confirm('Are you sure publish?')) {
+            $output->info('You want\'t to do publish, at now. GoodBye!!');
 
             return 1;
         }
 
         $publisher->add($asset)->publish();
 
-        if ($input->getOption('show-published')) {
+        if ($input->boolOpt('show-published')) {
             $published = $publisher->getPublishedAssets();
 
             // $output->writeln('<info>-- Created asset publish:</info>');
-            $io->section('-- Created asset publish:');
+            $output->title('-- Created asset publish:');
             $output->writeln($published['created'] ?: 'No file created.');
             $output->writeln('');
 
-            $io->section('-- Skipped asset publish:');
+            $output->title('-- Skipped asset publish:');
             $output->writeln($published['skipped'] ?: 'No file skipped.');
             $output->writeln('');
         }

@@ -5,7 +5,6 @@ namespace slimExt\web;
 use Psr\Http\Message\ResponseInterface;
 use Slim;
 use slimExt\base\AbstractController;
-use slimExt\base\Response;
 use slimExt\exceptions\NotFoundException;
 use slimExt\helpers\TwigHelper;
 
@@ -129,7 +128,7 @@ abstract class Controller extends AbstractController
         $view = $this->getViewPath($view, $settings);
 
         // add tpl global var
-        [$varKey, $varList] = $this->handleGlobalVar($settings);
+        list($varKey, $varList) = $this->handleGlobalVar($settings);
         $args[$varKey] = $varList;
 
         $this->appendVarToView($args);
@@ -157,7 +156,7 @@ abstract class Controller extends AbstractController
         $twig = Slim::get('twigRenderer');
 
         $globalVar = $this->addTwigGlobalVar();
-        [$globalKey, $globalVar] = $this->handleGlobalVar($settings, $globalVar);
+        list($globalKey, $globalVar) = $this->handleGlobalVar($settings, $globalVar);
 
         // add custom extension
         // $twig->addExtension(new \slimExt\twig\TwigExtension( $c['request'], $c['csrf'] ));

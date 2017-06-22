@@ -9,8 +9,8 @@
 namespace slimExt\filters;
 
 use inhere\library\StdObject;
-use slimExt\base\Request;
-use slimExt\base\Response;
+use slimExt\web\Request;
+use slimExt\web\Response;
 
 /**
  * Class BaseFilter

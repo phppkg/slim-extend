@@ -79,24 +79,24 @@ class AccessFilter extends ObjectFilter
             }
 
             // don't match current action
-            if (self::MATCH_ALL !== $actions[0] || !in_array($action, $actions)) {
+            if (self::MATCH_ALL !== $actions[0] || !in_array($action, $actions, true)) {
                 continue;
             }
 
             $allow = ArrayHelper::get($rule, 'allow', false);
 
             // find match all user, char: *
-            if (false !== array_search(self::MATCH_ALL, $roles)) {
+            if (in_array(self::MATCH_ALL, $roles, true)) {
                 break;
             }
 
             // find match logged user, char: @
-            if (false !== array_search(self::MATCH_LOGGED, $roles) && $user->id) {
+            if ($user->id && in_array(self::MATCH_LOGGED, $roles, true)) {
                 break;
             }
 
             // find match guest user, char: ?
-            if (false !== array_search(self::MATCH_LOGGED, $roles) && !$user->id) {
+            if (!$user->id && in_array(self::MATCH_LOGGED, $roles, true)) {
                 break;
             }
 

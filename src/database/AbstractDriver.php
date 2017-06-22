@@ -35,9 +35,9 @@ abstract class AbstractDriver
     private $cursor;
 
     /**
-     * @var
+     * @var array
      */
-    private $options = [];
+    private $options;
 
     /**
      * @var string|Query
@@ -82,10 +82,8 @@ abstract class AbstractDriver
             'driverOptions' => array()
         );
 
-        $options = array_merge($defaultOptions, $options);
-
-        $this->options = $options;
         $this->pdo = $pdo;
+        $this->options = array_merge($defaultOptions, $options);
         $this->driverOptions = $this->getOption('driverOptions');
 
         $this->debug = $this->getOption('debug', false);
@@ -126,7 +124,12 @@ abstract class AbstractDriver
 
 ////////////////////////////////////// Read record //////////////////////////////////////
 
-    public function loadAll($key = null, $class = '\\stdClass')
+    /**
+     * @param null|string $key
+     * @param string $class
+     * @return array
+     */
+    public function loadAll($key = null, $class = \stdClass::class)
     {
         if (strtolower($class) === 'array') {
             return $this->loadArrayList($key);
@@ -144,7 +147,7 @@ abstract class AbstractDriver
      * @param string $class
      * @return  mixed
      */
-    public function loadOne($class = '\\stdClass')
+    public function loadOne($class = \stdClass::class)
     {
         if (strtolower($class) === 'array') {
             return $this->loadArray();
@@ -312,7 +315,7 @@ abstract class AbstractDriver
      */
     public function fetchAssoc()
     {
-        return $this->fetch(\PDO::FETCH_ASSOC);
+        return $this->fetch();// \PDO::FETCH_ASSOC
     }
 
     /**
@@ -320,7 +323,7 @@ abstract class AbstractDriver
      * @param   string $class Unused, only necessary so method signature will be the same as parent.
      * @return  mixed   Either the next row from the result set or false if there are no more rows.
      */
-    public function fetchObject($class = '\\stdClass')
+    public function fetchObject($class = \stdClass::class)
     {
         return $this->getCursor()->fetchObject($class);
     }
@@ -363,7 +366,7 @@ abstract class AbstractDriver
      * (?, ?, ?, 1, 1, '')
      * ```
      * @param string $table
-     * @param array|object $data
+     * @param array|\Iterator $data
      * @param string $priKey
      * @return array|bool|int
      * @throws InvalidArgumentException
@@ -385,7 +388,7 @@ abstract class AbstractDriver
             }
 
             // Only process non-null scalars.
-            if (is_array($v) or is_object($v) or $v === null) {
+            if (is_array($v) || is_object($v) || $v === null) {
                 continue;
             }
 
@@ -522,7 +525,7 @@ abstract class AbstractDriver
             }
 
             // Set the primary key to the WHERE clause instead of a field to update.
-            if (in_array($k, $key)) {
+            if (in_array($k, $key, true)) {
                 $query->where($query->quoteName($k) . '=' . $query->quote($v));
 
                 continue;
@@ -585,12 +588,12 @@ abstract class AbstractDriver
      *                           - `new Compare('id', '%Flower%', 'LIKE')` => 'id LIKE "%Flower%"'
      * @return  int
      */
-    public function updateBatch($table, $data, $conditions = [])
+    public function updateBatch($table, $data, $conditions = null)
     {
         $query = $this->newQuery(true);
 
         // Build conditions
-        $query = QueryHelper::buildWheres($query, $conditions);
+        $query = QueryHelper::buildWheres($query, (array)$conditions);
         $hasField = false;
 
         foreach ((array)$data as $field => $value) {
@@ -624,9 +627,9 @@ abstract class AbstractDriver
         }
 
         if (is_array($data)) {
-            $id = isset($data[$key]) ? $data[$key] : null;
+            $id = $data[$key] ?? null;
         } else {
-            $id = isset($data->$key) ? $data->$key : null;
+            $id = $data->$key ?? null;
         }
 
         if ($id) {
@@ -784,7 +787,7 @@ abstract class AbstractDriver
      * @param array $driverOptions
      * @return $this
      */
-    public function setQuery($query, $driverOptions = [])
+    public function setQuery($query, array $driverOptions = [])
     {
         $this->connect()->freeResult();
         $this->driverOptions = $driverOptions;
@@ -837,9 +840,9 @@ abstract class AbstractDriver
 
         // Bind the variables:
         if ($this->query instanceof Query\PreparableInterface) {
-            $bounded =& $this->query->getBounded();
+            $bounded = &$this->query->getBounded();
 
-            foreach ($bounded as $key => $data) {
+            foreach ((array)$bounded as $key => $data) {
                 $this->cursor->bindParam($key, $data->value, $data->dataType, $data->length, $data->driverOptions);
                 $boundedStr .= "$key->{$data->value},";
             }
@@ -861,19 +864,31 @@ abstract class AbstractDriver
         return $this;
     }
 
+    /**
+     * @param bool $forceNew
+     * @return Query
+     */
     public function newQuery($forceNew = false)
     {
         if ($forceNew || self::$newQueryCache === null) {
             self::$newQueryCache = new Query($this->pdo);
         }
+
         return self::$newQueryCache;
     }
 
+    /**
+     * @return mixed
+     */
     public function dbLogger()
     {
         return Slim::get('dbLogger');
     }
 
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function replaceTablePrefix($query)
     {
         return str_replace($this->prefixChar, $this->getOption('prefix'), (string)$query);
@@ -945,7 +960,7 @@ abstract class AbstractDriver
 
     public function getOption($name, $default = '')
     {
-        return isset($this->options[$name]) ? $this->options[$name] : $default;
+        return $this->options[$name] ?? $default;
     }
 
     public function getDriver()

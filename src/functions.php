@@ -6,7 +6,7 @@
 
 /**
  * @param null|string $name
- * @return mixed|\slimExt\base\App
+ * @return mixed|\slimExt\web\App
  */
 function app($name = null)
 {
@@ -58,8 +58,7 @@ function is_pdt_env()
  * @param mixed $msg
  * @return array|bool
  */
-function alert_messages($msg = '')
-{
+function alert_messages($msg = '') {
     // get all alert message
     if (!$msg) {
         return Slim::$app->request->getMessage();
@@ -80,20 +79,19 @@ function alert_messages($msg = '')
  * @return array
  * @throws \RuntimeException
  */
-function format_messages($data, $code = 0, $msg = '')
-{
+function format_messages($data, $code = 0, $msg = '') {
+    $jsonData = [
+        'code' => (int)$code,
+        'msg' => $msg ?: 'successful!',
+        'data' => (array)$data,
+    ];
+
     // if $data is integer format_messages(int $code, string $msg )
     if (is_numeric($data)) {
         $jsonData = [
             'code' => (int)$data,
             'msg' => $code,
             'data' => [],
-        ];
-    } else {
-        $jsonData = [
-            'code' => (int)$code,
-            'msg' => $msg ?: 'successful!',
-            'data' => (array)$data,
         ];
     }
 
@@ -104,10 +102,9 @@ function format_messages($data, $code = 0, $msg = '')
  * suggest use : `$response->withRedirect($url, 301);`
  * @param $url
  * @param int $status
- * @return slimExt\base\Response
+ * @return slimExt\web\Response
  */
-function redirect_to($url = '/', $status = 301)
-{
+function redirect_to($url = '/', $status = 301) {
     return Slim::get('response')->withStatus($status)->withHeader('Location', $url);
 }
 
@@ -121,13 +118,11 @@ function get_extension($file)
 }
 
 if (!function_exists('slim_request')) {
-    function slim_request($name = null, $default = null)
-    {
+    function slim_request($name = null, $default = null) {
         return $name === null ? \Slim::$app->request : \Slim::$app->request->getParam($name, $default);
     }
 
-    function slim_response()
-    {
+    function slim_response() {
         return \Slim::$app->response;
     }
 }

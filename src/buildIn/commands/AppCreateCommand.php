@@ -2,12 +2,7 @@
 
 namespace slimExt\buildIn\commands;
 
-use Slim;
-use slimExt\base\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
+use inhere\console\Command;
 
 /**
  * jump to the project root directory. run:
@@ -16,33 +11,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class AppCreateCommand extends Command
 {
-    /**
-     * {@inheritDoc}
-     */
-    protected function configure()
-    {
-        $this
-            ->setName('app:create')
-            ->setDescription('build base structure of the project')
-            ->addArgument(
-                'type',
-                InputArgument::REQUIRED,
-                'Who do you want to clear cache of type?'
-            )
-            ->addOption(
-                'yell',
-                null,
-                InputOption::VALUE_NONE,
-                'If set, the task will yell in uppercase letters'
-            );
-    }
-
+    public static $description = 'build base structure of the project';
 
     /**
      * {@inheritDoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute($input, $output)
     {
-        $output->writeln('hello');
+        $output->write('hello');
     }
 }
