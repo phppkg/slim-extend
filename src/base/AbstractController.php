@@ -52,6 +52,21 @@ abstract class AbstractController
         // Some init logic
     }
 
+    /**
+     * {@inheritdoc}
+     * @see Response::withJson()
+     */
+    protected function renderJson($data, $code = null, $msg = '', $status = 200)
+    {
+        return $this->response->withJson($data, $code, $msg, $status);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @return ResponseInterface
+     */
     public function __invoke(Request $request, Response $response, array $args)
     {
         // setting...

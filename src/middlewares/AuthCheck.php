@@ -3,7 +3,7 @@
 namespace slimExt\middlewares;
 
 use Psr\Http\Message\ResponseInterface;
-use slimExt\exceptions\InvalidConfigException;
+use inhere\exceptions\InvalidConfigException;
 use Slim;
 use slimExt\web\Request;
 use slimExt\web\Response;

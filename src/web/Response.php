@@ -25,7 +25,7 @@ class Response extends SlimResponse
      * @param int $code
      * @param string $msg
      * @param int $status
-     * @return SlimResponse
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function withJson($data, $code = null, $msg = '', $status = 200)
     {
@@ -44,7 +44,7 @@ class Response extends SlimResponse
      * @param mixed $data
      * @param int $status
      * @param int $encodingOptions
-     * @return SlimResponse
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function withRawJson($data, $status = 200, $encodingOptions = 0)
     {
@@ -86,7 +86,7 @@ class Response extends SlimResponse
      * response to the client.
      *
      * @param  string|array $msg The msg
-     * @return Response
+     * @return static
      * @throws \InvalidArgumentException
      */
     public function withMessage($msg)

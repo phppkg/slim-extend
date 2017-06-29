@@ -5,7 +5,7 @@ namespace slimExt\web;
 use Psr\Http\Message\ResponseInterface;
 use Slim;
 use slimExt\base\AbstractController;
-use slimExt\exceptions\NotFoundException;
+use inhere\exceptions\NotFoundException;
 use slimExt\helpers\TwigHelper;
 
 /**

@@ -30,15 +30,17 @@ use slimExt\web\Response;
  * ```
  *
  * in routes
+ *
  * ```
- * $app->any('/api/test[/{argument}]', api\Book::class);
+ * $app->any('/api/test[/{action}]', api\Book::class);
  * ```
  */
 abstract class Controller extends AbstractController
 {
     const DEFAULT_ERR_CODE = 2;
 
-    const RESOURCE_ARG_KEY = 'argument';
+    // $app->any('/api/test[/{action}]', api\Book::class);
+    const RESOURCE_ARG_KEY = 'action';
 
     // match request like GET /users (get all resource)
     const MARK_MORE = '*';
@@ -58,7 +60,18 @@ abstract class Controller extends AbstractController
      */
     private $actionSuffix = 'Action';
 
+    /**
+     * @var array
+     */
     protected $except = [];
+
+    /**
+     * allow more. like 'get*' 'head*'
+     * @var array
+     */
+    private static $allowMore = [
+        'get', 'head', 'options'
+    ];
 
     /**
      * @return Response
@@ -178,23 +191,16 @@ abstract class Controller extends AbstractController
      * @return string
      * @throws UnknownMethodException
      */
-    protected function handleMethodMapping($request, array $args)
+    private function handleMethodMapping($request, array $args)
     {
         // default restFul action name, equals to REQUEST_METHOD
         $method = strtolower($request->getMethod());
         $mapping = $this->methodMapping();
 
         if (!$mapping || !is_array($mapping)) {
-            throw new UnknownMethodException('No class method allow the called.');
+            throw new UnknownMethodException('No any accessible resource method!');
         }
 
-        $map = [];
-        foreach ($mapping as $key => $item) {
-            $this->_parseSpecialSetting($key, $item, $map);
-        }
-
-        $action = $error = '';
-        $allowMore = ['get', 'head', 'options'];
         $argument = !empty($args[self::RESOURCE_ARG_KEY]) ? trim($args[self::RESOURCE_ARG_KEY]) : '';
 
         // convert 'first-second' to 'firstSecond'
@@ -203,16 +209,23 @@ abstract class Controller extends AbstractController
             $argument = str_replace(' ', '', lcfirst($argument));
         }
 
-        $extraKey = $method . self::M2A_CHAR . $argument;
+        $map = $this->parseMethodMapping($mapping);
 
         // match like 'get.search' extra method
-        if ($argument && isset($map[$extraKey])) {
-            return [trim($map[$extraKey]), $error];
+        if ($argument) {
+            $extraKey = $method . self::M2A_CHAR . $argument;
+
+            if (isset($map[$extraKey])) {
+                return [$map[$extraKey], null];
+            }
         }
+
+        $action = $error = '';
+        $moreKey = $method . self::MARK_MORE;
 
         foreach ($map as $key => $value) {
             // like 'get*' 'head*'
-            if (!$argument && $key === $method . self::MARK_MORE && in_array($method, $allowMore, true)) {
+            if (!$argument && $key === $moreKey && in_array($method, self::$allowMore, true)) {
                 $action = $value;
 
                 // have argument. like '/users/1' '/users/username'
@@ -229,42 +242,51 @@ abstract class Controller extends AbstractController
         return [$action, $error];
     }
 
+//    private function getParsedMapping()
+//    {
+//    }
+
     /**
-     * @param $key
-     * @param $item
-     * @param $map
+     * @param array $mapping
+     * @return array
      */
-    private function _parseSpecialSetting($key, $item, &$map)
+    private function parseMethodMapping(array $mapping)
     {
-        $key = str_replace(' ', '', $key);
-        $item = trim($item);
+        $map = [];
 
-        // get.search get|post.search
-        if (strpos($key, '.')) {
-            list($m, $a) = explode('.', $key);
+        foreach ($mapping as $key => $item) {
+            $key = str_replace(' ', '', $key);
+            $item = trim($item);
 
-            $m = strtolower($m);
+            // get.search get|post.search
+            if (strpos($key, '.')) {
+                list($m, $a) = explode('.', $key);
 
-            if (strpos($m, '|')) {
-                foreach (explode('|', $m) as $k) {
-                    $map[$k . self::M2A_CHAR . $a] = $item;
+                $m = strtolower($m);
+
+                if (strpos($m, '|')) {
+                    foreach (explode('|', $m) as $k) {
+                        $map[$k . self::M2A_CHAR . $a] = $item;
+                    }
+                } else {
+                    $map[$m . self::M2A_CHAR . $a] = $item;
+                }
+
+                // get|post => index
+            } elseif (strpos($key, '|')) {
+                $key = strtolower($key);
+
+                foreach (explode('|', $key) as $k) {
+                    $map[$k] = $item;
                 }
             } else {
-                $map[$m . self::M2A_CHAR . $a] = $item;
+                $key = strtolower($key);
+
+                $map[$key] = $item;
             }
-
-            // get|post => index
-        } elseif (strpos($key, '|')) {
-            $key = strtolower($key);
-
-            foreach (explode('|', $key) as $k) {
-                $map[$k] = $item;
-            }
-        } else {
-            $key = strtolower($key);
-
-            $map[$key] = $item;
         }
+
+        return $map;
     }
 
     /**********************************************************
@@ -274,6 +296,7 @@ abstract class Controller extends AbstractController
     /**
      * e.g.
      * define route:
+     *
      * ```
      *   $app->any('/test[/{resource}]', controllers\api\Test::class);
      * ```
