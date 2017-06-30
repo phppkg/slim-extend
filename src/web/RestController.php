@@ -37,6 +37,8 @@ use Psr\Http\Message\ResponseInterface;
  * in routes
  *
  * ```
+ * $app->rest('/api/books', Book::class);
+ * OR
  * $app->any('/api/books[/{resource}]', Book::class);
  * ```
  */
@@ -202,13 +204,6 @@ abstract class RestController extends AbstractController
      **********************************************************/
 
     /**
-     * e.g.
-     * define route:
-     *
-     * ```
-     *   $app->any('/test[/{resource}]', controllers\api\Test::class);
-     * ```
-     *
      * @param array $args
      * @return \Psr\Http\Message\ResponseInterface
      * @throws \Exception
@@ -222,13 +217,17 @@ abstract class RestController extends AbstractController
             return $this->errorHandler($error);
         }
 
+        if (!$action) {
+            return $this->response->withJson([], __LINE__, 'No resource method are available!', 404);
+        }
+
         $actionMethod = $action . ucfirst($this->actionSuffix);
 
         if (!method_exists($this, $actionMethod)) {
             // throw new NotFoundException('Error Processing Request, Action [' . $action . '] don\'t exists!');
             $msg = 'Error Processing Request, resource method [' . $action . '] don\'t exists!';
 
-            return $this->response->withJson([], -404, $msg, 404);
+            return $this->response->withJson([], __LINE__, $msg, 404);
         }
 
         // if enable request action security filter

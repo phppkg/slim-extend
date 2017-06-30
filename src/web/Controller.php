@@ -431,6 +431,10 @@ abstract class Controller extends AbstractController
     {
         $action = !empty($args['action']) ? $args['action'] : $this->defaultAction;
 
+        if (!$action) {
+            throw new NotFoundException('The name of the method is not specified!', __LINE__);
+        }
+
         // convert 'first-second' to 'firstSecond'
         if (strpos($action, '-')) {
             $action = ucwords(str_replace('-', ' ', $action));
@@ -457,25 +461,6 @@ abstract class Controller extends AbstractController
         }
 
         return $resp;
-    }
-
-    /**
-     * @inheirtdoc
-     */
-    protected function onSecurityFilterFail($result)
-    {
-        if ($resp instanceof ResponseInterface) {
-            return $resp;
-        }
-
-        $msg = $resp && is_string($resp) ? $resp : 'Access is not allowed';
-
-        // when is xhr
-        if ($this->request->isXhr()) {
-            return $this->response->withJson(-403, $msg , 403);
-        }
-
-        return $this->response->withGoBack('/')->withMessage($msg);
     }
 
     /**
