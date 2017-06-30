@@ -14,7 +14,7 @@ Some Feature :
 - Monolog
 - Pimple Dependency Injection Container
 - Controller layer for MVC
-- REST Controller
+- RESTFul Controller
 - Model layer, database query builder.
 - Tracy Errors Handler(by whoops)
 
@@ -28,17 +28,6 @@ _require_ add
 
 ```
 "inhere/slim-extend": "dev-master",
-```
-
-_repositories_ add 
-
-```
-"repositories": [
-        {
-            "type": "git",
-            "url": "https://github.com/inhere/slim-extend"
-        }
-    ]
 ```
 
 run: `composer update`

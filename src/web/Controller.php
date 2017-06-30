@@ -446,7 +446,7 @@ abstract class Controller extends AbstractController
 
         // if enable request action security filter
         if (true !== ($result = $this->doSecurityFilter($action))) {
-            return $result;
+            return $this->onSecurityFilterFail($result);
         }
 
         $resp = $this->$actionMethod($args);
@@ -457,6 +457,25 @@ abstract class Controller extends AbstractController
         }
 
         return $resp;
+    }
+
+    /**
+     * @inheirtdoc
+     */
+    protected function onSecurityFilterFail($result)
+    {
+        if ($resp instanceof ResponseInterface) {
+            return $resp;
+        }
+
+        $msg = $resp && is_string($resp) ? $resp : 'Access is not allowed';
+
+        // when is xhr
+        if ($this->request->isXhr()) {
+            return $this->response->withJson(-403, $msg , 403);
+        }
+
+        return $this->response->withGoBack('/')->withMessage($msg);
     }
 
     /**

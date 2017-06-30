@@ -16,8 +16,9 @@ use slimExt\web\Response;
  * Class BaseFilter
  * @package slimExt\filters
  */
-abstract class ObjectFilter extends StdObject
+abstract class BaseFilter extends StdObject
 {
+    // all user
     const MATCH_ALL = '*';
 
     // logged user
@@ -40,7 +41,7 @@ abstract class ObjectFilter extends StdObject
      * @param Request $request
      * @param Response $response
      * @param $action
-     * @return bool
+     * @return mixed
      */
     public function __invoke(Request $request, Response $response, $action)
     {
@@ -52,10 +53,14 @@ abstract class ObjectFilter extends StdObject
     }
 
     /**
-     * how to get controller instance?
-     *  `Slim::get('controller')`
+     * how to get controller instance? use `\Slim::get('controller')`
      * @param string $action
-     * @return bool
+     * @return mixed
+     *
+     * Return:
+     *     bool     True is allow access, False is Deny
+     *     string   Deny, is the error message
+     *     Response Deny, A Response instance
      */
     abstract protected function doFilter($action);
 }

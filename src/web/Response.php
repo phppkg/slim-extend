@@ -10,7 +10,6 @@ namespace slimExt\web;
 
 use inhere\slimExt\components\JsonMessage;
 use Slim;
-use Slim\Http\Response as SlimResponse;
 
 /**
  * extension Slim's Response class
@@ -18,7 +17,7 @@ use Slim\Http\Response as SlimResponse;
  * Class Response
  * @package slimExt\web
  */
-class Response extends SlimResponse
+class Response extends \inhere\http\Response
 {
     /**
      * @param mixed $data
@@ -27,10 +26,8 @@ class Response extends SlimResponse
      * @param int $status
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function withJson($data, $code = null, $msg = '', $status = 200)
+    public function withJson($data, $code = 0, $msg = '', $status = 200)
     {
-        $code = null === $code ? 0 : (int)$code;
-
         if ($data instanceof JsonMessage) {
             return parent::withJson($data, $status);
         }

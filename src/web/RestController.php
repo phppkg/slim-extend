@@ -9,6 +9,7 @@
 namespace slimExt\web;
 
 use inhere\exceptions\UnknownMethodException;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Class RestFulController
@@ -19,15 +20,15 @@ use inhere\exceptions\UnknownMethodException;
  * ```
  * class Book extends slimExt\web\RestController
  * {
- *     public function getsAction($args)
+ *     public function getsAction()
  *     {}
- *     public function getAction($args)
+ *     public function getAction($id)
  *     {}
- *     public function postAction($args)
+ *     public function postAction()
  *     {}
- *     public function putAction($args)
+ *     public function putAction($id)
  *     {}
- *     public function deleteAction($args)
+ *     public function deleteAction($id)
  *     {}
  *     ... ...
  * }
@@ -36,15 +37,15 @@ use inhere\exceptions\UnknownMethodException;
  * in routes
  *
  * ```
- * $app->any('/api/test[/{action}]', api\Book::class);
+ * $app->any('/api/books[/{resource}]', Book::class);
  * ```
  */
 abstract class RestController extends AbstractController
 {
     const DEFAULT_ERR_CODE = 2;
 
-    // $app->any('/api/test[/{action}]', api\Book::class);
-    const RESOURCE_ARG_KEY = 'action';
+    // $app->any('/api/test[/{resource}]', api\Book::class);
+    const RESOURCE_KEY = 'resource';
 
     // match request like GET /users (get all resource)
     const MARK_MORE = '*';
@@ -65,6 +66,12 @@ abstract class RestController extends AbstractController
     private $actionSuffix = 'Action';
 
     /**
+     * @see self::parseRequestMethod()
+     * @var string|int
+     */
+    private $resourceId;
+
+    /**
      * @var array
      */
     protected $except = [];
@@ -83,7 +90,7 @@ abstract class RestController extends AbstractController
     public function headsAction()
     {
         return $this->response
-            ->withHeader('X-Welcome', 'Hi, Welcome to the network.')
+            ->withHeader('X-Welcome', 'Hi, Welcome to the network world.')
             ->withHeader('X-Request-Method', 'method heads');
     }
 
@@ -94,7 +101,7 @@ abstract class RestController extends AbstractController
     public function headAction($id = 0)
     {
         return $this->response
-            ->withHeader('X-Welcome', 'Hi, Welcome to the network.')
+            ->withHeader('X-Welcome', 'Hi, Welcome to the network world.')
             ->withHeader('X-Request-Method', 'method head')
             ->withHeader('X-Request-Param', $id);
     }
@@ -116,18 +123,15 @@ abstract class RestController extends AbstractController
     {
         return [
 //            'access' => [
-//                'filter' => AccessFilter::class,
-//                'rules' => [
-//                    [
-//                        'actions' => ['login', 'error'],
-//                        'allow' => true,
-//                    ],
-//                    [
-//                        'actions' => ['logout', 'index'],
-//                        'allow' => true,
-//                        'roles' => ['@'],
-//                    ],
-//                ],
+//                'filter' => AccessFilter::class, // 过滤器类
+//                'rules' => [ [
+//                    'actions' => ['login', 'error'],
+//                    'allow' => true,
+//                 ], [
+//                    'actions' => ['logout', 'index'],
+//                    'allow' => true,
+//                    'roles' => ['@'],
+//                ]],
 //            ]
         ];
     }
@@ -138,25 +142,28 @@ abstract class RestController extends AbstractController
 
     /**
      * method mapping - the is default mapping.
-     * supported method:
-     *     CONNECT DELETE GET HEAD OPTIONS PATCH POST PUT TRACE
+     * supported method: CONNECT DELETE GET HEAD OPTIONS PATCH POST PUT TRACE SEARCH
+     * you can override it. e.g:
      *
-     * you can change it. e.g:
+     * ```php
      * protected function methodMapping()
      * {
      *     return [
-     *         'get*'   => 'index',   # GET /users
-     *         'get'      => 'view',    # GET /users/1
-     *         'post'     => 'create',  # POST /users
-     *         'put'      => 'update',  # PUT /users/1
-     *         'delete'   => 'delete',  # DELETE /users/1
+     *         'get*'   => 'index',   // GET /users
+     *         'get'    => 'view',    // GET /users/1
+     *         'post'   => 'create',  // POST /users
+     *         'put'    => 'update',  // PUT /users/1
+     *         'delete' => 'delete',  // DELETE /users/1
      *         // ...
      *     ];
+     *
      *     // or
      *     // $mapping = parent::methodMapping();
      *     // $mapping['get'] = 'xxx';
      *     // return $mapping;
      * }
+     * ```
+     *
      * @return array
      */
     protected function methodMapping()
@@ -164,60 +171,135 @@ abstract class RestController extends AbstractController
         return [
             //REQUEST_METHOD => method name(no suffix)
             // 'gets' is special key.
-            'get*' => 'gets',      # GET /users
-            'get' => 'get',       # GET /users/1
-            'post' => 'post',      # POST /users
-            'put' => 'put',       # PUT /users/1
-            # usually PUT == PATCH
-            'patch' => 'patch',     # PATCH /users/1
-            'delete' => 'delete',    # DELETE /users/1
-            'head' => 'head',      # HEAD /users/1
-            'head*' => 'heads',     # HEAD /users
-            'options' => 'option',    # OPTIONS /users/1
-            'options*' => 'options',   # OPTIONS /users
+            'get*' => 'gets',      // GET /users
+            'get' => 'get',        // GET /users/1
+            'post' => 'post',      // POST /users
+            'put' => 'put',        // PUT /users/1
+            // usually PUT == PATCH
+            'patch' => 'patch',      // PATCH /users/1
+            'delete' => 'delete',    // DELETE /users/1
+            'head' => 'head',        // HEAD /users/1
+            'head*' => 'heads',      // HEAD /users
+            'options' => 'option',    // OPTIONS /users/1
+            'options*' => 'options',   // OPTIONS /users
 
-            'connect' => 'connect',   # CONNECT /users
-            'trace' => 'trace',     # TRACE /users
+            'connect' => 'connect',   // CONNECT /users
+            'search' => 'search',     // SEARCH /users
+            'trace' => 'trace',       // TRACE /users
 
             // multi REQUEST_METHOD match
             // 'get|post' => 'index'
 
             // extra method mapping
             // 'get.search' => search
-            // 'post.save'  => save
+            // 'post.create'  => create
+            // 'post|put.save'  => save
         ];
     }
 
+    /**********************************************************
+     * call the controller method
+     **********************************************************/
+
     /**
-     * handleMethodMapping -- return real controller method name
+     * e.g.
+     * define route:
+     *
+     * ```
+     *   $app->any('/test[/{resource}]', controllers\api\Test::class);
+     * ```
+     *
+     * @param array $args
+     * @return \Psr\Http\Message\ResponseInterface
+     * @throws \Exception
+     */
+    protected function processInvoke(array $args)
+    {
+        // default restFul action name
+        list($action, $error) = $this->parseRequestMethod($this->request, $args);
+
+        if ($error) {
+            return $this->errorHandler($error);
+        }
+
+        $actionMethod = $action . ucfirst($this->actionSuffix);
+
+        if (!method_exists($this, $actionMethod)) {
+            // throw new NotFoundException('Error Processing Request, Action [' . $action . '] don\'t exists!');
+            $msg = 'Error Processing Request, resource method [' . $action . '] don\'t exists!';
+
+            return $this->response->withJson([], -404, $msg, 404);
+        }
+
+        // if enable request action security filter
+        if (true !== ($result = $this->doSecurityFilter($action))) {
+            return $this->onSecurityFilterFail($result);
+        }
+
+        /** @var Response $response */
+        $resp = $this->$actionMethod(array_shift($args));
+
+        // if the action return is array data
+        if (is_array($resp)) {
+            $resp = $this->response->withJson($resp);
+        }
+
+        return $resp;
+    }
+
+    /**
+     * @inheirtdoc
+     */
+    protected function onSecurityFilterFail($result)
+    {
+        if ($resp instanceof ResponseInterface) {
+            return $resp;
+        }
+
+        $msg = $resp && is_string($resp) ? $resp : 'Resources not allowed for access';
+
+        return $this->response->withJson([], -403, $msg, 403);
+    }
+
+    /**
+     * parseRequestMethod -- return real controller method name
      * @param  Request $request
      * @param array $args
      * @return string
      * @throws UnknownMethodException
      */
-    private function handleMethodMapping($request, array $args)
+    private function parseRequestMethod($request, array $args)
     {
         // default restFul action name, equals to REQUEST_METHOD
-        $method = strtolower($request->getMethod());
         $mapping = $this->methodMapping();
 
         if (!$mapping || !is_array($mapping)) {
-            throw new UnknownMethodException('No any accessible resource method!');
+            return [null, 'No any accessible resource method!'];
         }
 
-        $argument = !empty($args[self::RESOURCE_ARG_KEY]) ? trim($args[self::RESOURCE_ARG_KEY]) : '';
+        // 值可能是:
+        // 1. 是资源名/资源ID
+        //  e.g GET `/users/12`
+        //  - $resourceId = 12
+        //  e.g GET `/blog/a-post-name`
+        //  - $resourceId = 'a-post-name'
+        // 2. 是扩展资源方法
+        //  e.g GET `/users/search` 同时 `methodMapping()` 配置了 `'get.search' => search`
+        //  - $resourceId = 'search'
+        $resourceId = !empty($args[self::RESOURCE_KEY]) ? trim($args[self::RESOURCE_KEY]) : '';
 
         // convert 'first-second' to 'firstSecond'
-        if ($argument && strpos($argument, '-')) {
-            $argument = ucwords(str_replace('-', ' ', $argument));
-            $argument = str_replace(' ', '', lcfirst($argument));
+        if ($resourceId && strpos($resourceId, '-')) {
+            $resourceId = ucwords(str_replace('-', ' ', $resourceId));
+            $resourceId = str_replace(' ', '', lcfirst($resourceId));
         }
 
         $map = $this->parseMethodMapping($mapping);
+        $method = strtolower($request->getMethod());
 
-        // match like 'get.search' extra method
-        if ($argument) {
-            $extraKey = $method . self::M2A_CHAR . $argument;
+        // 是扩展资源方法 e.g 'get.search'
+        if ($resourceId && !is_numeric($resourceId)) {
+            $extraKey = $method . self::M2A_CHAR . $resourceId;
 
             if (isset($map[$extraKey])) {
                 return [$map[$extraKey], null];
@@ -226,14 +308,16 @@ abstract class RestController extends AbstractController
 
         $action = $error = '';
         $moreKey = $method . self::MARK_MORE;
+        $this->resourceId = $resourceId;
 
+        // 根据请求方法 匹配 资源方法
         foreach ($map as $key => $value) {
-            // like 'get*' 'head*'
-            if (!$argument && $key === $moreKey && in_array($method, self::$allowMore, true)) {
+            // want get resources. like 'get*' 'head*'
+            if (!$resourceId && $key === $moreKey && in_array($method, self::$allowMore, true)) {
                 $action = $value;
 
-                // have argument. like '/users/1' '/users/username'
-            } else if ($key === $method) {
+                // is a resource. like '/users/1' '/users/username'
+            } elseif ($key === $method) {
                 $action = $method === 'options' ? 'option' : $value;
             }
 
@@ -262,7 +346,7 @@ abstract class RestController extends AbstractController
             $key = str_replace(' ', '', $key);
             $item = trim($item);
 
-            // get.search get|post.search
+            // `get.search = search` `get|post.search = search`
             if (strpos($key, '.')) {
                 list($m, $a) = explode('.', $key);
 
@@ -292,58 +376,6 @@ abstract class RestController extends AbstractController
 
         return $map;
     }
-
-    /**********************************************************
-     * call the controller method
-     **********************************************************/
-
-    /**
-     * e.g.
-     * define route:
-     *
-     * ```
-     *   $app->any('/test[/{resource}]', controllers\api\Test::class);
-     * ```
-     *
-     * @param array $args
-     * @return mixed
-     * @throws \Exception
-     */
-    protected function processInvoke(array $args)
-    {
-        // default restFul action name
-        list($action, $error) = $this->handleMethodMapping($this->request, $args);
-
-        if ($error) {
-            return $this->errorHandler($error);
-        }
-
-        $actionMethod = $action . ucfirst($this->actionSuffix);
-
-        if (!method_exists($this, $actionMethod)) {
-            // throw new NotFoundException('Error Processing Request, Action [' . $action . '] don\'t exists!');
-            $error = 'Error Processing Request, Action [' . $action . '] don\'t exists!';
-
-            return $this->response->withJson([], 330, $error, 403);
-//          return $this->errorHandler($error);
-        }
-
-        // if enable request action security filter
-        if (true !== ($result = $this->doSecurityFilter($action))) {
-            return $result;
-        }
-
-        /** @var Response $response */
-        $resp = $this->$actionMethod(array_shift($args));
-
-        // if the action return is array data
-        if (is_array($resp)) {
-            $resp = $this->response->withJson($resp);
-        }
-
-        return $resp;
-    }
-
 
     /**
      * @param string $error

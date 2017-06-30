@@ -8,16 +8,14 @@
 
 namespace slimExt\filters;
 
-use inhere\libraryPlus\auth\User;
-use Slim;
-use inhere\library\helpers\ArrayHelper;
+use inhere\library\helpers\Arr;
 
 /**
  * Class AccessFilter
  * auth/permission check
  * @package slimExt\filters
  */
-class AccessFilter extends ObjectFilter
+class AccessFilter extends BaseFilter
 {
     /**
      * access rules
@@ -35,9 +33,12 @@ class AccessFilter extends ObjectFilter
                 // false - deny access
                 'allow' => true,
 
-                // use defined mark char: '?' guest user '@' logged user '*' all user.
-                // use custom role name. like 'member', 'admin' (the role name is must be unique, and it is save on dabatase.)
-                // can also use role id: 12 43 (it is not recommend)
+                // 1. use defined mark char:
+                //     '?' guest user
+                //     '@' logged user
+                //     '*' all user.
+                // 2. use custom role name. like 'member', 'admin' (the role name is must be unique, and it is save on dabatase.)
+                // 3. can also use role id: 12 43 (it is not recommend)
                 // Notice: there are role relation is OR.
                 'roles' => ['*'],
 
@@ -51,39 +52,42 @@ class AccessFilter extends ObjectFilter
     ];
 
     /**
-     * the role filed name in the user(Slim::$app->user).
+     * the role filed name in the user(\Slim::$app->user).
      * @var string
      */
     public $userRoleField = 'role';
+
+    /**
+     * on access denied
+     * @var callable
+     */
+    public $onDenied;
 
     /**
      * {@inheritDoc}
      */
     protected function doFilter($action)
     {
-        /**
-         * current user
-         * @var User
-         */
-        $user = Slim::$app->user;
+        /** @var \inhere\libraryPlus\auth\User */
+        $user = \Slim::$app->user;
         $allow = true;
 
         foreach ($this->rules as $rule) {
             // no limit
             if (
                 !$rule
-                || ($actions = (array)ArrayHelper::get($rule, 'actions'))
-                || ($roles = (array)ArrayHelper::get($rule, 'roles'))
+                || !($actions = (array)Arr::get($rule, 'actions'))
+                || !($roles = (array)Arr::get($rule, 'roles'))
             ) {
                 continue;
             }
 
             // don't match current action
-            if (self::MATCH_ALL !== $actions[0] || !in_array($action, $actions, true)) {
+            if (self::MATCH_ALL !== $actions[0] && !in_array($action, $actions, true)) {
                 continue;
             }
 
-            $allow = ArrayHelper::get($rule, 'allow', false);
+            $allow = Arr::get($rule, 'allow', false);
 
             // find match all user, char: *
             if (in_array(self::MATCH_ALL, $roles, true)) {
@@ -106,21 +110,18 @@ class AccessFilter extends ObjectFilter
             if ($userRoles && array_intersect((array)$userRoles, $roles)) {
                 break;
             }
+
+            // use custom callback
+            if (($cb = Arr::get($role, 'callback')) && $cb($action, $user)) {
+                break;
+            }
         }
 
         // deny access
-        if (!$allow) {
-            // when is xhr
-            if ($this->request->isXhr()) {
-                $data = ['redirect' => $user->loginUrl];
-
-                return $this->response->withJson($data, __LINE__, slim_tl('http:403'), 403);
-            }
-
-            return $this->response->withRedirect($user->loginUrl, 403)->withMessage(slim_tl('http403'));
+        if (!$allow && ($cb = $this->onDenied)) {
+            return call_user_func($cb, $action, $user);
         }
 
-        // allow access
-        return true;
+        return (bool)$allow;
     }
 }

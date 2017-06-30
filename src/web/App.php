@@ -39,6 +39,25 @@ class App extends \Slim\App
     }
 
     /**
+     * Add route for RESTFul resource
+     *
+     * ```php
+     *  $this->rest('/users', controllers\User::class);
+     *  // Equals to:
+     *  // $this->any('/users[/{resource}]', controllers\User::class);
+     * ```
+     *
+     * @param  string $name  The resource name e.g '/users'
+     * @param  string $class The resource controller class
+     *
+     * @return \Slim\Interfaces\RouteInterface
+     */
+    public function rest($name, $class)
+    {
+        return $this->any($name . '[/{resource}]', $class);
+    }
+
+    /**
      * @param $id
      * @return \Interop\Container\ContainerInterface|mixed
      */

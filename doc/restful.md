@@ -16,6 +16,8 @@
 
 ## controller 
 
+> default RESTFul action name equals to `REQUEST_METHOD`
+
 if use controller layer. the controller class is must be extends the `slimExt\rest\Controller`
 
 ```
@@ -56,7 +58,8 @@ class Test extends Controller
 
         return $this->response->withJson(['list' => $list]);
     }
-
+    
+    // 这里的id 可以是 int|string
     public function getAction($id)
     {
         // can also return array. it will be translate to json.

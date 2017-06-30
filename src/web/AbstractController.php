@@ -10,7 +10,7 @@ namespace slimExt\web;
 
 use inhere\exceptions\NotFoundException;
 use Psr\Http\Message\ResponseInterface;
-use slimExt\filters\ObjectFilter;
+use slimExt\filters\BaseFilter;
 
 /**
  * Class AbstractController
@@ -102,6 +102,12 @@ abstract class AbstractController
     abstract protected function processInvoke(array $args);
 
     /**
+     * @param mixed $result
+     * @return ResponseInterface
+     */
+    abstract protected function onSecurityFilterFail($result);
+
+    /**
      * @param array $args
      * @param ResponseInterface $response
      * @return void
@@ -121,7 +127,7 @@ abstract class AbstractController
     {
         return [
             'access' => [
-                // 'filter' => AccessFilter::class,
+                // 'filter' => AccessFilter::class, // 过滤器类
                 'rules' => [
 //                    [
 //                        'actions' => ['login', 'error'],
@@ -137,7 +143,7 @@ abstract class AbstractController
                 ],
             ],
 //            'verbs' => [
-//                'filter' => VerbFilter::class,
+//                'filter' => VerbsFilter::class,
 //                'actions' => [
 //                    //'logout' => ['post'],
 //                ],
@@ -146,8 +152,15 @@ abstract class AbstractController
     }
 
     /**
+     * do Security Filter
      * @param $action
      * @return mixed
+     *
+     * Return:
+     *     bool     True is allow access, False is Deny
+     *     string   Deny, is the error message
+     *     Response Deny, A Response instance
+     *
      * @throws NotFoundException
      */
     protected function doSecurityFilter($action)
@@ -167,19 +180,19 @@ abstract class AbstractController
             }
 
             if (!class_exists($filter)) {
-                throw new NotFoundException("Filter class [$filter] not found.");
+                throw new NotFoundException("The filter class [$filter] not found.");
             }
 
             $filter = new $filter($settings);
 
-            if (!$filter instanceof ObjectFilter) {
-                throw new NotFoundException('Filter class must be instanceof ' . ObjectFilter::class);
+            if (!$filter instanceof BaseFilter) {
+                throw new NotFoundException('The filter class must be instanceof ' . BaseFilter::class);
             }
 
-            $result = $filter($this->request, $this->response, $action);
+            $resp = $filter($this->request, $this->response, $action);
 
-            if (true !== $result) {
-                return $result;
+            if (true !== $resp) {
+                return $resp;
             }
         }
 

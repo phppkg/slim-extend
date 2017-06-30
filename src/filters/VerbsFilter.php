@@ -9,12 +9,12 @@
 namespace slimExt\filters;
 
 /**
- * Class VerbFilter
+ * Class VerbsFilter
  *
  * filter the request method
  * @package slimExt\filters
  */
-class VerbFilter extends ObjectFilter
+class VerbsFilter extends BaseFilter
 {
     /**
      * in Controller:
@@ -23,7 +23,7 @@ class VerbFilter extends ObjectFilter
      * {
      *     return [
      *       'verbs' => [
-     *           'handler' => VerbFilter::class,
+     *           'filter' => VerbsFilter::class,
      *           'actions' => [
      *               'index' => ['get'],
      *               'add'   => ['post', 'put'],
