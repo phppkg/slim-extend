@@ -1,19 +1,23 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: Inhere
+ * Date: 2016/2/19 0019
+ * Time: 23:35
+ */
 
-namespace slimExt\rest;
+namespace slimExt\web;
 
 use inhere\exceptions\UnknownMethodException;
-use slimExt\base\AbstractController;
-use slimExt\web\Request;
-use slimExt\web\Response;
 
 /**
  * Class RestFulController
  * @package slimExt\base
  *
  * how to use. e.g:
+ *
  * ```
- * class Book extends slimExt\rest\Controller
+ * class Book extends slimExt\web\RestController
  * {
  *     public function getsAction($args)
  *     {}
@@ -35,7 +39,7 @@ use slimExt\web\Response;
  * $app->any('/api/test[/{action}]', api\Book::class);
  * ```
  */
-abstract class Controller extends AbstractController
+abstract class RestController extends AbstractController
 {
     const DEFAULT_ERR_CODE = 2;
 

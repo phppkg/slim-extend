@@ -6,13 +6,11 @@
  * Time: 下午4:08
  */
 
-namespace slimExt\base;
+namespace slimExt\web;
 
 use inhere\exceptions\NotFoundException;
 use Psr\Http\Message\ResponseInterface;
 use slimExt\filters\ObjectFilter;
-use slimExt\web\Request;
-use slimExt\web\Response;
 
 /**
  * Class AbstractController

@@ -30,7 +30,7 @@ class CommandUpdateCommand extends Command
             );*/
     }
 
-    protected $targetFile = '@project/bootstrap/console/commands.php';
+    protected $targetFile = '@project/boot/console/commands.php';
     protected $tplFile = '@project/resources/templates/commands.tpl';
 
     protected function execute($input, $output)

@@ -7,7 +7,7 @@
  * Time: 23:35
  */
 
-namespace slimExt;
+namespace slimExt\web;
 
 use inhere\validate\Validation;
 

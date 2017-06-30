@@ -6,13 +6,13 @@
  * Time: 上午11:49
  */
 
-namespace inhere\slimExt\components;
+namespace slimExt\components;
 
 use inhere\library\collections\FixedData;
 
 /**
  * Class AlertMessage
- * @package inhere\slimExt\components
+ * @package slimExt\components
  */
 class AlertMessage extends FixedData
 {

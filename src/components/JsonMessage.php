@@ -6,14 +6,14 @@
  * Time: 上午11:49
  */
 
-namespace inhere\slimExt\components;
+namespace slimExt\components;
 
 use inhere\library\collections\ActiveData;
 use inhere\exceptions\PropertyException;
 
 /**
  * Class JsonMessage
- * @package inhere\slimExt\components
+ * @package slimExt\components
  *
  * $mg = JsonMessage::create(['msg' => 'success', 'code' => 23]);
  * $mg->data = [ 'key' => 'test'];
