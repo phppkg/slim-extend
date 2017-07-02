@@ -11,7 +11,7 @@ use inhere\console\Command;
  */
 class AppCreateCommand extends Command
 {
-    public static $description = 'build base structure of the project';
+    protected static $description = 'build base structure of the project';
 
     /**
      * {@inheritDoc}

@@ -129,7 +129,7 @@ class UserModel extends RecordModel implements IdentityInterface
         $lang = Slim::$app->language;
 
         if ( !$username || !$password ) {
-            return $lang->tran('missOrErrorParam');
+            return $lang->trans('missOrErrorParam');
         }
 
         if ( !$user= self::findByName($username) ) {

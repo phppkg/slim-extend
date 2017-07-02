@@ -41,11 +41,5 @@
   },
   "suggest": {
     "symfony/yaml": "Allow support parse yml file."
-  },
-  "repositories": [
-    {
-      "type": "git",
-      "url": "https://git.oschina.net/inhere/slim-whoops"
-    }
-  ]
+  }
 }

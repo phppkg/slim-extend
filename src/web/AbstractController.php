@@ -107,11 +107,11 @@ abstract class AbstractController
      */
     protected function onSecurityFilterFail($result)
     {
-        if ($resp instanceof ResponseInterface) {
-            return $resp;
+        if ($result instanceof ResponseInterface) {
+            return $result;
         }
 
-        $msg = $resp && is_string($resp) ? $resp : 'Access is not allowed';
+        $msg = $result && is_string($result) ? $result : 'Access is not allowed';
 
         // when is xhr
         if ($this->request->isXhr()) {

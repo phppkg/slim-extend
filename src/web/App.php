@@ -9,6 +9,7 @@
 namespace slimExt\web;
 
 use slimExt\base\TraitUseModule;
+use slimExt\components\QuicklyGetServiceTrait;
 
 /**
  * Class App
@@ -30,6 +31,7 @@ use slimExt\base\TraitUseModule;
 class App extends \Slim\App
 {
     use TraitUseModule;
+    use QuicklyGetServiceTrait;
 
     public function __construct($container = [])
     {
@@ -57,39 +59,4 @@ class App extends \Slim\App
         return $this->any($name . '[/{resource}]', $class);
     }
 
-    /**
-     * @param $id
-     * @return \Interop\Container\ContainerInterface|mixed
-     */
-    public function __get($id)
-    {
-        if ($id === 'container') {
-            return $this->getContainer();
-        }
-
-        if ($this->getContainer()->has($id)) {
-            return $this->getContainer()->get($id);
-        }
-
-        throw new \InvalidArgumentException("Getting a unknown property [$id] in class.");
-    }
-
-    /**
-     * @param string $id
-     * @param mixed $value
-     * @return mixed
-     */
-    public function __set($id, $value)
-    {
-        return $this->getContainer()[$id] = $value;
-    }
-
-    /**
-     * @param string $id
-     * @return bool
-     */
-    public function __isset($id)
-    {
-        return $this->getContainer()->has($id);
-    }
 }

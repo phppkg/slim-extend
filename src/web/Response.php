@@ -8,7 +8,7 @@
 
 namespace slimExt\web;
 
-use inhere\slimExt\components\JsonMessage;
+use slimExt\components\JsonMessage;
 use Slim;
 
 /**

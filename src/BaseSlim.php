@@ -1,25 +1,39 @@
 <?php
 
+namespace slimExt;
+
+use inhere\library\traits\PathAliasTrait;
+
 /**
- * Class Slim
- * @date  2016.2.17
- *
- * ---------------
- * How to quickly get a service instance?
- * e.g:
- * get request service instance.
+ * Class BaseSlim
+ * @date 2016.2.17
+ * @usage
  *
  * ```
- *     Slim::get('request')
- * equal
- *     Slim::$app->request // by the magic method { @see \slimExt\base\App::__get() }
- * equal
- *     Slim::$app->request() // by the magic method { @see \Slim\App::__call() }
+ * // before, please extend it in your application.
+ *
+ * class Slim extend \slimExt\BaseSlim {
+ *      // ...
+ * }
+ *
+ * // How to quickly get a service instance?
+ * // e.g. get request service instance.
+ *
+ * Slim::get('request');
+ * // equals to:
+ * Slim::request();
+ * // equals to:
+ * Slim::$app->request; // by the magic method { @see \slimExt\web\App::__get() }
+ * // equals to:
+ * Slim::$app->request(); // by the magic method { @see \Slim\App::__call() }
  * ```
+ *
  * @method static \slimExt\Collection cache() Return a driver config instance
  */
-abstract class Slim
+abstract class BaseSlim
 {
+    use PathAliasTrait;
+
     /**
      * @var $app \slimExt\web\App
      */
@@ -46,63 +60,23 @@ abstract class Slim
     ];
 
     /**
-     * set/get path alias
-     * @param array|string $path
-     * @param string|null $value
-     * @return bool|string
+     * @param string $id
+     * @return mixed
      */
-    public static function alias($path, $value = null)
+    public static function get($id)
     {
-        // get path by alias
-        if (is_string($path) && !$value) {
-            // don't use alias
-            if ($path[0] !== '@') {
-                return $path;
-            }
-
-            $path = str_replace(['/', '\\'], DIR_SEP, $path);
-
-            // only a alias. e.g. @project
-            if (!strpos($path, DIR_SEP)) {
-                return static::$aliases[$path] ?? $path;
-            }
-
-            // have other partial. e.g: @project/temp/logs
-            $realPath = $path;
-            list($alias, $other) = explode(DIR_SEP, $path, 2);
-
-            if (isset(static::$aliases[$alias])) {
-                $realPath = static::$aliases[$alias] . DIR_SEP . $other;
-            }
-
-            return $realPath;
-        }
-
-        if ($path && $value && is_string($path) && is_string($value)) {
-            $path = [$path => $value];
-        }
-
-        // custom set path's alias. e.g: Slim::alias([ 'alias' => 'path' ]);
-        if (is_array($path)) {
-            foreach ($path as $alias => $realPath) {
-                // 1th char must is '@'
-                if ($alias[0] !== '@') {
-                    continue;
-                }
-
-                static::$aliases[$alias] = $realPath;
-            }
-        }
-
-        return true;
+        return static::$app->getContainer()[$id];
     }
 
     /**
-     * @return array
+     * @param string $id
+     * @param $value
      */
-    public static function getAliases()
+    public static function set($id, $value)
     {
-        return static::$aliases;
+        if (static::$app) {
+            static::$app->getContainer()[$id] = $value;
+        }
     }
 
     /**
@@ -118,18 +92,6 @@ abstract class Slim
         return static::$app->getContainer()->has($id);
     }
 
-    /**
-     * @param $id
-     * @return mixed
-     */
-    public static function get($id)
-    {
-        if (!static::$app) {
-            return null;
-        }
-
-        return static::$app->getContainer()[$id];
-    }
 
     /**
      * @param $id
@@ -168,17 +130,6 @@ abstract class Slim
     }
 
     /**
-     * @param $id
-     * @param $value
-     */
-    public static function set($id, $value)
-    {
-        if (static::$app) {
-            static::$app->$id = $value;
-        }
-    }
-
-    /**
      * @param mixed $key
      * @param mixed $default
      * @return \slimExt\Collection|mixed
@@ -205,6 +156,15 @@ abstract class Slim
      * @return \Monolog\Logger
      */
     public static function logger($name = 'logger')
+    {
+        return static::$app->getContainer()[$name];
+    }
+
+    /**
+     * @param string $name
+     * @param array $args
+     */
+    public static function __callStatic($name, $args)
     {
         return static::$app->getContainer()[$name];
     }

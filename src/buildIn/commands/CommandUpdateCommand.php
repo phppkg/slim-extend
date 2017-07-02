@@ -13,7 +13,7 @@ use inhere\library\files\Directory;
  */
 class CommandUpdateCommand extends Command
 {
-    public static $name = 'command:update';
+    protected static $name = 'command:update';
 
     protected function configure()
     {

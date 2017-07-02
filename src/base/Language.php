@@ -15,7 +15,6 @@ use inhere\library\collections\LanguageManager;
  * Class Language
  * @package slimExt\base
  *
- *
  * how to use language translate ?
  *
  * 1. allow multi arguments. `tran(string $key , array [$arg1 , $arg2], string $default)`
@@ -26,7 +25,7 @@ use inhere\library\collections\LanguageManager;
  * userNotFound: user [%s] don't exists!
  *
  *  // on code
- * $msg = Slim::$app->language->tran('userNotFound', 'demo');
+ * $msg = Slim::$app->language->trans('userNotFound', 'demo');
  * ```
  *
  * 2. allow fetch other config file data
@@ -41,11 +40,11 @@ use inhere\library\collections\LanguageManager;
  *
  * // on code
  * // will fetch value at `en/default.yml`
- * $msg = Slim::$app->language->tran('userNotFound', 'demo');
+ * $msg = Slim::$app->language->trans('userNotFound', 'demo');
  * //output $msg: user [demo] don't exists!
  *
  * // will fetch value at `en/app.yml`
- * $msg = Slim::$app->language->tran('app:userNotFound', 'demo');
+ * $msg = Slim::$app->language->trans('app:userNotFound', 'demo');
  * //output $msg: the app user [demo] don't exists!
  *
  * ```

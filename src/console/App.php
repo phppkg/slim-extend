@@ -2,12 +2,13 @@
 
 namespace slimExt\console;
 
-use slimExt\base\Container;
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 
+use slimExt\base\Container;
 use slimExt\buildIn\commands\AppCreateCommand;
 use slimExt\buildIn\commands\AssetPublishCommand;
 use slimExt\buildIn\commands\CommandUpdateCommand;
+use slimExt\components\QuicklyGetServiceTrait;
 
 /**
  * Class ConsoleApp
@@ -15,10 +16,12 @@ use slimExt\buildIn\commands\CommandUpdateCommand;
  */
 class App extends \inhere\console\App
 {
+    use QuicklyGetServiceTrait;
+
     /**
      * @var ContainerInterface
      */
-    protected $container;
+    private $container;
 
     /**
      * @var array
@@ -72,7 +75,7 @@ class App extends \inhere\console\App
     /**
      * Enable access to the DI container by consumers of $app
      *
-     * @return Container
+     * @return ContainerInterface
      */
     public function getContainer()
     {

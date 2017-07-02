@@ -17,7 +17,7 @@ use inhere\console\Command;
  */
 class AssetPublishCommand extends Command
 {
-    public static $name = 'asset:publish';
+    protected static $name = 'asset:publish';
 
     /**
      * {@inheritDoc}

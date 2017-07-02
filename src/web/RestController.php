@@ -247,15 +247,15 @@ abstract class RestController extends AbstractController
     }
 
     /**
-     * @inheirtdoc
+     * {@inheritdoc}
      */
     protected function onSecurityFilterFail($result)
     {
-        if ($resp instanceof ResponseInterface) {
-            return $resp;
+        if ($result instanceof ResponseInterface) {
+            return $result;
         }
 
-        $msg = $resp && is_string($resp) ? $resp : 'Resources not allowed for access';
+        $msg = $result && is_string($result) ? $result : 'Resources not allowed for access';
 
         return $this->response->withJson([], -403, $msg, 403);
     }
