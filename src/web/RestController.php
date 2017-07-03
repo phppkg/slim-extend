@@ -329,6 +329,22 @@ abstract class RestController extends AbstractController
         return [$action, $error];
     }
 
+    /**
+     * when route have been setting action name:
+     * ```
+     * $app->get('/users/{id}', controllers\User::class . ':view');
+     * ```
+     * @param $method
+     * @param $args
+     * @return mixed
+     */
+    public function __call($method, $args)
+    {
+        $args[2][self::RESOURCE_KEY] = $method;
+
+        return $this($args[0], $args[1], $args[2]);
+    }
+
 //    private function getParsedMapping()
 //    {
 //    }
