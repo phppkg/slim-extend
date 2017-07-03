@@ -15,6 +15,8 @@ class CommandUpdateCommand extends Command
 {
     protected static $name = 'command:update';
 
+    protected static $description = 'Will scan <info>@src/commands</info> directory for update application command list.';
+
     protected function configure()
     {
         /*$this

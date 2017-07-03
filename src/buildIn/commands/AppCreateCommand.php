@@ -11,6 +11,8 @@ use inhere\console\Command;
  */
 class AppCreateCommand extends Command
 {
+    protected static $name = 'app:create';
+
     protected static $description = 'build base structure of the project';
 
     /**

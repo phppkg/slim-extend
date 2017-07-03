@@ -58,16 +58,16 @@ class App extends \inhere\console\App
     public function loadBuiltInCommands()
     {
         foreach (static::$bootstraps as $command) {
-            $this->command($command::$name, $command);
+            $this->command($command::getName(), $command);
         }
     }
 
     /**
-     * @param $name
-     * @param $handler
+     * @param string $name
+     * @param mixed $handler
      * @return $this
      */
-    public function add($name, $handler)
+    public function add($name, $handler = null)
     {
         return $this->command($name, $handler);
     }

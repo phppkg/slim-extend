@@ -19,6 +19,8 @@ class AssetPublishCommand extends Command
 {
     protected static $name = 'asset:publish';
 
+    protected static $description = 'publish static asset to web access directory. [<info>built in</info>]';
+
     /**
      * {@inheritDoc}
      */
