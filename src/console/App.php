@@ -37,18 +37,22 @@ class App extends \inhere\console\App
      *
      * @param array $settings
      * @param array $services
-     * @param string $name The name of the application
-     * @param string $version The version of the application
+     * @param \slimExt\Collection $config
+     * @internal string $name The name of the application
+     * @internal string $version The version of the application
      */
-    public function __construct(array $settings = [], array $services = [], $name = 'Inhere Console', $version = '1.0.1')
+    public function __construct(array $settings = [], array $services = [], $config)
     {
         \Slim::$app = $this;
         $this->container = new Container($settings, $services);
 
         parent::__construct([
-            'name' => $name,
-            'version' => $version
+            'name' => $config->get('name', 'Inhere Console'),
+            'version' => $config->get('version', '1.0.1')
         ]);
+
+        $config->loadArray($this->config);
+        $this->container['config'] = $config;
         $this->loadBuiltInCommands();
     }
 
