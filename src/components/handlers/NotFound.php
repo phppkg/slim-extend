@@ -6,13 +6,13 @@
  * Time: 上午1:31
  */
 
-namespace slimExt\handlers;
+namespace slimExt\components\handlers;
 
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Class NotFound
- * @package slimExt\handlers
+ * @package slimExt\components\handlers
  */
 class NotFound extends \Slim\Handlers\NotFound
 {

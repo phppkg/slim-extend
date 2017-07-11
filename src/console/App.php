@@ -5,10 +5,11 @@ namespace slimExt\console;
 use Psr\Container\ContainerInterface;
 
 use slimExt\base\Container;
-use slimExt\buildIn\commands\AppCreateCommand;
-use slimExt\buildIn\commands\AssetPublishCommand;
-use slimExt\buildIn\commands\CommandUpdateCommand;
 use slimExt\components\QuicklyGetServiceTrait;
+use slimExt\console\commands\AppCreateCommand;
+use slimExt\console\commands\AssetPublishCommand;
+use slimExt\console\commands\CommandUpdateCommand;
+use slimExt\console\controllers\GeneraterController;
 
 /**
  * Class ConsoleApp
@@ -27,9 +28,14 @@ class App extends \inhere\console\App
      * @var array
      */
     protected static $bootstraps = [
-        AppCreateCommand::class,
-        AssetPublishCommand::class,
-        CommandUpdateCommand::class,
+        'commands' => [
+            AppCreateCommand::class,
+            AssetPublishCommand::class,
+            CommandUpdateCommand::class,
+        ],
+        'controllers' => [
+            GeneraterController::class,
+        ],
     ];
 
     /**
@@ -61,8 +67,12 @@ class App extends \inhere\console\App
      */
     public function loadBuiltInCommands()
     {
-        foreach (static::$bootstraps as $command) {
+        foreach (static::$bootstraps['commands'] as $command) {
             $this->command($command::getName(), $command);
+        }
+
+        foreach (static::$bootstraps['controllers'] as $controller) {
+            $this->controller($controller::getName(), $controller);
         }
     }
 

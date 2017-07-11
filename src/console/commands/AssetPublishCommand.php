@@ -6,14 +6,14 @@
  * Time: 下午6:18
  */
 
-namespace slimExt\buildIn\commands;
+namespace slimExt\console\commands;
 
 use inhere\libraryPlus\asset\AssetPublisher;
 use inhere\console\Command;
 
 /**
  * Class AssetPublishCommand
- * @package slimExt\buildIn\commands
+ * @package slimExt\console\commands
  */
 class AssetPublishCommand extends Command
 {

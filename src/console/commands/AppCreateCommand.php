@@ -1,6 +1,6 @@
 <?php
 
-namespace slimExt\buildIn\commands;
+namespace slimExt\console\commands;
 
 use inhere\console\Command;
 
