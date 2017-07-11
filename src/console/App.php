@@ -67,6 +67,28 @@ class App extends \inhere\console\App
     }
 
     /**
+     * get/set config
+     * @param  array|string $name
+     * @param  mixed $default
+     * @return mixed
+     */
+    public function config($name, $default = null)
+    {
+        $config = $this->getContainer()['config'];
+
+        // `$name` is array, set config.
+        if (is_array($name)) {
+            foreach ((array) $name as $key => $value) {
+                $config[$key] = $value;
+            }
+
+            return true;
+        }
+
+        return $config->get($name, $default);
+    }
+
+    /**
      * @param string $name
      * @param mixed $handler
      * @return $this

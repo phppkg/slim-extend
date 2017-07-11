@@ -34,7 +34,6 @@
       "src/defined.php",
       "src/functions.php"
     ],
-    "classmap": ["src/Slim.php"],
     "psr-4": {
       "slimExt\\" : "src/"
     }

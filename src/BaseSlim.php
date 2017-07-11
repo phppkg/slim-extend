@@ -12,7 +12,7 @@ use inhere\library\traits\PathAliasTrait;
  * ```
  * // before, please extend it in your application.
  *
- * class Slim extend \slimExt\BaseSlim {
+ * class Slim extends \slimExt\BaseSlim {
  *      // ...
  * }
  *
@@ -127,37 +127,6 @@ abstract class BaseSlim
         static::$app->container[$id] = $callable;
 
         return true;
-    }
-
-    /**
-     * @param mixed $key
-     * @param mixed $default
-     * @return \slimExt\Collection|mixed
-     */
-    public static function config($key = null, $default = null)
-    {
-        /** @var \slimExt\Collection $config */
-        $config = static::$app->getContainer()['config'];
-
-        if ($key && is_string($key)) {
-            return $config->get($key, $default);
-        }
-
-        // set, when $key is array
-        if ($key && is_array($key)) {
-            return $config->loadArray($key);
-        }
-
-        return $config;
-    }
-
-    /**
-     * @param string $name
-     * @return \Monolog\Logger
-     */
-    public static function logger($name = 'logger')
-    {
-        return static::$app->getContainer()[$name];
     }
 
     /**
