@@ -6,10 +6,10 @@ use Psr\Container\ContainerInterface;
 
 use slimExt\base\Container;
 use slimExt\components\QuicklyGetServiceTrait;
-use slimExt\console\commands\AppCreateCommand;
 use slimExt\console\commands\AssetPublishCommand;
 use slimExt\console\commands\CommandUpdateCommand;
-use slimExt\console\controllers\GeneraterController;
+use slimExt\console\controllers\AppController;
+use slimExt\console\controllers\GeneratorController;
 
 /**
  * Class ConsoleApp
@@ -29,12 +29,12 @@ class App extends \inhere\console\App
      */
     protected static $bootstraps = [
         'commands' => [
-            AppCreateCommand::class,
             AssetPublishCommand::class,
             CommandUpdateCommand::class,
         ],
         'controllers' => [
-            GeneraterController::class,
+            AppController::class,
+            GeneratorController::class,
         ],
     ];
 
@@ -59,19 +59,21 @@ class App extends \inhere\console\App
 
         $config->loadArray($this->config);
         $this->container['config'] = $config;
-        $this->loadBuiltInCommands();
+        $this->loadBootstrapCommands();
     }
 
     /**
      * loadBuiltInCommands
      */
-    public function loadBuiltInCommands()
+    public function loadBootstrapCommands()
     {
-        foreach (static::$bootstraps['commands'] as $command) {
+        /** @var \inhere\console\Command $command */
+        foreach ((array)static::$bootstraps['commands'] as $command) {
             $this->command($command::getName(), $command);
         }
 
-        foreach (static::$bootstraps['controllers'] as $controller) {
+        /** @var \inhere\console\Controller $controller */
+        foreach ((array)static::$bootstraps['controllers'] as $controller) {
             $this->controller($controller::getName(), $controller);
         }
     }
@@ -84,6 +86,7 @@ class App extends \inhere\console\App
      */
     public function config($name, $default = null)
     {
+        /** @var \slimExt\Collection $config */
         $config = $this->getContainer()['config'];
 
         // `$name` is array, set config.
@@ -96,6 +99,14 @@ class App extends \inhere\console\App
         }
 
         return $config->get($name, $default);
+    }
+
+    /**
+     * @return \slimExt\Collection
+     */
+    public function getConfig()
+    {
+        return $this->getContainer()['config'];
     }
 
     /**

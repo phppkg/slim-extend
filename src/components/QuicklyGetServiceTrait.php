@@ -18,7 +18,7 @@ trait QuicklyGetServiceTrait
 {
     /**
      * @param $id
-     * @return \Interop\Container\ContainerInterface|mixed
+     * @return \psr\Container\ContainerInterface|mixed
      */
     public function __get($id)
     {
@@ -50,5 +50,14 @@ trait QuicklyGetServiceTrait
     public function __isset($id)
     {
         return $this->getContainer()->has($id);
+    }
+
+    /**
+     * @param $name
+     * @return mixed
+     */
+    public function getService($name)
+    {
+        return $this->getContainer()[$name];
     }
 }

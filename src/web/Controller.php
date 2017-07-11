@@ -122,7 +122,7 @@ abstract class Controller extends AbstractController
             return $this->renderTwig($view, $args);
         }
 
-        $response = $this->response ?: Slim::get('response');
+        $response = $this->response;
         $settings = Slim::get('settings')['renderer'];
         $view = $this->getViewPath($view, $settings);
 
@@ -184,6 +184,16 @@ abstract class Controller extends AbstractController
 
         // return response
         return $response->write($rendered);
+    }
+
+    /**
+     * render a string to browser
+     * @param string $string
+     * @return ResponseInterface
+     */
+    public function renderString($string)
+    {
+        return $this->response->write($string);
     }
 
     /////////////////////////////////////////////////////////////

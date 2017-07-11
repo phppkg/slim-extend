@@ -6,12 +6,16 @@
  * Time: 11:14
  */
 
-//defined('PROJECT_PATH') || define('PROJECT_PATH', '/');
-
 defined('DIR_SEP') || define('DIR_SEP', DIRECTORY_SEPARATOR);
 defined('URL_SEP') || define('URL_SEP', '/');
 
-define('PDT_RUNTIME_ENV', 'pdt');
-define('DEV_RUNTIME_ENV', 'dev');
-define('LOC_RUNTIME_ENV', 'loc');
+define('PDT_ENV', 'pdt');
+define('PRE_ENV', 'pre');
+define('TEST_ENV', 'test');
+define('DEV_ENV', 'dev');
+define('LOC_ENV', 'loc');
 
+//if (!class_exists('Slim', false)) {
+//    class Slim extends \slimExt\BaseSlim
+//    {}
+//}
