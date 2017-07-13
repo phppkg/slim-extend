@@ -16,5 +16,5 @@ use {@parentClass};
  */
 class {@className} extends {@parentName}
 {
-    {@methods}
+{@methods}
 }

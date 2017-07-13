@@ -22,11 +22,13 @@ class GeneratorController extends Controller
     protected static $description = 'Generator model,controller,logic class. [<info>built in</info>]';
 
     private $tplVars = [];
+    private $tplPath;
 
     protected function init()
     {
         list($d, $t) = explode(' ', date('Y/m/d H:i'));
 
+        $this->tplPath = SLIM_EXT_PATH . '/resources/tpl';
         $this->tplVars = [
             '{@date}' => $d,
             '{@time}' => $t,
@@ -63,7 +65,7 @@ class GeneratorController extends Controller
     /**
      * Generator a web|console controller class of the application
      * @arguments
-     *  name<red>*</red>     the controller class name. will auto add suffix: Controller
+     *  name<red>*</red>     the controller class name.
      *  type      the controller class type, allow: <blue>norm,rest,cli</blue>. (<info>norm</info>)
      *  namespace the controller class namespace. (<cyan>app\controllers</cyan>)
      *  parent    the controller class's parent class. default:
@@ -71,10 +73,13 @@ class GeneratorController extends Controller
      *  - rest <cyan>slimExt\web\RestController</cyan>
      *  - cli  <cyan>inhere\console\Controller</cyan>
      *  path      the controller class file path. (<cyan>@src/controllers</cyan>)(allow use path alias)
-     *  actions   the controller's action names. multiple separated by commas. (norm/cli <cyan>index</cyan>,rest <cyan>gets</cyan>) (will auto add suffix: Action|Command)
+     *  actions   the controller's action names. multiple separated by commas ','. (norm/cli <cyan>index</cyan>,rest <cyan>gets</cyan>)
      * @options
-     *  -f      whether force override exists's file. (<info>false</info>)
-     *  --tpl   custom the controller class tpl file. (<comment>todo ...</comment>)
+     *  -o,--override    whether override exists's file. (<info>false</info>)
+     *  --preview        preview generate code(<info>false</info>)
+     *  --suffix         the controller class suffix(<info>Controller</info>)
+     *  --action-suffix  the controller action suffix(norm/cli <info>Action</info>,rest <info>Command</info>)
+     *  --tpl            custom the controller class tpl file. (<comment>todo ...</comment>)
      *
      * @param \inhere\console\io\Input $input
      * @param \inhere\console\io\Output $output
@@ -105,12 +110,14 @@ class GeneratorController extends Controller
         $defPath = '@src/controllers';
         $defParent = 'slimExt\web\Controller';
         $defActions = 'index';
+        $actionTpl = 'web-action.tpl';
 
         if ($type === 'cli') {
             $defNp = 'app\\console\\controllers';
             $suffix = 'Command';
             $defPath = '@src/console/controllers';
             $defParent = 'inhere\console\Controller';
+            $actionTpl = 'group-command.tpl';
         } elseif ($type === 'rest') {
             $defActions = 'gets';
             $defParent = 'slimExt\web\RestController';
@@ -122,22 +129,68 @@ class GeneratorController extends Controller
         $fullClass = $namespace . '\\' . $className;
         $actions = $vd->get('actions', $defActions);
         $parent = $vd->get('parent', $defParent);
+        $file = $path . '/' . $className . '.php';
 
-        $output->panel([
+        $data = [
             'type' => $type,
             'name' => $name,
             'namespace' => $namespace,
-            'class name' => $className,
-            'full class' => $fullClass,
-            'parent name' => basename(str_replace('\\', '/', $parent)),
-            'parent class' => $parent,
-            'path' => $path,
+            'className' => $className,
+            'fullClass' => $fullClass,
+            'parentName' => basename(str_replace('\\', '/', $parent)),
+            'parentClass' => $parent,
             'actions' => $actions,
-        ], 'controller info', [
+            'path' => $path,
+            'file' => $file,
+        ];
+
+        $output->panel($data, 'controller info', [
             'ucfirst' => false,
         ]);
 
-        return 0;
+        if (!$input->sameOpt(['yes', 'y']) && !$this->confirm('Check that the above information is correct')) {
+            $output->write(' Exit. Byebye');
+            return 0;
+        }
+
+        $tplVars = $this->tplVars;
+        $tplContent = file_get_contents($this->tplPath . '/controller.tpl');
+
+        foreach ($data as $key => $value) {
+            $key = '{@' . $key . '}';
+            $tplVars[$key] = $value;
+        }
+
+        // padding action methods
+        if ($actions = explode(',', $actions)) {
+            $actionContents = '';
+            $tplAction = file_get_contents($this->tplPath . '/' . $actionTpl);
+
+            foreach ($actions as $action) {
+                $actionContents .= str_replace('{@action}', $action, $tplAction);
+            }
+
+            $tplVars['{@methods}'] = $actionContents;
+        }
+
+        $content = strtr($tplContent, $tplVars);
+        if ($input->boolOpt('preview')) {
+            $output->write("\n```php\n" . $content . "\n```\n");
+        }
+
+        if (is_file($file) && !$this->confirm('Target file exists, override it', false)) {
+            $output->write(' Exit. Byebye');
+            return 0;
+        }
+
+        if (file_put_contents($file, $content)) {
+            $output->liteSuccess('Write content to file success!');
+            return 0;
+        }
+
+        $output->liteError('Write content to file failed!');
+
+        return -1;
     }
 
     /**
