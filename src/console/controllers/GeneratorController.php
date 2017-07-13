@@ -21,6 +21,19 @@ class GeneratorController extends Controller
 
     protected static $description = 'Generator model,controller,logic class. [<info>built in</info>]';
 
+    private $tplVars = [];
+
+    protected function init()
+    {
+        list($d, $t) = explode(' ', date('Y/m/d H:i'));
+
+        $this->tplVars = [
+            '{@date}' => $d,
+            '{@time}' => $t,
+            '{@author}' => 'Generator',
+        ];
+    }
+
     /**
      * Generator a model class of the project
      * @usage {command} db=mydb table=user
@@ -50,11 +63,15 @@ class GeneratorController extends Controller
     /**
      * Generator a web|console controller class of the application
      * @arguments
-     *  name<red>*</red>     the controller class name. (will auto add suffix: Controller)
-     *  type      the controller class type, allow: <blue>rest,norm,cli</blue>. default <info>norm</info>
-     *  namespace the model class namespace. default: <cyan>app\models</cyan>
-     *  path      the model class file path. default: <cyan>@src/controllers</cyan>(allow use path alias)
-     *  actions   the controller's action names. multiple separated by commas. default: (web)<cyan>index</cyan> (will auto add suffix: Action|Command)
+     *  name<red>*</red>     the controller class name. will auto add suffix: Controller
+     *  type      the controller class type, allow: <blue>norm,rest,cli</blue>. (<info>norm</info>)
+     *  namespace the controller class namespace. (<cyan>app\controllers</cyan>)
+     *  parent    the controller class's parent class. default:
+     *  - norm <cyan>slimExt\web\Controller</cyan>
+     *  - rest <cyan>slimExt\web\RestController</cyan>
+     *  - cli  <cyan>inhere\console\Controller</cyan>
+     *  path      the controller class file path. (<cyan>@src/controllers</cyan>)(allow use path alias)
+     *  actions   the controller's action names. multiple separated by commas. (norm/cli <cyan>index</cyan>,rest <cyan>gets</cyan>) (will auto add suffix: Action|Command)
      * @options
      *  -f      whether force override exists's file. (<info>false</info>)
      *  --tpl   custom the controller class tpl file. (<comment>todo ...</comment>)
@@ -68,19 +85,57 @@ class GeneratorController extends Controller
         // $name = $input->getRequiredArg('name');
         $types = ['rest', 'norm', 'cli'];
         $vd = Validation::make($input->getArgs(), [
-            ['name', 'required', 'msg' => 'the argument [name] is required'],
+            ['name', 'required', 'msg' => 'the argument [name] is required. please input by name=VALUE'],
             ['name', 'string', 'min' => 2, 'max' => 32],
             ['type', 'in', $types, 'msg' => 'the argument [type] only allow: ' . implode(',', $types)],
+            ['path', 'string'],
         ])->validate();
 
         if ($vd->fail()) {
-            $output->error($vd->firstError());
+            $output->liteError($vd->firstError());
 
             return 70;
         }
 
         $name = $vd->getValid('name');
         $type = $vd->getValid('type', 'norm');
+
+        $defNp = 'app\\controllers';
+        $suffix = 'Action';
+        $defPath = '@src/controllers';
+        $defParent = 'slimExt\web\Controller';
+        $defActions = 'index';
+
+        if ($type === 'cli') {
+            $defNp = 'app\\console\\controllers';
+            $suffix = 'Command';
+            $defPath = '@src/console/controllers';
+            $defParent = 'inhere\console\Controller';
+        } elseif ($type === 'rest') {
+            $defActions = 'gets';
+            $defParent = 'slimExt\web\RestController';
+        }
+
+        $path = \Slim::alias($vd->get('path', $defPath));
+        $namespace = $vd->get('namespace', $defNp);
+        $className = ucfirst($name) . 'Controller';
+        $fullClass = $namespace . '\\' . $className;
+        $actions = $vd->get('actions', $defActions);
+        $parent = $vd->get('parent', $defParent);
+
+        $output->panel([
+            'type' => $type,
+            'name' => $name,
+            'namespace' => $namespace,
+            'class name' => $className,
+            'full class' => $fullClass,
+            'parent name' => basename(str_replace('\\', '/', $parent)),
+            'parent class' => $parent,
+            'path' => $path,
+            'actions' => $actions,
+        ], 'controller info', [
+            'ucfirst' => false,
+        ]);
 
         return 0;
     }

@@ -51,14 +51,14 @@ class App extends \inhere\console\App
     {
         \Slim::$app = $this;
         $this->container = new Container($settings, $services);
+        $this->container['config'] = $config;
 
         parent::__construct([
             'name' => $config->get('name', 'Inhere Console'),
             'version' => $config->get('version', '1.0.1')
         ]);
 
-        $config->loadArray($this->config);
-        $this->container['config'] = $config;
+        // $config->loadArray($this->config);
         $this->loadBootstrapCommands();
     }
 

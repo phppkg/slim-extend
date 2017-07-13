@@ -12,7 +12,7 @@
      * @param \inhere\console\io\Output $output
      * @return int
      */
-    public function modelCommand($input, $output)
+    public function {@name}Command($input, $output)
     {
         //
         $this->write('hello, this is: ' . __METHOD__);

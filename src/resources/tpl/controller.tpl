@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by slimExt.
- * User: inhere
+ * User: {@author}
  * Date: {@date}
  * Time: {@time}
  */
