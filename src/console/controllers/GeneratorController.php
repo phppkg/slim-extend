@@ -9,11 +9,14 @@
 namespace slimExt\console\controllers;
 
 use inhere\console\Controller;
+use inhere\library\files\Directory;
 use inhere\validate\Validation;
+use slimExt\web\RestController;
 
 /**
  * Class GeneratorController
  * @package slimExt\console\controllers
+ *
  */
 class GeneratorController extends Controller
 {
@@ -44,10 +47,14 @@ class GeneratorController extends Controller
      *  db        the database service name in the app container. default: <cyan>db</cyan>
      *  name      the model name. default is equals to table name.
      *  namespace the model class namespace. default: <cyan>app\models</cyan>
+     *  parent    the model class's parent class. default:
      *  path      the model class file path. default: <cyan>@src/models</cyan>(allow use path alias)
      *
      * @options
-     *  --tpl   custom the controller class tpl file. (<comment>todo ...</comment>)
+     *  -o,--override  whether override exists's file. (<info>false</info>)
+     *  --preview      preview generate's code(<info>false</info>)
+     *  --suffix       the model class suffix(<info>Model</info>)
+     *  --tpl   custom the model class tpl file. (<comment>todo ...</comment>)
      *
      * @param \inhere\console\io\Input $input
      * @param \inhere\console\io\Output $output
@@ -55,9 +62,18 @@ class GeneratorController extends Controller
      */
     public function modelCommand($input, $output)
     {
-        $db = \Slim::db();
+//        $db = \Slim::db();
+//        $output->printVars($input->getRequiredArg('table'), $db);
+        $vd = Validation::make($input->getArgs(), [
+            ['table', 'required', 'msg' => 'the argument "table" is required. please input by table=VALUE'],
+            ['table,db,name,parent,path,namespace', 'string'],
+        ])->validate();
 
-        $output->printVars($db);
+        if ($vd->fail()) {
+            $output->liteError($vd->firstError());
+
+            return 70;
+        }
 
         return 0;
     }
@@ -76,7 +92,7 @@ class GeneratorController extends Controller
      *  actions   the controller's action names. multiple separated by commas ','. (norm/cli <cyan>index</cyan>,rest <cyan>gets</cyan>)
      * @options
      *  -o,--override    whether override exists's file. (<info>false</info>)
-     *  --preview        preview generate code(<info>false</info>)
+     *  --preview        preview generate's code(<info>false</info>)
      *  --suffix         the controller class suffix(<info>Controller</info>)
      *  --action-suffix  the controller action suffix(norm/cli <info>Action</info>,rest <info>Command</info>)
      *  --tpl            custom the controller class tpl file. (<comment>todo ...</comment>)
@@ -90,9 +106,9 @@ class GeneratorController extends Controller
         // $name = $input->getRequiredArg('name');
         $types = ['rest', 'norm', 'cli'];
         $vd = Validation::make($input->getArgs(), [
-            ['name', 'required', 'msg' => 'the argument [name] is required. please input by name=VALUE'],
+            ['name', 'required', 'msg' => 'the argument "name" is required. please input by name=VALUE'],
             ['name', 'string', 'min' => 2, 'max' => 32],
-            ['type', 'in', $types, 'msg' => 'the argument [type] only allow: ' . implode(',', $types)],
+            ['type', 'in', $types, 'msg' => 'the argument "type" only allow: ' . implode(',', $types)],
             ['path', 'string'],
         ])->validate();
 
@@ -108,7 +124,7 @@ class GeneratorController extends Controller
         $defNp = 'app\\controllers';
         $suffix = 'Action';
         $defPath = '@src/controllers';
-        $defParent = 'slimExt\web\Controller';
+        $defParent = \slimExt\web\Controller::class;
         $defActions = 'index';
         $actionTpl = 'web-action.tpl';
 
@@ -116,11 +132,11 @@ class GeneratorController extends Controller
             $defNp = 'app\\console\\controllers';
             $suffix = 'Command';
             $defPath = '@src/console/controllers';
-            $defParent = 'inhere\console\Controller';
+            $defParent = Controller::class;
             $actionTpl = 'group-command.tpl';
         } elseif ($type === 'rest') {
             $defActions = 'gets';
-            $defParent = 'slimExt\web\RestController';
+            $defParent = RestController::class;
         }
 
         $path = \Slim::alias($vd->get('path', $defPath));
@@ -139,7 +155,7 @@ class GeneratorController extends Controller
             'fullClass' => $fullClass,
             'parentName' => basename(str_replace('\\', '/', $parent)),
             'parentClass' => $parent,
-            'actions' => $actions,
+            'actions' => $actions . ", suffix: $suffix",
             'path' => $path,
             'file' => $file,
         ];
@@ -149,7 +165,7 @@ class GeneratorController extends Controller
         ]);
 
         if (!$input->sameOpt(['yes', 'y']) && !$this->confirm('Check that the above information is correct')) {
-            $output->write(' Exit. Byebye');
+            $output->write('Exit. Bye');
             return 0;
         }
 
@@ -163,28 +179,34 @@ class GeneratorController extends Controller
 
         // padding action methods
         if ($actions = explode(',', $actions)) {
+            $suffix = ucfirst($suffix);
             $actionContents = '';
             $tplAction = file_get_contents($this->tplPath . '/' . $actionTpl);
 
             foreach ($actions as $action) {
-                $actionContents .= str_replace('{@action}', $action, $tplAction);
+                $actionContents .= str_replace(['{@action}', '{@suffix}'], [$action, $suffix], $tplAction);
             }
 
             $tplVars['{@methods}'] = $actionContents;
         }
 
         $content = strtr($tplContent, $tplVars);
-        if ($input->boolOpt('preview')) {
+        $preview = $input->boolOpt('preview');
+        if ($preview || $this->confirm('do you want preview code', $preview)) {
             $output->write("\n```php\n" . $content . "\n```\n");
         }
 
         if (is_file($file) && !$this->confirm('Target file exists, override it', false)) {
-            $output->write(' Exit. Byebye');
+            $output->write('Exit. Bye');
             return 0;
         }
 
+        if (!is_dir(dirname($file))) {
+            Directory::create(dirname($file));
+        }
+
         if (file_put_contents($file, $content)) {
-            $output->liteSuccess('Write content to file success!');
+            $output->liteSuccess("Write content to file success!\nFILE: $file");
             return 0;
         }
 

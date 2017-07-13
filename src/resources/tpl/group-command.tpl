@@ -1,3 +1,4 @@
+
     /**
      * Description of the group command
      * @usage {command} [arg0 name=value name1=value1] [--opt]
@@ -12,9 +13,9 @@
      * @param \inhere\console\io\Output $output
      * @return int
      */
-    public function {@action}Command($input, $output)
+    public function {@action}{@suffix}($input, $output)
     {
-        //
+        // do something ...
         $this->write('hello, this is: ' . __METHOD__);
 
         return 0;

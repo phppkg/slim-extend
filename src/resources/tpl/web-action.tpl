@@ -4,8 +4,8 @@
      *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function {@action}Action()
+    public function {@action}{@suffix}()
     {
         // do something ...
-        $this->renderString('hello, this is: ' . __METHOD__);
+        return $this->renderString('hello, this is: ' . __METHOD__);
     }
