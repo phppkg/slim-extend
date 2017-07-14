@@ -47,7 +47,6 @@ abstract class Model extends SimpleCollection
         return new static($data);
     }
 
-
     /**
      * define model field list
      * in sub class:
@@ -65,6 +64,14 @@ abstract class Model extends SimpleCollection
      * @return array
      */
     abstract public function columns();
+
+    public function translates()
+    {
+        return [
+            // 'field' => 'translate',
+            // e.g. 'name'=>'名称',
+        ];
+    }
 
     /**
      * format column's data type

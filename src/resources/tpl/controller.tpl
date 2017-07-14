@@ -15,6 +15,6 @@ use {@parentClass};
  * @package {@namespace}
  */
 class {@className} extends {@parentName}
-{
+{{@properties}
 {@methods}
 }

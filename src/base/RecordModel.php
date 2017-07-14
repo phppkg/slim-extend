@@ -22,11 +22,7 @@ use Windwalker\Query\Query;
  */
 abstract class RecordModel extends Model
 {
-    /**
-     * default only update the have been changed column.
-     * @var bool
-     */
-    protected $onlyUpdateChanged = true;
+    use RecordModelExtraTrait;
 
     /**
      * @var array
@@ -51,6 +47,12 @@ abstract class RecordModel extends Model
      * @var string
      */
     protected static $aliasName = 'mt';
+
+    /**
+     * the table name
+     * @var string
+     */
+    private static $tableName;
 
     /**
      * @var array
@@ -83,6 +85,11 @@ abstract class RecordModel extends Model
         // function ($query) { ... }
     ];
 
+    /**
+     * default only update the have been changed column.
+     * @var bool
+     */
+    protected $onlyUpdateChanged = true;
 
     /**
      * @param $data
@@ -107,8 +114,10 @@ abstract class RecordModel extends Model
         $this->scene = trim($scene);
 
         if (!$this->columns()) {
-            throw new InvalidConfigException('Must define method columns() and is can\'t empty.');
+            throw new InvalidConfigException('Must define method columns() and cannot be empty.');
         }
+
+        self::$tableName = static::tableName();
     }
 
     /***********************************************************************************
@@ -119,7 +128,7 @@ abstract class RecordModel extends Model
      * TODO 定义保存数据时,当前场景允许写入的属性字段
      * @return array
      */
-    public function sceneAttrs()
+    public function scenarios()
     {
         return [
             // 'create' => ['username', 'email', 'password','createTime'],
@@ -169,6 +178,15 @@ abstract class RecordModel extends Model
     public static function query($where = null)
     {
         return ModelHelper::handleConditions($where, static::class)->from(static::queryName());
+    }
+
+    /**
+     * getTableName
+     * @return string
+     */
+    public static function getTableName()
+    {
+        return self::$tableName ?: self::$tableName();
     }
 
     /***********************************************************************************
@@ -251,29 +269,6 @@ abstract class RecordModel extends Model
     }
 
     /**
-     * simple count
-     * @param $where
-     * @return int
-     */
-    public static function counts($where)
-    {
-        $query = static::query($where);
-
-        return static::setQuery($query)->count();
-    }
-
-    /**
-     * @param $where
-     * @return int
-     */
-    public static function exists($where)
-    {
-        $query = static::query($where);
-
-        return static::setQuery($query)->exists();
-    }
-
-    /**
      * @param array $updateColumns
      * @param bool|false $updateNulls
      * @return bool
@@ -313,37 +308,6 @@ abstract class RecordModel extends Model
         }
 
         return $this;
-    }
-
-    /**
-     * more @see AbstractDriver::insertBatch()
-     * @param array $columns
-     * @param array $values
-     * @return bool|int
-     */
-    public static function insertBatch(array $columns, array $values)
-    {
-        if (static::getDb()->supportBatchSave()) {
-            return static::getDb()->insertBatch(static::tableName(), $columns, $values);
-        }
-
-        throw new \RuntimeException('The driver [' . static::getDb()->getDriver() . '] don\'t support one-time insert multi records.');
-    }
-
-    /**
-     * insert multiple
-     * @param array $dataSet
-     * @return array
-     */
-    public static function insertMulti(array $dataSet)
-    {
-        $pris = [];
-
-        foreach ($dataSet as $k => $data) {
-            $pris[$k] = static::load($data)->insert()->priValue();
-        }
-
-        return $pris;
     }
 
     /***********************************************************************************
@@ -400,33 +364,6 @@ abstract class RecordModel extends Model
         return $this;
     }
 
-    /**
-     * @param array $dataSet
-     * @param array $updateColumns
-     * @param bool|false $updateNulls
-     * @return mixed
-     */
-    public static function updateMulti(array $dataSet, array $updateColumns = [], $updateNulls = false)
-    {
-        $res = [];
-
-        foreach ($dataSet as $k => $data) {
-            $res[$k] = static::load($data)->update($updateColumns, $updateNulls);
-        }
-
-        return $res;
-    }
-
-    /**
-     * @param $data
-     * @param array $conditions
-     * @return bool
-     */
-    public static function updateBatch($data, array $conditions = [])
-    {
-        return static::getDb()->updateBatch(static::tableName(), $data, $conditions);
-    }
-
     /***********************************************************************************
      * delete operation
      ***********************************************************************************/
@@ -448,34 +385,6 @@ abstract class RecordModel extends Model
         }
 
         return $affected;
-    }
-
-    /**
-     * @param int|array $priValue
-     * @return int
-     */
-    public static function deleteByPk($priValue)
-    {
-        // only one
-        $where = [static::$priKey => $priValue];
-
-        // many
-        if (is_array($priValue)) {
-            $where = static::$priKey . ' IN (' . implode(',', $priValue) . ')';
-        }
-
-        return self::deleteBy($where);
-    }
-
-    /**
-     * @param mixed $where
-     * @return int
-     */
-    public static function deleteBy($where)
-    {
-        $query = ModelHelper::handleConditions($where, static::class)->delete(static::tableName());
-
-        return static::setQuery($query)->execute()->countAffected();
     }
 
     /***********************************************************************************
@@ -618,6 +527,14 @@ abstract class RecordModel extends Model
      ***********************************************************************************/
 
     /**
+     * @return bool
+     */
+    public function isNew()
+    {
+        return !($this->has(static::$priKey) && $this->get(static::$priKey, false));
+    }
+
+    /**
      * @param null|bool $value
      * @return bool
      */
@@ -640,22 +557,14 @@ abstract class RecordModel extends Model
     }
 
     /**
-     * @return bool
-     */
-    public function isNew()
-    {
-        return !($this->has(static::$priKey) && $this->get(static::$priKey, false));
-    }
-
-    /**
      * findXxx 无法满足需求时，自定义 $query
      *
      * ```
      * $query = XModel::getQuery();
      * ...
-     * ...
-     * self::setQuery($query)->loadAll(null, XModel::class);
+     * XModel::setQuery($query)->loadAll(null, XModel::class);
      * ```
+     *
      * @param string|Query $query
      * @return AbstractDriver
      */

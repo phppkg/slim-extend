@@ -3,10 +3,10 @@
      * Description of the group command
      * @usage {command} [arg0 name=value name1=value1] [--opt]
      * @arguments
-     *  name<red>*</red>    the required arg
-     *  name1        the optional arg. default: <cyan>default_value</cyan>
+     *  name    the required arg<red>*</red>
+     *  name1   the optional arg. (<cyan>default_value</cyan>)
      * @options
-     *  --long-opt this is a long option
+     *  --long-opt this is a long option(<info>default_value</info>)
      *  -s         this is a short option
      *
      * @param \inhere\console\io\Input $input
