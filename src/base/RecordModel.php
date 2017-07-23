@@ -186,7 +186,7 @@ abstract class RecordModel extends Model
      */
     public static function getTableName()
     {
-        return self::$tableName ?: self::$tableName();
+        return self::$tableName ?: self::tableName();
     }
 
     /***********************************************************************************

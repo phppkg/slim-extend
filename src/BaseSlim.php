@@ -26,9 +26,7 @@ use inhere\library\traits\PathAliasTrait;
  * Slim::$app->request; // by the magic method { @see \slimExt\web\App::__get() }
  * // equals to:
  * Slim::$app->request(); // by the magic method { @see \Slim\App::__call() }
- * ```
  *
- * @method static \slimExt\Collection cache() Return a driver config instance
  */
 abstract class BaseSlim
 {
