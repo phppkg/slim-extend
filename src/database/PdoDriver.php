@@ -8,12 +8,19 @@
 
 namespace slimExt\database;
 
+use Windwalker\Query\Query;
+
 /**
  * Class PdoDriver
  * @package slimExt\database
  */
 class PdoDriver extends AbstractDriver
 {
+    /**
+     * @var bool
+     */
+    private $prepared = false;
+
 ////////////////////////////////////// run method //////////////////////////////////////
 
     /**
@@ -22,18 +29,48 @@ class PdoDriver extends AbstractDriver
      * @param string $statement
      * @return int
      */
-    public function exec($statement = '')
+    public function exec($statement = null)
     {
         $this->connect();
-        $sql = $statement ?: (string)$this->query;
-        $sql = $this->replaceTablePrefix(trim($sql));
+        $statement = $this->replaceTablePrefix(trim($statement ?: (string)$this->query));
 
         // add sql log
         if ($this->debug) {
-            $this->dbLogger()->debug($sql . ';');
+            $this->dbLogger()->debug($statement . ';');
         }
 
-        return $this->pdo->exec($sql);
+        $this->lastQuery = $statement;
+
+        $this->fire(self::EXECUTE, [$this, 'exec']);
+
+        return $this->pdo->exec($statement);
+    }
+
+    /**
+     * @param null $statement
+     * @param array $driverOptions
+     * @return $this
+     */
+    public function prepare($statement = null, array $driverOptions = [])
+    {
+        if ($this->prepared) {
+            return $this;
+        }
+
+        $this->connect();
+
+        $statement = $this->replaceTablePrefix($statement ?: (string)$this->query);
+
+        // add sql log
+        if ($this->debug) {
+            $this->dbLogger()->debug($statement . '; ');
+        }
+
+        $this->prepared = true;
+        $this->lastQuery = $statement;
+        $this->cursor = $this->pdo->prepare($statement, $driverOptions);
+
+        return $this;
     }
 
     /**
@@ -42,15 +79,7 @@ class PdoDriver extends AbstractDriver
      */
     public function execute(array $bindParams = [])
     {
-        $this->connect();
-        $sql = $this->replaceTablePrefix((string)$this->query);
-
-        // add sql log
-        if ($this->debug) {
-            $this->dbLogger()->debug($sql . '; ');
-        }
-
-        $this->cursor = $this->pdo->prepare($sql, $this->driverOptions);
+        $this->prepare();
 
         if (!($this->cursor instanceof \PDOStatement)) {
             throw new \RuntimeException('PDOStatement not prepared. Maybe you haven\'t set any query');
@@ -68,12 +97,12 @@ class PdoDriver extends AbstractDriver
             }
         }
 
-        $this->lastQuery = $this->cursor->queryString;
-
         // add sql log
         // if ( $this->debug ) {
         //     $this->dbLogger()->debug('Successful Executed.');
         // }
+
+        $this->fire(self::EXECUTE, [$this, 'execute']);
 
         try {
             $this->cursor->execute($bindParams);
@@ -81,9 +110,53 @@ class PdoDriver extends AbstractDriver
             throw new \RuntimeException($e->getMessage() . "\nSQL: {$this->lastQuery}, $boundedStr", (int)$e->getCode(), $e);
         }
 
+        $this->prepared = false;
+
         return $this;
     }
 
+    /**
+     * @param string $statement
+     * @return $this
+     */
+    public function query($statement = null)
+    {
+        $this->connect();
+
+        $statement = $this->replaceTablePrefix($statement ?: (string)$this->query);
+
+        // add sql log
+        if ($this->debug) {
+            $this->dbLogger()->debug($statement);
+        }
+
+        $this->lastQuery = $statement;
+
+        $this->fire(self::EXECUTE, [$this, 'query']);
+
+        $this->cursor = $this->pdo->query($statement);
+
+        return $this;
+    }
+
+    /**
+     * @param null|\PDOStatement $cursor
+     * @return $this
+     */
+    public function freeResult($cursor = null)
+    {
+        $cursor = $cursor ?: $this->cursor;
+
+        if ($cursor instanceof \PDOStatement) {
+            $cursor->closeCursor();
+
+            $cursor = null;
+        }
+
+        $this->cursor = null;
+
+        return $this;
+    }
 
 ////////////////////////////////////// extra method //////////////////////////////////////
 
@@ -122,6 +195,25 @@ class PdoDriver extends AbstractDriver
         return $result ? $result->exists : 0;
     }
 
+    /**
+     * Get the number of affected rows for the previous executed SQL statement.
+     * Only applicable for DELETE, INSERT, or UPDATE statements.
+     * @return  integer  The number of affected rows.
+     */
+    public function affectedNum()
+    {
+        return $this->cursor->rowCount();
+    }
+
+    /**
+     * Method to get the auto-incremented value from the last INSERT statement.
+     * @return  string  The value of the auto-increment field from the last inserted row.
+     */
+    public function insertId()
+    {
+        // Error suppress this to prevent PDO warning us that the driver doesn't support this operation.
+        return @$this->pdo->lastInsertId();
+    }
 ////////////////////////////////////// transaction method //////////////////////////////////////
 
     /**
@@ -142,6 +234,9 @@ class PdoDriver extends AbstractDriver
         return $result;
     }
 
+    /**
+     * @return bool
+     */
     public function beginTransaction()
     {
         return $this->beginTrans();
@@ -201,6 +296,9 @@ class PdoDriver extends AbstractDriver
         return $this->pdo->inTransaction();
     }
 
+    /**
+     * @return bool
+     */
     public function inTransaction()
     {
         return $this->inTrans();

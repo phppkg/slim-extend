@@ -9,6 +9,8 @@
 namespace slimExt\database;
 
 use inhere\exceptions\InvalidArgumentException;
+use inhere\library\traits\LiteEventTrait;
+use inhere\library\traits\LiteOptionsTrait;
 use Slim;
 use PDO;
 use PDOStatement;
@@ -23,8 +25,15 @@ use Windwalker\Query\Query;
  */
 abstract class AbstractDriver
 {
-    use inhere\library\traits\LiteEventTrait;
-    use inhere\library\traits\LiteOptionsTrait;
+    use LiteEventTrait;
+    use LiteOptionsTrait;
+    use LoadResultSetTrait;
+
+    const CONNECT = 'connect';
+    const DISCONNECT = 'disconnect';
+    const EXECUTE = 'execute';
+    const BEFORE_EXECUTE = 'beforeExecute';
+    const AFTER_EXECUTE  = 'afterExecute';
 
     protected $name = '';
 
@@ -36,7 +45,7 @@ abstract class AbstractDriver
     /**
      * @var PDOStatement
      */
-    private $cursor;
+    protected $cursor;
 
     /**
      * @var array
@@ -55,7 +64,7 @@ abstract class AbstractDriver
     /**
      * @var string|Query
      */
-    private $query;
+    protected $query;
 
     /**
      * @var string|Query
@@ -65,10 +74,16 @@ abstract class AbstractDriver
     /**
      * @var string
      */
-    private $lastQuery = '';
+    protected $lastQuery = '';
 
+    /**
+     * @var string
+     */
     protected $prefixChar = '@@';
 
+    /**
+     * @var bool|mixed
+     */
     protected $debug = false;
 
     /**
@@ -80,6 +95,11 @@ abstract class AbstractDriver
     protected $supportBatchSave = false;
 
     /**
+     * @var string
+     */
+    private $dsn;
+
+    /**
      * @param array $options
      * @param PDO|null $pdo
      */
@@ -87,7 +107,7 @@ abstract class AbstractDriver
     {
         $this->pdo = $pdo;
         $this->setOptions($options);
-        $this->driverOptions = $this->getOption('driverOptions');
+        // $this->driverOptions = $this->getOption('driverOptions');
         $this->debug = $this->getOption('debug', false);
 
         $this->dsn = DsnHelper::getDsn($this->name, $this->options);
@@ -121,6 +141,8 @@ abstract class AbstractDriver
             throw new \RuntimeException('Could not connect to PDO: ' . $e->getMessage() . '. DSN: ' . $this->dsn, $e->getCode(), $e);
         }
 
+        $this->fire(self::CONNECT, [$this]);
+
         return $this;
     }
 
@@ -143,236 +165,25 @@ abstract class AbstractDriver
 
         return true;
     }
-////////////////////////////////////// Read record //////////////////////////////////////
 
     /**
-     * @param null|string $key
-     * @param string $class
-     * @return array
+     * disconnect
      */
-    public function loadAll($key = null, $class = \stdClass::class)
+    public function disconnect()
     {
-        if (strtolower($class) === 'array') {
-            return $this->loadArrayList($key);
-        }
+        $this->fire(self::DISCONNECT, [$this]);
 
-        if (strtolower($class) === 'assoc') {
-            return $this->loadAssocList($key);
-        }
-
-        return $this->loadObjectList($key, $class);
-    }
-
-    /**
-     * loadOne
-     * @param string $class
-     * @return  mixed
-     */
-    public function loadOne($class = \stdClass::class)
-    {
-        if (strtolower($class) === 'array') {
-            return $this->loadArray();
-        }
-
-        if (strtolower($class) === 'assoc') {
-            return $this->loadAssoc();
-        }
-
-        return $this->loadObject($class);
-    }
-
-    /**
-     * @return array|bool
-     */
-    public function loadResult()
-    {
-        $this->execute();
-
-        // Get the first row from the result set as an array.
-        $row = $this->fetchArray();
-
-        if ($row && is_array($row) && isset($row[0])) {
-            $row = $row[0];
-        }
-
-        // Free up system resources and return.
         $this->freeResult();
+        $this->pdo = null;
 
-        return $row;
     }
 
     /**
-     * @param int $offset
-     * @return array
+     * __destruct
      */
-    public function loadColumn($offset = 0)
+    public function __destruct()
     {
-        $this->execute();
-        $array = [];
-
-        // Get all of the rows from the result set as arrays.
-        while ($row = $this->fetchArray()) {
-            if ($row && is_array($row) && isset($row[$offset])) {
-                $array[] = $row[$offset];
-            }
-        }
-
-        // Free up system resources and return.
-        $this->freeResult();
-
-        return $array;
-    }
-
-    public function loadArray()
-    {
-        $this->execute();
-
-        // Get the first row from the result set as an array.
-        $array = $this->fetchArray();
-
-        // Free up system resources and return.
-        $this->freeResult();
-
-        return $array;
-    }
-
-    public function loadArrayList($key = null)
-    {
-        $this->execute();
-        $array = [];
-
-        // Get all of the rows from the result set as arrays.
-        while ($row = $this->fetchArray()) {
-            if ($key !== null && is_array($row)) {
-                $array[$row[$key]] = $row;
-            } else {
-                $array[] = $row;
-            }
-        }
-
-        // Free up system resources and return.
-        $this->freeResult();
-
-        return $array;
-    }
-
-    public function loadAssoc()
-    {
-        $this->execute();
-
-        // Get the first row from the result set as an associative array.
-        $array = $this->fetchAssoc();
-
-        // Free up system resources and return.
-        $this->freeResult();
-
-        return $array;
-    }
-
-    public function loadAssocList($key = null)
-    {
-        $this->execute();
-        $array = [];
-
-        // Get all of the rows from the result set.
-        while ($row = $this->fetchAssoc()) {
-            if ($key) {
-                $array[$row[$key]] = $row;
-            } else {
-                $array[] = $row;
-            }
-        }
-
-        // Free up system resources and return.
-        $this->freeResult();
-
-        return $array;
-    }
-
-    public function loadObject($class = 'stdClass')
-    {
-        $this->execute();
-
-        // Get the first row from the result set as an object of type $class.
-        $object = $this->fetchObject($class);
-
-        // Free up system resources and return.
-        $this->freeResult();
-
-        return $object;
-    }
-
-    public function loadObjectList($key = null, $class = 'stdClass')
-    {
-        $this->execute();
-        $array = [];
-
-        // Get all of the rows from the result set as objects of type $class.
-        while ($row = $this->fetchObject($class)) {
-            if ($key) {
-                $array[$row->$key] = $row;
-            } else {
-                $array[] = $row;
-            }
-        }
-
-        // Free up system resources and return.
-        $this->freeResult();
-
-        return $array;
-    }
-
-    /**
-     * @return array|bool
-     */
-    public function fetchArray()
-    {
-        return $this->fetch(\PDO::FETCH_NUM);
-    }
-
-    /**
-     * Method to fetch a row from the result set cursor as an associative array.
-     * @return  mixed  Either the next row from the result set or false if there are no more rows.
-     */
-    public function fetchAssoc()
-    {
-        return $this->fetch();// \PDO::FETCH_ASSOC
-    }
-
-    /**
-     * Method to fetch a row from the result set cursor as an object.
-     * @param   string $class Unused, only necessary so method signature will be the same as parent.
-     * @return  mixed   Either the next row from the result set or false if there are no more rows.
-     */
-    public function fetchObject($class = \stdClass::class)
-    {
-        return $this->getCursor()->fetchObject($class);
-    }
-
-    /**
-     * fetch
-     * @param int $type
-     * @param int $ori
-     * @param int $offset
-     * @see http://php.net/manual/en/pdostatement.fetch.php
-     * @return  bool|mixed
-     */
-    public function fetch($type = \PDO::FETCH_ASSOC, $ori = null, $offset = 0)
-    {
-        return $this->getCursor()->fetch($type, $ori, $offset);
-    }
-
-    /**
-     * fetchAll
-     * @param int $type
-     * @param array $args
-     * @param array $ctorArgs
-     * @see http://php.net/manual/en/pdostatement.fetchall.php
-     * @return  array|bool
-     */
-    public function fetchAll($type = \PDO::FETCH_ASSOC, $args = null, $ctorArgs = null)
-    {
-        return $this->getCursor()->fetchAll($type, $args, $ctorArgs);
+        $this->disconnect();
     }
 
 ////////////////////////////////////// insert record //////////////////////////////////////
@@ -488,10 +299,11 @@ abstract class AbstractDriver
 
         // Build conditions
         $hasField = false;
+        $buildValues = [];
 
-        foreach ($values as &$value) {
+        foreach ($values as $value) {
             // to string. eg: "'Macbeth', 1606"
-            $value = implode(',', $query->q($value));
+            $buildValues[] = implode(',', $query->q($value));
             $hasField = true;
         }
 
@@ -499,7 +311,7 @@ abstract class AbstractDriver
             return false;
         }
 
-        $query->values($values);
+        $query->values($buildValues);
         $query->insert($query->qn($table));
 
         return $this->setQuery($query)->exec();
@@ -683,13 +495,11 @@ abstract class AbstractDriver
 
     /**
      * @param $query
-     * @param array $driverOptions
      * @return $this
      */
-    public function setQuery($query, array $driverOptions = [])
+    public function setQuery($query)
     {
         $this->connect()->freeResult();
-        $this->driverOptions = $driverOptions;
         $this->query = $query;
 
         return $this;
@@ -704,10 +514,29 @@ abstract class AbstractDriver
     abstract public function exec($statement = '');
 
     /**
+     * @param string $statement
+     * @return $this
+     */
+    abstract public function query($statement = null);
+
+    /**
+     * @param string $statement
+     * @param array $driverOptions
+     * @return $this
+     */
+    abstract public function prepare($statement = null, array $driverOptions = []);
+
+    /**
      * @param array $bindParams
      * @return static
      */
-    abstract public function execute();
+    abstract public function execute(array $bindParams = []);
+
+    /**
+     * @param null|PdoStatement $cursor
+     * @return $this
+     */
+    abstract public function freeResult($cursor = null);
 
     /**
      * @param bool $forceNew
@@ -737,43 +566,6 @@ abstract class AbstractDriver
     public function replaceTablePrefix($query)
     {
         return str_replace($this->prefixChar, $this->getOption('prefix'), (string)$query);
-    }
-
-    /**
-     * @param null|PdoStatement $cursor
-     * @return $this
-     */
-    public function freeResult($cursor = null)
-    {
-        $cursor = $cursor ?: $this->cursor;
-
-        if ($cursor instanceof \PDOStatement) {
-            $cursor->closeCursor();
-
-            $cursor = null;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Get the number of affected rows for the previous executed SQL statement.
-     * Only applicable for DELETE, INSERT, or UPDATE statements.
-     * @return  integer  The number of affected rows.
-     */
-    public function countAffected()
-    {
-        return $this->getCursor()->rowCount();
-    }
-
-    /**
-     * Method to get the auto-incremented value from the last INSERT statement.
-     * @return  string  The value of the auto-increment field from the last inserted row.
-     */
-    public function insertId()
-    {
-        // Error suppress this to prevent PDO warning us that the driver doesn't support this operation.
-        return @$this->getPdo()->lastInsertId();
     }
 
 ////////////////////////////////////// getter/setter method //////////////////////////////////////
