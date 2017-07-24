@@ -466,62 +466,6 @@ abstract class RecordModel extends Model
     {
     }
 
-    /**
-     * @param $column
-     * @param int $step
-     * @return bool
-     */
-    public function increment($column, $step = 1)
-    {
-        $priKey = static::$priKey;
-
-        if (!is_int($this->$column)) {
-            throw new \InvalidArgumentException('The method only can be used in the column of type integer');
-        }
-
-        $this->$column += (int)$step;
-
-        $data = [
-            $priKey => $this->get($priKey),
-            $column => $this->$column,
-        ];
-
-        return static::getDb()->update(static::tableName(), $data, $priKey);
-    }
-
-    public function incre($column, $step = 1)
-    {
-        return $this->increment($column, $step);
-    }
-
-    /**
-     * @param $column
-     * @param int $step
-     * @return bool
-     */
-    public function decrement($column, $step = -1)
-    {
-        $priKey = static::$priKey;
-
-        if (!is_int($this->$column)) {
-            throw new \InvalidArgumentException('The method only can be used in the column of type integer');
-        }
-
-        $this->$column += (int)$step;
-
-        $data = [
-            $priKey => $this->get($priKey),
-            $column => $this->$column,
-        ];
-
-        return static::getDb()->update(static::tableName(), $data, $priKey);
-    }
-
-    public function decre($column, $step = -1)
-    {
-        return $this->decrement($column, $step);
-    }
-
     /***********************************************************************************
      * helper method
      ***********************************************************************************/
@@ -559,7 +503,7 @@ abstract class RecordModel extends Model
     /**
      * findXxx 无法满足需求时，自定义 $query
      *
-     * ```
+     * ```php
      * $query = XModel::getQuery();
      * ...
      * XModel::setQuery($query)->loadAll(null, XModel::class);

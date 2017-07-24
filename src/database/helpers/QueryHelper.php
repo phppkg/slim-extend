@@ -1,6 +1,6 @@
 <?php
 
-namespace slimExt\database\query;
+namespace slimExt\database\helpers;
 
 use slimExt\database\DbFactory;
 use Windwalker\Query\QueryElement;
@@ -15,7 +15,6 @@ use Windwalker\Query\Query;
  */
 class QueryHelper
 {
-
     /**
      * buildConditions
      *

@@ -14,7 +14,7 @@ use Windwalker\Query\Mysql\MysqlQuery;
  * Class MysqlDriver
  * @package slimExt\database
  */
-class MysqlDriver extends AbstractDriver
+class MysqlDriver extends PdoDriver
 {
     protected $name = 'mysql';
 
@@ -30,7 +30,6 @@ class MysqlDriver extends AbstractDriver
 
     /**
      * Is this driver supported.
-     *
      * @return  boolean
      */
     public static function isSupported()

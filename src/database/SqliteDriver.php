@@ -14,7 +14,7 @@ use Windwalker\Query\Sqlite\SqliteQuery;
  * Class Sqlite
  * @package slimExt\database
  */
-class SqliteDriver extends AbstractDriver
+class SqliteDriver extends PdoDriver
 {
     protected $name = 'sqlite';
 
@@ -30,7 +30,6 @@ class SqliteDriver extends AbstractDriver
 
     /**
      * Is this driver supported.
-     *
      * @return  boolean
      */
     public static function isSupported()
