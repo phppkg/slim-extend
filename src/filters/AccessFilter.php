@@ -112,7 +112,7 @@ class AccessFilter extends BaseFilter
             }
 
             // use custom callback
-            if (($cb = Arr::get($role, 'callback')) && $cb($action, $user)) {
+            if (($cb = Arr::get($rule, 'callback')) && $cb($action, $user)) {
                 break;
             }
         }
