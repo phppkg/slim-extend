@@ -240,7 +240,7 @@ abstract class RestController extends AbstractController
 
         // if the action return is array data
         if (is_array($resp)) {
-            $resp = $this->response->withJson($resp);
+            $resp = $this->response->withRawJson($resp);
         }
 
         return $resp;
