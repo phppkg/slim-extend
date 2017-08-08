@@ -11,6 +11,8 @@ namespace slimExt\database;
 /**
  * Class LoadResultSetTrait
  * @package slimExt\database
+ *
+ * @property \PDOStatement $cursor
  */
 trait LoadResultSetTrait
 {
@@ -273,7 +275,7 @@ trait LoadResultSetTrait
      */
     public function fetch($type = \PDO::FETCH_ASSOC, $ori = null, $offset = 0)
     {
-        return $this->getCursor()->fetch($type, $ori, $offset);
+        return $this->cursor->fetch($type, $ori, $offset);
     }
 
     /**
@@ -286,6 +288,6 @@ trait LoadResultSetTrait
      */
     public function fetchAll($type = \PDO::FETCH_ASSOC, $args = null, $ctorArgs = null)
     {
-        return $this->getCursor()->fetchAll($type, $args, $ctorArgs);
+        return $this->cursor->fetchAll($type, $args, $ctorArgs);
     }
 }

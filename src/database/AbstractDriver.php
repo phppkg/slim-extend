@@ -23,7 +23,7 @@ use Windwalker\Query\Query;
  * @package slimExt\database
  * @link https://github.com/ventoviro/windwalker-database
  */
-abstract class AbstractDriver
+abstract class AbstractDriver implements InterfaceDriver
 {
     use LiteEventTrait;
     use LiteOptionsTrait;
@@ -528,7 +528,7 @@ abstract class AbstractDriver
 
     /**
      * @param array $bindParams
-     * @return static
+     * @return $this
      */
     abstract public function execute(array $bindParams = []);
 
@@ -588,7 +588,7 @@ abstract class AbstractDriver
 
     /**
      * getCursor
-     * @return  resource|PDOStatement
+     * @return PDOStatement
      */
     public function getCursor()
     {

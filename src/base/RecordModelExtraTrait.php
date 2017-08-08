@@ -7,6 +7,10 @@ use slimExt\helpers\ModelHelper;
 /**
  * Class RecordModelExtraTrait
  * @package slimExt\base
+ *
+ * @method static RecordModel load()
+ * @method static \slimExt\database\AbstractDriver getDb()
+ * @method static \slimExt\database\AbstractDriver setQuery()
  */
 trait RecordModelExtraTrait
 {
