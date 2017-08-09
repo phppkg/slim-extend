@@ -1,11 +1,14 @@
 <?php
 /**
- * Created by slimExt.
+ * Created by slimExt Generator.
  * User: {@author}
  * Date: {@date}
  * Time: {@time}
- * Command:
+ * Gen by command:
+ *
+ * ```shell
  * {@fullCommand}
+ * ```
  */
 
 namespace {@namespace};

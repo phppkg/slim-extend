@@ -4,7 +4,7 @@
  * User: {@author}
  * Date: {@date}
  * Time: {@time}
- * Command:
+ * Gen by command:
  *
  * ```shell
  * {@fullCommand}

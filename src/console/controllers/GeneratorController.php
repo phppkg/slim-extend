@@ -63,7 +63,7 @@ class GeneratorController extends Controller
      * @options
      *  -y,--yes         don't ask anything(<info>false</info>)
      *  -o,--override    whether override exists's file(<info>false</info>)
-     *  --preview        preview generate's code(<info>false</info>)
+     *  --preview        preview generate's code(<info>true</info>)
      *  --validate-rules generate field validate rules(<info>false</info>)
      *  --suffix         the model class suffix(<info>Model</info>)
      *  --tpl            custom the model class tpl file(<comment>todo ...</comment>)
@@ -196,21 +196,22 @@ class GeneratorController extends Controller
      * @usage {command} name=test type=norm actions=index,create,update,delete
      * @arguments
      *  name      the controller class name.<red>*</red>
-     *  type      the controller class type, allow: norm,rest,cli. (<cyan>norm</cyan>)
+     *  type      the controller class type, allow: norm,rest,cli (<cyan>norm</cyan>)
      *  namespace the controller class namespace. (<cyan>app\controllers</cyan>)
      *  parent    the controller class's parent class.
      *            default:
      *              - norm <cyan>slimExt\web\Controller</cyan>
      *              - rest <cyan>slimExt\web\RestController</cyan>
      *              - cli  <cyan>inhere\console\Controller</cyan>
-     *  path      the controller class file path. allow use path alias. (<cyan>@src/controllers</cyan>)
+     *  path      the controller class file path. allow use path alias(<cyan>@src/controllers</cyan>)
      *  actions   the controller's action names. multiple separated by commas ','. (norm/cli: <cyan>index</cyan>,rest: <cyan>gets</cyan>)
      * @options
-     *  -o,--override    whether override exists's file. (<info>false</info>)
-     *  --preview        preview generate's code(<info>false</info>)
+     *  -y,--yes         don't ask anything(<info>false</info>)
+     *  -o,--override    whether override exists's file (<info>false</info>)
+     *  --preview        preview generate's code(<info>true</info>)
      *  --suffix         the controller class suffix(<info>Controller</info>)
      *  --action-suffix  the controller action suffix(norm/cli <info>Action</info>,rest <info>Command</info>)
-     *  --tpl            custom the controller class tpl file. (<comment>todo ...</comment>)
+     *  --tpl            custom the controller class tpl file (<comment>todo ...</comment>)
      *
      * @param \inhere\console\io\Input $input
      * @param \inhere\console\io\Output $output
@@ -291,7 +292,7 @@ EOF;
         ];
 
         $yes = $input->sameOpt(['yes', 'y']);
-        $output->panel($data, 'controller info', [
+        $output->panel($data, 'controller class info', [
             'ucfirst' => false,
         ]);
 
@@ -302,6 +303,7 @@ EOF;
 
         $data['methods'] = '';
         $data['properties'] = $properties;
+        $data['fullCommand'] = $input->getFullScript();
 
         if ($type === 'rest') {
             $data['methods'] = <<<EOF
@@ -334,25 +336,110 @@ EOF;
             $data['methods'] .= $actionContents;
         }
 
-
         $this->appendTplVars($data);
         $tplContent = file_get_contents($this->tplPath . '/controller.tpl');
 
-        return $this->writeContent($file, $tplContent, $yes);
+        $code = $this->writeContent($file, $tplContent, $yes);
+
+        if ($code === 0) {
+            $output->liteNotice("Don't forget to add the controller to the app routing file");
+        }
+
+        return $code;
     }
 
     /**
      * Generator a console command class of the project
      * @arguments
-     *  name      the model name. default is equals to table name.
-     *  namespace the model class namespace. default: <cyan>app\models</cyan>
-     *  path      the model class file path. default: <cyan>@src/models</cyan>(allow use path alias)
+     *  name              the command name<red>*</red>
+     *  des, description  the command class description message
+     *  namespace         the command class namespace(<cyan>app\console\commands</cyan>)
+     *  parent            the command class's parent class(<cyan>inhere\console\Command</cyan>)
+     *  path              the command class file path,allow use path alias(<cyan>@src/console/commands</cyan>)
      *
+     * @options
+     *  -y,--yes         don't ask anything(<info>false</info>)
+     *  -o,--override    whether override exists's file. (<info>false</info>)
+     *  --preview        preview generate's code(<info>true</info>)
+     *  --suffix         the controller class suffix(<info>Command</info>)
+     *  --tpl            custom the controller class tpl file. (<comment>todo ...</comment>)
+     *
+     * @param \inhere\console\io\Input $input
+     * @param \inhere\console\io\Output $output
      * @return int
      */
-    public function commandCommand()
+    public function commandCommand($input, $output)
     {
-        return 0;
+        $vd = Validation::make($input->getArgs(), [
+            ['name', 'required', 'msg' => 'the argument "name" is required. please input by name=VALUE'],
+            ['name', 'string', 'min' => 2, 'max' => 32],
+            // ['type', 'in', $types, 'msg' => 'the argument "type" only allow: ' . implode(',', $types)],
+            ['path, parent', 'string'],
+        ])->validate();
+
+        if ($vd->fail()) {
+            $output->liteError($vd->firstError());
+
+            return 70;
+        }
+
+        $name = $vd->getValid('name');
+        $description = $input->getArg('description', 'the command description message');
+
+        $properties = <<<EOF
+    /**
+     * the group name
+     * @var string
+     */
+    protected static \$name = '$name';
+
+    /**
+     * the group description message
+     * @var string
+     */
+    protected static \$description = '$description';
+EOF;
+        $path = \Slim::alias($vd->get('path', '@src/console/commands'));
+        $suffix = $input->getOpt('suffix', 'Command');
+        $namespace = $vd->get('namespace', 'app\console\commands');
+        $className = ucfirst($name) . $suffix;
+        $fullClass = $namespace . '\\' . $className;
+        $parent = $vd->get('parent', \inhere\console\Command::class);
+        $file = $path . '/' . $className . '.php';
+
+        $data = [
+            'name' => $name,
+            'className' => $className,
+            'namespace' => $namespace,
+            'fullClass' => $fullClass,
+            'parentName' => basename(str_replace('\\', '/', $parent)),
+            'parentClass' => $parent,
+            'path' => $path . '(<comment>' . (is_dir($path) ? 'exists' : 'not-exists') . '</comment>)',
+            'file' => $file . '(<comment>' . (is_file($file) ? 'exists' : 'not-exists') . '</comment>)',
+        ];
+
+        $yes = $input->sameOpt(['yes', 'y']);
+        $output->panel($data, 'command class info', [
+            'ucfirst' => false,
+        ]);
+
+        if (!$yes && !$this->confirm('Check that the above information is correct')) {
+            $output->write('Exit. Bye');
+            return 0;
+        }
+
+        $data['properties'] = $properties;
+        $data['fullCommand'] = $input->getFullScript();
+
+        $this->appendTplVars($data);
+        $tplContent = file_get_contents($this->tplPath . '/command.tpl');
+        $code = $this->writeContent($file, $tplContent, $yes);
+
+        if ($code === 0) {
+            $output->liteNotice("Don't forget to add the command to the console routing file");
+        }
+
+        return $code;
     }
 
     /**

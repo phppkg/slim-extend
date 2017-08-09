@@ -1,11 +1,14 @@
 <?php
 /**
- * Created by slimExt.
+ * Created by slimExt Generator.
  * User: {@author}
  * Date: {@date}
  * Time: {@time}
- * Command:
+ * Gen by command:
+ *
+ * ```shell
  * {@fullCommand}
+ * ```
  */
 
 namespace {@namespace};
@@ -18,12 +21,14 @@ use {@parentClass};
  */
 class {@className} extends {@parentName}
 {
+{@properties}
+
     /**
      * Description of the group command
      * @usage {command} [arg0 name=value name1=value1] [--opt]
      * @arguments
-     *  name<red>*</red>    the required arg
-     *  name1        the optional arg. default: <cyan>default_value</cyan>
+     *  name    the required arg<red>*</red>
+     *  name1   the optional arg(<cyan>DEFAULT_VALUE</cyan>)
      * @options
      *  --long-opt this is a long option
      *  -s         this is a short option

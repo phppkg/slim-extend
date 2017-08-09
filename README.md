@@ -41,8 +41,8 @@ support: model, command, controller
 how to use:
 
 ```shell
-php bin/app gen
-php bin/app gen:model -h
+php bin/console gen
+php bin/console gen:model -h
 ```
 
 - a model
