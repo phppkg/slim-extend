@@ -35,13 +35,24 @@ class CommandUpdateCommand extends Command
     protected $targetFile = '@project/boot/console/commands.php';
     protected $tplFile = '@project/resources/templates/commands.tpl';
 
+    /**
+     * Generator a logic class of the project
+     * @arguments
+     *  path        the commands class file path dir(<cyan>@src/console/commands</cyan>)
+     *  namespace   the commands class namespace(<cyan>app\console\commands</cyan>)
+     *
+     * @options
+     *  -o,--override    whether override exists's file. (<info>false</info>)
+     *
+     * @return int
+     */
     protected function execute($input, $output)
     {
-        $force = $input->boolOpt('force');
-        $namespace = '\app\commands\\';
-        $dir = \Slim::alias('@src/commands');
+        $namespace = $input->get('namespace', 'app\console\commands');
+        $path = $input->get('path', '@src/console/commands');
+        $dir = \Slim::alias($path);
 
-        $output->writeln('Begin scan application command: [in <info>@src/commands</info>]');
+        $output->writeln("Begin scan application command:(in <info>{$dir}</info>)");
 
         $ret = Directory::findFiles($dir, [
             'include' => [
@@ -50,7 +61,7 @@ class CommandUpdateCommand extends Command
         ], true);
 
         if (!$ret) {
-            $output->writeln('  Not found any command class. Bye!');
+            $output->liteWarning('  Not found any command class. Bye!');
 
             return 0;
         }
@@ -66,9 +77,10 @@ class CommandUpdateCommand extends Command
         }
 
         $targetFile = \Slim::alias($this->targetFile);
+        $override = $input->sameOpt(['o', 'override']);
 
         if (
-            !$force &&
+            !$override &&
             file_exists($targetFile) &&
             false === $this->confirm('Found commands.php, are you want to override it!', false)
         ) {
@@ -82,7 +94,7 @@ class CommandUpdateCommand extends Command
 /**
  * entry file is `{project}/console`
  * register console command
- * @var \$app \slimExt\\base\ConsoleApp
+ * @var \$app \slimExt\\console\App
  */
 
 // \$app->add(new \app\commands\GreetCommand);
@@ -91,8 +103,6 @@ EOF;
         $content .= "\n" . implode("\n", $cmdList);
 
         if (file_put_contents($targetFile, $content)) {
-
-            // $this->getIO()->success('   Update commands class successful!');
             $output->writeln("\n" . '<info>Update commands class successful!</info>');
 
             return 0;
