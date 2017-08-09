@@ -1,6 +1,6 @@
 <?php
 
-namespace app\models;
+namespace slimExt\models;
 
 use Slim;
 use slimExt\base\RecordModel;
