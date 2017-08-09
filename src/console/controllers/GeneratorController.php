@@ -41,32 +41,35 @@ class GeneratorController extends Controller
 
     /**
      * Generate a model class of the project
-     * @usage {command} type=db db=mydb name=user [...]
+     * @usage {script} {command} type=db db=mydb name=user [...]
      * @arguments
-     *  name      the model name.<red>*</red>
-     *  db        the database service name in the app container. (<cyan>db</cyan>)
-     *  type      the model type. allow: data,db. (<cyan>data</cyan>)
-     *            - data: it is a php data model.
-     *            - db: it is a database table data model.
+     *  name      the model name<red>*</red>
+     *  db        the database service name in the app container(<cyan>db</cyan>)
+     *  type      the model type. allow: data,db(<cyan>data</cyan>)
+     *            - data: it is a php data model
+     *            - db: it is a database table data model
      *
-     *  table     the model table name, default is equals to model 'name'.
-     *  namespace the model class namespace. (<cyan>app\models</cyan>)
-     *  parent    the model class's parent class.
+     *  table     the model table name, default is equals to model 'name'
+     *  namespace the model class namespace (<cyan>app\models</cyan>)
+     *  parent    the model class's parent class
      *            - no db: <cyan>slimExt\base\Model</cyan>
      *            - use db: <cyan>slimExt\base\RecordModel</cyan>
      *
-     *  path      the model class file path. allow use path alias. (<cyan>@src/models</cyan>)
-     *  fields    define the model fields. when the argument "type=data".
-     *            format - filed1,type,trans;filed2,type,trans
-     *            e.g. fields="username,string,Username;password,string,Password;role,int,'Role Type';"
+     *  path      the model class file path. allow use path alias(<cyan>@src/models</cyan>)
+     *  fields    define the model fields. when the argument "type=data"
+     *            format - filed1,type,trans;filed2=DEFAULT_VALUE,type,trans;filed3,type,trans
+     *            e.g. fields="username,string,Username;password,string,Password;role,int,Role Type;"
      *
      * @options
-     *  -o,--override    whether override exists's file. (<info>false</info>)
+     *  -y,--yes         don't ask anything(<info>false</info>)
+     *  -o,--override    whether override exists's file(<info>false</info>)
      *  --preview        preview generate's code(<info>false</info>)
      *  --validate-rules generate field validate rules(<info>false</info>)
      *  --suffix         the model class suffix(<info>Model</info>)
-     *  --tpl            custom the model class tpl file. (<comment>todo ...</comment>)
+     *  --tpl            custom the model class tpl file(<comment>todo ...</comment>)
      *
+     * @example
+     * {script} {command} name=user type=db fields="username,string,Username;role,int,Role Type;"
      * @param \inhere\console\io\Input $input
      * @param \inhere\console\io\Output $output
      * @return int
@@ -96,7 +99,7 @@ class GeneratorController extends Controller
 
         $name = $vd->getValid('name');
         $type = $vd->getValid('type');
-        $suffix = $input->getOpt('suffix', '');
+        $suffix = $input->getOpt('suffix', 'Model');
 
         $useDb = $type === 'db';
         $defNp = 'app\\models';
@@ -105,7 +108,7 @@ class GeneratorController extends Controller
 
         $dbService = $vd->get('db', 'db');
         $table = $vd->get('table', $name);
-        $fields = $vd->get('fields');
+        $fields = trim($vd->get('fields'), ';');
 
         if ($useDb) {
             $defParent = \slimExt\base\RecordModel::class;
@@ -144,8 +147,10 @@ class GeneratorController extends Controller
         }
 
         $rules = [];
-        $data['columns'] = $data['rules'] = $data['translates'] = $data['properties'] = '';
+        $data['fullCommand'] = $input->getFullScript();
+        $data['columns'] = $data['rules'] = $data['translates'] = $data['properties'] = $data['defaultData'] = '';
         $fields = explode(';', trim($fields, '; '));
+        $indent8 = str_repeat(' ', 8);
         $indent = str_repeat(' ', 12);
         foreach ($fields as $value) {
             if (!$value) {
@@ -159,13 +164,20 @@ class GeneratorController extends Controller
             }
 
             $field = trim($info[0]);
+
+            if (strpos($field, '=')) {
+                list($field, $value) = explode('=', $field);
+                $value = is_numeric($value) ? $value : "'$value'";
+                $data['defaultData'] .= "\n{$indent8}'{$field}' => {$value},";
+            }
+
             $type = isset($info[1]) && strpos($info[1], 'int') !== false ? 'int' : 'string';
             $trans = isset($info[2]) ? trim($info[2]) : ucfirst($field);
 
             $rules[$type][] = $field;
             $data['columns'] .= "\n{$indent}['{$field}' => '{$type}'],";
-            $data['translates'] .= "\n{$indent}['{$field}' => '{$trans}'],";
-            $data['properties'] .= "\n * @property $type $field";
+            $data['translates'] .= "\n{$indent}'{$field}' => '{$trans}',";
+            $data['properties'] .= "\n * @property $type \${$field}";
         }
 
         foreach ($rules as $type => $list) {

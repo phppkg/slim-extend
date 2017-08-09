@@ -34,4 +34,21 @@ run: `composer update`
 
 ## Usage
 
+### generate class
+
+support: model, command, controller
+
+how to use:
+
+```shell
+php bin/app gen
+php bin/app gen:model -h
+```
+
+- a model
+
+```shell
+php bin/console gen:model name=rolePermission table=role_permission type=db fileds="id,int;name,string,名称;priority,int,级别;permissions,string,权限"
+```
+
 more see [Document](doc/index.md)

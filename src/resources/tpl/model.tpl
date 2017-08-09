@@ -1,9 +1,14 @@
 <?php
 /**
- * Created by slimExt.
+ * Created by slimExt Generator.
  * User: {@author}
  * Date: {@date}
  * Time: {@time}
+ * Command:
+ *
+ * ```shell
+ * {@fullCommand}
+ * ```
  */
 
 namespace {@namespace};
@@ -21,9 +26,13 @@ class {@className} extends {@parentName}
      * define some default value
      * @var array
      */
-    protected $data = [
+    protected $data = [{@defaultData}
     ];
 
+    /**
+     * define the table name
+     * @var string
+     */
     public static function tableName()
     {
         return '{@table}';

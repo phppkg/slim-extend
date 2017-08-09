@@ -4,6 +4,8 @@
  * User: {@author}
  * Date: {@date}
  * Time: {@time}
+ * Command:
+ * {@fullCommand}
  */
 
 namespace {@namespace};
