@@ -33,7 +33,12 @@ abstract class BaseSlim
     use PathAliasTrait;
 
     /**
-     * @var $app \SlimExt\Web\App
+     * @var $app \SlimExt\Base\Container
+     */
+    public static $di;
+
+    /**
+     * @var $app \SlimExt\Web\WebApp
      */
     public static $app;
 
@@ -110,7 +115,7 @@ abstract class BaseSlim
      * @param string $class
      * @param array $params
      * @return mixed
-     * @throws \inhere\exceptions\LogicException
+     * @throws \Inhere\Exceptions\LogicException
      */
     public static function make($id, $class = null, $params = null)
     {

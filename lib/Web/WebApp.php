@@ -8,6 +8,7 @@
 
 namespace SlimExt\Web;
 
+use Slim\App;
 use SlimExt\Base\TraitUseModule;
 use SlimExt\Components\QuicklyGetServiceTrait;
 
@@ -28,10 +29,9 @@ use SlimExt\Components\QuicklyGetServiceTrait;
  * @property \SlimExt\Collection config
  *
  */
-class App extends \Slim\App
+class WebApp extends App
 {
-    use TraitUseModule;
-    use QuicklyGetServiceTrait;
+    use TraitUseModule, QuicklyGetServiceTrait;
 
     public function __construct($container = [])
     {

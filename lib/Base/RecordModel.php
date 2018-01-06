@@ -8,9 +8,9 @@
 
 namespace SlimExt\Base;
 
-use inhere\exceptions\InvalidArgumentException;
-use inhere\exceptions\InvalidConfigException;
-use inhere\exceptions\UnknownMethodException;
+use Inhere\Exceptions\InvalidArgumentException;
+use Inhere\Exceptions\InvalidConfigException;
+use Inhere\Exceptions\UnknownMethodException;
 use Inhere\Library\Helpers\Arr;
 use SlimExt\Database\AbstractDriver;
 use SlimExt\Helpers\ModelHelper;

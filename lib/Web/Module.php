@@ -109,7 +109,7 @@ abstract class Module
 
     /**
      * register module to application
-     * @param App $app
+     * @param WebApp $app
      */
     public static function register($app)
     {
@@ -122,7 +122,7 @@ abstract class Module
 
     /**
      * register route to web application
-     * @param App $app
+     * @param WebApp $app
      */
     protected static function registerRoutes($app)
     {
@@ -131,7 +131,7 @@ abstract class Module
 
     /**
      * register command to console application
-     * @param App $app
+     * @param WebApp $app
      */
     protected static function registerCommands($app)
     {

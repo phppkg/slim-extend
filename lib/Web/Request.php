@@ -14,7 +14,7 @@ namespace SlimExt\Web;
  * @package SlimExt\Web
  *
  */
-class Request extends \inhere\http\Request
+class Request extends \Slim\Http\Request
 {
     const FLASH_MSG_KEY = '_alert_messages';
     const FLASH_OLD_INPUT_KEY = '_last_inputs';

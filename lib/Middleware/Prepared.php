@@ -2,7 +2,7 @@
 
 namespace SlimExt\Middleware;
 
-use inhere\exceptions\InvalidConfigException;
+use Inhere\Exceptions\InvalidConfigException;
 use Slim;
 use SlimExt\Web\Request;
 use SlimExt\Web\Response;

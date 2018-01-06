@@ -16,7 +16,7 @@ use SlimExt\Console\Controllers\GeneratorController;
  * Class ConsoleApp
  * @package SlimExt\Console
  */
-class App extends Application
+class ConsoleApp extends Application
 {
     use QuicklyGetServiceTrait;
 

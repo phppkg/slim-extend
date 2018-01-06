@@ -5,7 +5,7 @@
 
 namespace SlimExt\Helpers;
 
-use inhere\exceptions\UnknownCalledException;
+use Inhere\Exceptions\UnknownCalledException;
 use Slim;
 
 /**

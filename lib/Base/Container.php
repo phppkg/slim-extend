@@ -8,6 +8,7 @@
 
 namespace SlimExt\Base;
 
+use Inhere\Library\Helpers\Php;
 use LogicException;
 use Inhere\Library\Collections\SimpleCollection;
 use Slim\Container as SlimContainer;
@@ -41,6 +42,6 @@ class Container extends SlimContainer
             throw new LogicException('The service must is a Closure by the method(Container::call) call.');
         }
 
-        return $params ? $callable($this) : call_user_func_array($callable, $params);
+        return $params ? $callable($this) : Php::call($callable, $params);
     }
 }

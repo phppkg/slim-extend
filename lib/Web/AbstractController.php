@@ -8,7 +8,7 @@
 
 namespace SlimExt\Web;
 
-use inhere\exceptions\NotFoundException;
+use Inhere\Exceptions\NotFoundException;
 use Psr\Http\Message\ResponseInterface;
 use SlimExt\Filters\BaseFilter;
 

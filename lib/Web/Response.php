@@ -17,7 +17,7 @@ use Slim;
  * Class Response
  * @package SlimExt\Web
  */
-class Response extends \inhere\http\Response
+class Response extends \Inhere\Http\Response
 {
     /**
      * @param mixed $data

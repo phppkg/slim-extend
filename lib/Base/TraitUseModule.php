@@ -2,7 +2,7 @@
 
 namespace SlimExt\Base;
 
-use SlimExt\Web\App;
+use SlimExt\Web\WebApp;
 use SlimExt\Web\Module;
 
 /**
@@ -29,7 +29,7 @@ trait TraitUseModule
     {
         /** @var Module $class */
         foreach ($classes as $class) {
-            /** @var App $this */
+            /** @var WebApp $this */
             $class::register($this);
         }
     }

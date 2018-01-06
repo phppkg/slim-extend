@@ -8,7 +8,7 @@
 
 namespace SlimExt\Database;
 
-use inhere\exceptions\InvalidArgumentException;
+use Inhere\Exceptions\InvalidArgumentException;
 use Inhere\Library\Traits\LiteEventTrait;
 use Inhere\Library\Traits\LiteOptionsTrait;
 use Slim;

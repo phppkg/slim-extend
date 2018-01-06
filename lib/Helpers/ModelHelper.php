@@ -8,7 +8,7 @@
 
 namespace SlimExt\Helpers;
 
-use inhere\exceptions\UnknownMethodException;
+use Inhere\Exceptions\UnknownMethodException;
 use SlimExt\Base\RecordModel;
 use Windwalker\Query\Query;
 

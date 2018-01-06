@@ -9,7 +9,7 @@
 namespace SlimExt\Components;
 
 use Inhere\Library\Collections\ActiveData;
-use inhere\exceptions\PropertyException;
+use Inhere\Exceptions\PropertyException;
 
 /**
  * Class JsonMessage

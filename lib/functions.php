@@ -6,7 +6,7 @@
 
 /**
  * @param null|string $name
- * @return mixed|\SlimExt\Web\App
+ * @return mixed|\SlimExt\Web\WebApp
  */
 function app($name = null)
 {

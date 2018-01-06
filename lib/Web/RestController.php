@@ -8,7 +8,7 @@
 
 namespace SlimExt\Web;
 
-use inhere\exceptions\UnknownMethodException;
+use Inhere\Exceptions\UnknownMethodException;
 use Psr\Http\Message\ResponseInterface;
 
 /**
