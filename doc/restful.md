@@ -18,14 +18,14 @@
 
 > default RESTFul action name equals to `REQUEST_METHOD`
 
-if use controller layer. the controller class is must be extends the `slimExt\rest\Controller`
+if use controller layer. the controller class is must be extends the `SlimExt\rest\Controller`
 
 ```
 namespace app\controllers;
 
 use app\models\Tags;
 use Slim;
-use slimExt\rest\Controller;
+use SlimExt\rest\Controller;
 
 /**
  * Class Test

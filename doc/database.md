@@ -12,7 +12,7 @@ $container = $app->getContainer();
 $container['db'] = function ($c) {
     /** @var $c Slim\Container */
     $options = $c->get('settings')['db'];
-    return \slimExt\database\DbFactory::getDbo('db', $options);
+    return \SlimExt\Database\DbFactory::getDbo('db', $options);
 };
 ```
 
@@ -51,8 +51,8 @@ $articles = $db->setQuery('SELECT * FROM table WHERE ...')->loadAll();
 <?php
 
 use Slim;
-use slimExt\base\Model;
-use slimExt\DataType;
+use SlimExt\Base\Model;
+use SlimExt\DataType;
 
 /**
  * Class BaseModel

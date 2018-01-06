@@ -6,7 +6,7 @@
  * Time: 01:04
  */
 
-namespace slimExt\components;
+namespace SlimExt\Components;
 
 use Slim;
 use Slim\Http\Request;

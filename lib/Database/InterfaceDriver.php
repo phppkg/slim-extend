@@ -6,11 +6,11 @@
  * Time: 下午9:56
  */
 
-namespace slimExt\database;
+namespace SlimExt\Database;
 
 /**
  * Interface InterfaceDriver
- * @package slimExt\database
+ * @package SlimExt\Database
  */
 interface InterfaceDriver
 {

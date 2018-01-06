@@ -3,11 +3,11 @@
  * @referee  windwalker-registry {@link https://github.com/ventoviro/windwalker-registry}
  */
 
-namespace slimExt;
+namespace SlimExt;
 
 /**
  * Class DataCollector - 数据收集器 (数据存储器 - DataStorage)
- * @package slimExt
+ * @package SlimExt
  * 支持 链式的子节点 设置 和 值获取
  * e.g:
  * ```

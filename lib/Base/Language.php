@@ -6,14 +6,14 @@
  * Time: 15:04
  */
 
-namespace slimExt\base;
+namespace SlimExt\Base;
 
 use Slim;
 use inhere\library\collections\LanguageManager;
 
 /**
  * Class Language
- * @package slimExt\base
+ * @package SlimExt\Base
  *
  * how to use language translate ?
  *

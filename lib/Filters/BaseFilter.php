@@ -6,15 +6,15 @@
  * Time: 下午8:04
  */
 
-namespace slimExt\filters;
+namespace SlimExt\Filters;
 
 use inhere\library\StdObject;
-use slimExt\web\Request;
-use slimExt\web\Response;
+use SlimExt\Web\Request;
+use SlimExt\Web\Response;
 
 /**
  * Class BaseFilter
- * @package slimExt\filters
+ * @package SlimExt\Filters
  */
 abstract class BaseFilter extends StdObject
 {

@@ -12,23 +12,23 @@
  * ```
  *     Slim::get('request')
  * equal
- *     Slim::$app->request // by the magic method { @see \slimExt\base\App::__get() }
+ *     Slim::$app->request // by the magic method { @see \SlimExt\Base\App::__get() }
  * equal
  *     Slim::$app->request() // by the magic method { @see \Slim\App::__call() }
  * ```
- * @method static \slimExt\Collection cache() Return a driver config instance
+ * @method static \SlimExt\Collection cache() Return a driver config instance
  * @method static \inhere\library\utils\LiteLogger logger() Return a driver config instance
  */
-class Slim extends \slimExt\BaseSlim
+class Slim extends \SlimExt\BaseSlim
 {
     /**
      * @param mixed $key
      * @param mixed $default
-     * @return \slimExt\Collection|mixed
+     * @return \SlimExt\Collection|mixed
      */
     public static function config($key = null, $default = null)
     {
-        /** @var \slimExt\Collection $config */
+        /** @var \SlimExt\Collection $config */
         $config = static::$app->getContainer()['config'];
 
         if ($key && is_string($key)) {

@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by slimExt Generator.
+ * Created by SlimExt Generator.
  * User: {@author}
  * Date: {@date}
  * Time: {@time}

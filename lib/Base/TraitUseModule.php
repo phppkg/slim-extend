@@ -1,13 +1,13 @@
 <?php
 
-namespace slimExt\base;
+namespace SlimExt\Base;
 
-use slimExt\web\App;
-use slimExt\web\Module;
+use SlimExt\Web\App;
+use SlimExt\Web\Module;
 
 /**
  * Class TraitUseModule
- * @package slimExt\base
+ * @package SlimExt\Base
  */
 trait TraitUseModule
 {

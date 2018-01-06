@@ -6,14 +6,14 @@
  * Time: 下午7:43
  */
 
-namespace slimExt\middlewares;
+namespace SlimExt\Middleware;
 
-use slimExt\web\Request;
-use slimExt\web\Response;
+use SlimExt\Web\Request;
+use SlimExt\Web\Response;
 
 /**
  * Class ModuleMiddleware
- * @package slimExt\middlewares
+ * @package SlimExt\Middleware
  */
 class ModuleMiddleware
 {

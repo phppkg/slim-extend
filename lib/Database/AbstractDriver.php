@@ -6,7 +6,7 @@
  * Time: 22:33
  */
 
-namespace slimExt\database;
+namespace SlimExt\Database;
 
 use inhere\exceptions\InvalidArgumentException;
 use inhere\library\traits\LiteEventTrait;
@@ -14,13 +14,13 @@ use inhere\library\traits\LiteOptionsTrait;
 use Slim;
 use PDO;
 use PDOStatement;
-use slimExt\database\helpers\QueryHelper;
-use slimExt\database\helpers\DsnHelper;
+use SlimExt\Database\Helpers\QueryHelper;
+use Inhere\Library\Helpers\DsnHelper;
 use Windwalker\Query\Query;
 
 /**
  * Class AbstractDriver
- * @package slimExt\database
+ * @package SlimExt\Database
  * @link https://github.com/ventoviro/windwalker-database
  */
 abstract class AbstractDriver implements InterfaceDriver

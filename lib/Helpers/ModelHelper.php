@@ -6,15 +6,15 @@
  * Time: 下午11:17
  */
 
-namespace slimExt\helpers;
+namespace SlimExt\Helpers;
 
 use inhere\exceptions\UnknownMethodException;
-use slimExt\base\RecordModel;
+use SlimExt\Base\RecordModel;
 use Windwalker\Query\Query;
 
 /**
  * Class ModelHelper
- * @package slimExt\helpers
+ * @package SlimExt\Helpers
  */
 class ModelHelper
 {

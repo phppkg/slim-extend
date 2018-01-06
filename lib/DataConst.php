@@ -6,13 +6,13 @@
  * Time: 23:35
  */
 
-namespace slimExt;
+namespace SlimExt;
 
 /**
  * Class DataConst
  *
- * @deprecated The class will be deprecated, please use `slimExt\DataType` instead of it
- * @package slimExt
+ * @deprecated The class will be deprecated, please use `SlimExt\DataType` instead of it
+ * @package SlimExt
  */
 abstract class DataConst
 {

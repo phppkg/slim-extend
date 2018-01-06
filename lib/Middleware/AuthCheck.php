@@ -1,16 +1,16 @@
 <?php
 
-namespace slimExt\middlewares;
+namespace SlimExt\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
 use inhere\exceptions\InvalidConfigException;
 use Slim;
-use slimExt\web\Request;
-use slimExt\web\Response;
+use SlimExt\Web\Request;
+use SlimExt\Web\Response;
 
 /**
  * Class AuthCheck  - 是否登录检查
- * @package slimExt\middlewares
+ * @package SlimExt\Middleware
  */
 class AuthCheck
 {

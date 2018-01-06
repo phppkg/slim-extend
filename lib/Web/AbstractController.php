@@ -6,15 +6,15 @@
  * Time: 下午4:08
  */
 
-namespace slimExt\web;
+namespace SlimExt\Web;
 
 use inhere\exceptions\NotFoundException;
 use Psr\Http\Message\ResponseInterface;
-use slimExt\filters\BaseFilter;
+use SlimExt\Filters\BaseFilter;
 
 /**
  * Class AbstractController
- * @package slimExt
+ * @package SlimExt
  */
 abstract class AbstractController
 {
@@ -179,7 +179,7 @@ abstract class AbstractController
      */
     protected function doSecurityFilter($action)
     {
-        $defaultFilter = '\slimExt\filters\\%sFilter';
+        $defaultFilter = '\SlimExt\Filters\\%sFilter';
 
         foreach ($this->filters() as $name => $settings) {
             $filter = !empty($settings['filter']) ?

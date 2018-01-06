@@ -6,13 +6,13 @@
  * Time: 22:33
  */
 
-namespace slimExt\database;
+namespace SlimExt\Database;
 
 use Windwalker\Query\Mysql\MysqlQuery;
 
 /**
  * Class MysqlDriver
- * @package slimExt\database
+ * @package SlimExt\Database
  */
 class MysqlDriver extends PdoDriver
 {

@@ -1,9 +1,9 @@
 <?php
 
-namespace slimExt\models;
+namespace SlimExt\models;
 
 use Slim;
-use slimExt\base\RecordModel;
+use SlimExt\Base\RecordModel;
 use inhere\libraryPlus\auth\IdentityInterface;
 
 /**

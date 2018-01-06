@@ -6,12 +6,12 @@
  * Time: 下午10:41
  */
 
-namespace slimExt\filters;
+namespace SlimExt\Filters;
 
 /**
  * Class RequestLimitFilter
  * - 请求限制过滤
- * @package slimExt\filters
+ * @package SlimExt\Filters
  */
 class RequestLimitFilter extends BaseFilter
 {

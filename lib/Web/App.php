@@ -6,26 +6,26 @@
  * Time: 23:35
  */
 
-namespace slimExt\web;
+namespace SlimExt\Web;
 
-use slimExt\base\TraitUseModule;
-use slimExt\components\QuicklyGetServiceTrait;
+use SlimExt\Base\TraitUseModule;
+use SlimExt\Components\QuicklyGetServiceTrait;
 
 /**
  * Class App
- * @package slimExt\base
+ * @package SlimExt\Base
  *
  * @property-read Request request
  * @property-read Response response
  *
- * @property \slimExt\base\Container container
+ * @property \SlimExt\Base\Container container
  * @property \Monolog\Logger logger
  * @property \inhere\libraryPlus\auth\User user
  * @property \Slim\Flash\Messages flash
- * @property \slimExt\base\Language language
+ * @property \SlimExt\Base\Language language
  *
- * @property \slimExt\database\AbstractDriver db
- * @property \slimExt\Collection config
+ * @property \SlimExt\Database\AbstractDriver db
+ * @property \SlimExt\Collection config
  *
  */
 class App extends \Slim\App

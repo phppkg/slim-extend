@@ -1,21 +1,22 @@
 <?php
 
-namespace slimExt\console;
+namespace SlimExt\Console;
 
+use Inhere\Console\Application;
 use Psr\Container\ContainerInterface;
 
-use slimExt\base\Container;
-use slimExt\components\QuicklyGetServiceTrait;
-use slimExt\console\commands\AssetPublishCommand;
-use slimExt\console\commands\CommandUpdateCommand;
-use slimExt\console\controllers\AppController;
-use slimExt\console\controllers\GeneratorController;
+use SlimExt\Base\Container;
+use SlimExt\Components\QuicklyGetServiceTrait;
+use SlimExt\Console\Commands\AssetPublishCommand;
+use SlimExt\Console\Commands\CommandUpdateCommand;
+use SlimExt\Console\Controllers\AppController;
+use SlimExt\Console\Controllers\GeneratorController;
 
 /**
  * Class ConsoleApp
- * @package slimExt\base
+ * @package SlimExt\Console
  */
-class App extends \inhere\console\App
+class App extends Application
 {
     use QuicklyGetServiceTrait;
 
@@ -43,7 +44,7 @@ class App extends \inhere\console\App
      *
      * @param array $settings
      * @param array $services
-     * @param \slimExt\Collection $config
+     * @param \SlimExt\Collection $config
      * @internal string $name The name of the application
      * @internal string $version The version of the application
      */
@@ -67,12 +68,12 @@ class App extends \inhere\console\App
      */
     public function loadBootstrapCommands()
     {
-        /** @var \inhere\console\Command $command */
+        /** @var \Inhere\Console\Command $command */
         foreach ((array)static::$bootstraps['commands'] as $command) {
             $this->command($command::getName(), $command);
         }
 
-        /** @var \inhere\console\Controller $controller */
+        /** @var \Inhere\Console\Controller $controller */
         foreach ((array)static::$bootstraps['controllers'] as $controller) {
             $this->controller($controller::getName(), $controller);
         }
@@ -86,7 +87,7 @@ class App extends \inhere\console\App
      */
     public function config($name, $default = null)
     {
-        /** @var \slimExt\Collection $config */
+        /** @var \SlimExt\Collection $config */
         $config = $this->getContainer()['config'];
 
         // `$name` is array, set config.
@@ -102,7 +103,7 @@ class App extends \inhere\console\App
     }
 
     /**
-     * @return \slimExt\Collection
+     * @return \SlimExt\Collection
      */
     public function getConfig()
     {
@@ -124,7 +125,7 @@ class App extends \inhere\console\App
      *
      * @return ContainerInterface
      */
-    public function getContainer()
+    public function getContainer(): ContainerInterface
     {
         return $this->container;
     }

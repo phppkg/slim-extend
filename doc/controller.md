@@ -29,7 +29,7 @@ $app->any('/tags[/{action}]', controllers\Tag::class)
 
 namespace app\controllers;
 
-use slimExt\base\Controller;
+use SlimExt\Base\Controller;
 
 /**
  * Class Home

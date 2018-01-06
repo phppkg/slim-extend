@@ -7,15 +7,15 @@
  * Time: 23:35
  */
 
-namespace slimExt\base;
+namespace SlimExt\Base;
 
 use inhere\library\collections\SimpleCollection;
 use inhere\validate\ValidationTrait;
-use slimExt\DataType;
+use SlimExt\DataType;
 
 /**
  * Class BaseModel
- * @package slimExt
+ * @package SlimExt
  *
  */
 abstract class Model extends SimpleCollection

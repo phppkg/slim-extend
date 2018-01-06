@@ -6,19 +6,19 @@
  * Time: 下午4:13
  */
 
-namespace slimExt\base;
+namespace SlimExt\Base;
 
 use inhere\exceptions\InvalidArgumentException;
 use inhere\exceptions\InvalidConfigException;
 use inhere\exceptions\UnknownMethodException;
 use inhere\library\helpers\Arr;
-use slimExt\database\AbstractDriver;
-use slimExt\helpers\ModelHelper;
+use SlimExt\Database\AbstractDriver;
+use SlimExt\Helpers\ModelHelper;
 use Windwalker\Query\Query;
 
 /**
  * Class RecordModel
- * @package slimExt\base
+ * @package SlimExt\Base
  */
 abstract class RecordModel extends Model
 {

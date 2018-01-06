@@ -6,16 +6,16 @@
  * Time: 11:26
  */
 
-namespace slimExt\console\controllers;
+namespace SlimExt\Console\Controllers;
 
-use inhere\console\Controller;
+use Inhere\Console\Controller;
 use inhere\library\files\Directory;
 use inhere\validate\Validation;
-use slimExt\web\RestController;
+use SlimExt\Web\RestController;
 
 /**
  * Class GeneratorController
- * @package slimExt\console\controllers
+ * @package SlimExt\Console\Controllers
  *
  */
 class GeneratorController extends Controller
@@ -52,8 +52,8 @@ class GeneratorController extends Controller
      *  table     the model table name, default is equals to model 'name'
      *  namespace the model class namespace (<cyan>app\models</cyan>)
      *  parent    the model class's parent class
-     *            - no db: <cyan>slimExt\base\Model</cyan>
-     *            - use db: <cyan>slimExt\base\RecordModel</cyan>
+     *            - no db: <cyan>SlimExt\Base\Model</cyan>
+     *            - use db: <cyan>SlimExt\Base\RecordModel</cyan>
      *
      *  path      the model class file path. allow use path alias(<cyan>@src/models</cyan>)
      *  fields    define the model fields. when the argument "type=data"
@@ -70,8 +70,8 @@ class GeneratorController extends Controller
      *
      * @example
      * {script} {command} name=user type=db fields="username,string,Username;role,int,Role Type;"
-     * @param \inhere\console\io\Input $input
-     * @param \inhere\console\io\Output $output
+     * @param \Inhere\Console\IO\Input $input
+     * @param \Inhere\Console\IO\Output $output
      * @return int
      */
     public function modelCommand($input, $output)
@@ -104,14 +104,14 @@ class GeneratorController extends Controller
         $useDb = $type === 'db';
         $defNp = 'app\\models';
         $defPath = '@src/models';
-        $defParent = \slimExt\base\Model::class;
+        $defParent = \SlimExt\Base\Model::class;
 
         $dbService = $vd->get('db', 'db');
         $table = $vd->get('table', $name);
         $fields = trim($vd->get('fields'), ';');
 
         if ($useDb) {
-            $defParent = \slimExt\base\RecordModel::class;
+            $defParent = \SlimExt\Base\RecordModel::class;
         }
 
         $path = \Slim::alias($vd->get('path', $defPath));
@@ -200,9 +200,9 @@ class GeneratorController extends Controller
      *  namespace the controller class namespace. (<cyan>app\controllers</cyan>)
      *  parent    the controller class's parent class.
      *            default:
-     *              - norm <cyan>slimExt\web\Controller</cyan>
-     *              - rest <cyan>slimExt\web\RestController</cyan>
-     *              - cli  <cyan>inhere\console\Controller</cyan>
+     *              - norm <cyan>SlimExt\Web\Controller</cyan>
+     *              - rest <cyan>SlimExt\Web\RestController</cyan>
+     *              - cli  <cyan>Inhere\Console\Controller</cyan>
      *  path      the controller class file path. allow use path alias(<cyan>@src/controllers</cyan>)
      *  actions   the controller's action names. multiple separated by commas ','. (norm/cli: <cyan>index</cyan>,rest: <cyan>gets</cyan>)
      * @options
@@ -213,8 +213,8 @@ class GeneratorController extends Controller
      *  --action-suffix  the controller action suffix(norm/cli <info>Action</info>,rest <info>Command</info>)
      *  --tpl            custom the controller class tpl file (<comment>todo ...</comment>)
      *
-     * @param \inhere\console\io\Input $input
-     * @param \inhere\console\io\Output $output
+     * @param \Inhere\Console\IO\Input $input
+     * @param \Inhere\Console\IO\Output $output
      * @return int
      */
     public function controllerCommand($input, $output)
@@ -240,7 +240,7 @@ class GeneratorController extends Controller
         $defNp = 'app\\controllers';
         $actSuffix = 'Action';
         $defPath = '@src/controllers';
-        $defParent = \slimExt\web\Controller::class;
+        $defParent = \SlimExt\Web\Controller::class;
         $defActions = 'index';
         $actionTpl = 'web-action.tpl';
         $properties = '';
@@ -354,7 +354,7 @@ EOF;
      *  name              the command name<red>*</red>
      *  des, description  the command class description message
      *  namespace         the command class namespace(<cyan>app\console\commands</cyan>)
-     *  parent            the command class's parent class(<cyan>inhere\console\Command</cyan>)
+     *  parent            the command class's parent class(<cyan>Inhere\Console\Command</cyan>)
      *  path              the command class file path,allow use path alias(<cyan>@src/console/commands</cyan>)
      *
      * @options
@@ -364,8 +364,8 @@ EOF;
      *  --suffix         the controller class suffix(<info>Command</info>)
      *  --tpl            custom the controller class tpl file. (<comment>todo ...</comment>)
      *
-     * @param \inhere\console\io\Input $input
-     * @param \inhere\console\io\Output $output
+     * @param \Inhere\Console\IO\Input $input
+     * @param \Inhere\Console\IO\Output $output
      * @return int
      */
     public function commandCommand($input, $output)
@@ -404,7 +404,7 @@ EOF;
         $namespace = $vd->get('namespace', 'app\console\commands');
         $className = ucfirst($name) . $suffix;
         $fullClass = $namespace . '\\' . $className;
-        $parent = $vd->get('parent', \inhere\console\Command::class);
+        $parent = $vd->get('parent', \Inhere\Console\Command::class);
         $file = $path . '/' . $className . '.php';
 
         $data = [

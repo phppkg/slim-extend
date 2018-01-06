@@ -6,19 +6,19 @@
  * Time: 23:35
  */
 
-namespace slimExt\web;
+namespace SlimExt\Web;
 
 use inhere\exceptions\UnknownMethodException;
 use Psr\Http\Message\ResponseInterface;
 
 /**
  * Class RestFulController
- * @package slimExt\base
+ * @package SlimExt\Base
  *
  * how to use. e.g:
  *
  * ```
- * class Book extends slimExt\web\RestController
+ * class Book extends SlimExt\Web\RestController
  * {
  *     public function getsAction()
  *     {}
@@ -118,7 +118,7 @@ abstract class RestController extends AbstractController
 
     /**
      * more information
-     * @see \slimExt\base\AbstractController::doSecurityFilter()
+     * @see \SlimExt\Base\AbstractController::doSecurityFilter()
      * @return array
      */
     public function filters()

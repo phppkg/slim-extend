@@ -6,11 +6,11 @@
  * Time: 下午10:48
  */
 
-namespace slimExt\components;
+namespace SlimExt\Components;
 
 /**
  * Class QuicklyGetServiceTrait
- * @package slimExt\components
+ * @package SlimExt\Components
  *
  * @method \Psr\Container\ContainerInterface getContainer()
  */

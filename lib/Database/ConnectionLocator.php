@@ -7,7 +7,7 @@
  * @referrer https://github.com/auraphp/Aura.Sql
  */
 
-namespace slimExt\database;
+namespace SlimExt\Database;
 
 /**
  * $connections = new ConnectionLocator;
@@ -41,7 +41,7 @@ class ConnectionLocator
      */
     private $connections = [
         '__default' => null,
-        // 'writer.master' => Object (slimExt\database\AbstractDriver),
+        // 'writer.master' => Object (SlimExt\Database\AbstractDriver),
     ];
 
     private $keys = [

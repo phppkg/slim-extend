@@ -6,13 +6,13 @@
  * Time: 22:33
  */
 
-namespace slimExt\database;
+namespace SlimExt\Database;
 
 use Windwalker\Query\Query;
 
 /**
  * Class PdoDriver
- * @package slimExt\database
+ * @package SlimExt\Database
  */
 class PdoDriver extends AbstractDriver
 {

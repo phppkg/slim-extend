@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by slimExt Generator.
+ * Created by SlimExt Generator.
  * User: {@author}
  * Date: {@date}
  * Time: {@time}
@@ -33,8 +33,8 @@ class {@className} extends {@parentName}
      *  --long-opt this is a long option
      *  -s         this is a short option
      *
-     * @param \inhere\console\io\Input $input
-     * @param \inhere\console\io\Output $output
+     * @param \Inhere\Console\IO\Input $input
+     * @param \Inhere\Console\IO\Output $output
      * @return int
      */
     public function execute($input, $output)

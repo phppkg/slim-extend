@@ -9,8 +9,8 @@
      *  --long-opt this is a long option(<info>default_value</info>)
      *  -s         this is a short option
      *
-     * @param \inhere\console\io\Input $input
-     * @param \inhere\console\io\Output $output
+     * @param \Inhere\Console\IO\Input $input
+     * @param \Inhere\Console\IO\Output $output
      * @return int
      */
     public function {@action}{@suffix}($input, $output)

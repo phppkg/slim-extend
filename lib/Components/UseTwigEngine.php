@@ -6,14 +6,14 @@
  * Time: 下午3:12
  */
 
-namespace slimExt\components;
+namespace SlimExt\Components;
 
 use Slim;
-use slimExt\web\Response;
+use SlimExt\Web\Response;
 
 /**
  * Class Controller
- * @package slimExt\components
+ * @package SlimExt\Components
  *
  * @property Response
  */
@@ -38,7 +38,7 @@ trait UseTwigEngine
         list($globalKey, $globalVar) = $this->handleGlobalVar($settings, $globalVar);
 
         // add custom extension
-        // $twig->addExtension(new \slimExt\twig\TwigExtension( $c['request'], $c['csrf'] ));
+        // $twig->addExtension(new \SlimExt\twig\TwigExtension( $c['request'], $c['csrf'] ));
         $this->appendVarToView($args);
 
         // is pjax request

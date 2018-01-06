@@ -6,7 +6,7 @@
 
 /**
  * @param null|string $name
- * @return mixed|\slimExt\web\App
+ * @return mixed|\SlimExt\Web\App
  */
 function app($name = null)
 {
@@ -23,12 +23,12 @@ function slim($name = null)
  * @param null $default
  * @return mixed|null
  */
-function slim_config($key, $default = null)
+function config($key, $default = null)
 {
     return \Slim::config($key, $default);
 }
 
-function slim_tl($key, array $args = [], $default = 'No translate.')
+function trans($key, array $args = [], $default = 'No translate.')
 {
     return \Slim::get('language')->tl($key, $args, $default);
 }
@@ -102,7 +102,7 @@ function format_messages($data, $code = 0, $msg = '') {
  * suggest use : `$response->withRedirect($url, 301);`
  * @param $url
  * @param int $status
- * @return slimExt\web\Response
+ * @return SlimExt\Web\Response
  */
 function redirect_to($url = '/', $status = 301) {
     return Slim::get('response')->withStatus($status)->withHeader('Location', $url);

@@ -1,8 +1,8 @@
 <?php
 
-namespace slimExt\console\commands;
+namespace SlimExt\Console\Commands;
 
-use inhere\console\Command;
+use Inhere\Console\Command;
 use inhere\library\files\Directory;
 
 /**
@@ -94,7 +94,7 @@ class CommandUpdateCommand extends Command
 /**
  * entry file is `{project}/console`
  * register console command
- * @var \$app \slimExt\\console\App
+ * @var \$app \SlimExt\\console\App
  */
 
 // \$app->add(new \app\commands\GreetCommand);

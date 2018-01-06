@@ -1,14 +1,14 @@
 <?php
 
-namespace slimExt\middlewares;
+namespace SlimExt\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
-use slimExt\web\Request;
-use slimExt\web\Response;
+use SlimExt\Web\Request;
+use SlimExt\Web\Response;
 
 /**
  * Class Permission
- * @package slimExt\middlewares
+ * @package SlimExt\Middleware
  */
 class Permission
 {

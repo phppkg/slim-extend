@@ -6,12 +6,12 @@
  * Time: 23:05
  */
 
-namespace slimExt\web;
+namespace SlimExt\Web;
 
 /**
  * extension Slim's Request class
  * Class Request
- * @package slimExt\web
+ * @package SlimExt\Web
  *
  */
 class Request extends \inhere\http\Request

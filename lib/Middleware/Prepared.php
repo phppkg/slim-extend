@@ -1,11 +1,11 @@
 <?php
 
-namespace slimExt\middlewares;
+namespace SlimExt\Middleware;
 
 use inhere\exceptions\InvalidConfigException;
 use Slim;
-use slimExt\web\Request;
-use slimExt\web\Response;
+use SlimExt\Web\Request;
+use SlimExt\Web\Response;
 
 class Prepared
 {

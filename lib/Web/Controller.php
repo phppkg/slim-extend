@@ -1,15 +1,15 @@
 <?php
 
-namespace slimExt\web;
+namespace SlimExt\Web;
 
 use Psr\Http\Message\ResponseInterface;
 use Slim;
 use inhere\exceptions\NotFoundException;
-use slimExt\helpers\TwigHelper;
+use SlimExt\Helpers\TwigHelper;
 
 /**
  * Class Controller
- * @package slimExt\web
+ * @package SlimExt\Web
  */
 abstract class Controller extends AbstractController
 {
@@ -158,7 +158,7 @@ abstract class Controller extends AbstractController
         list($globalKey, $globalVar) = $this->handleGlobalVar($settings, $globalVar);
 
         // add custom extension
-        // $twig->addExtension(new \slimExt\twig\TwigExtension( $c['request'], $c['csrf'] ));
+        // $twig->addExtension(new \SlimExt\twig\TwigExtension( $c['request'], $c['csrf'] ));
         $this->appendVarToView($args);
 
         // is pjax request

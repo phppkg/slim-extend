@@ -6,14 +6,14 @@
  * Time: 上午10:38
  */
 
-namespace slimExt\filters;
+namespace SlimExt\Filters;
 
 use inhere\library\helpers\Arr;
 
 /**
  * Class AccessFilter
  * auth/permission check
- * @package slimExt\filters
+ * @package SlimExt\Filters
  */
 class AccessFilter extends BaseFilter
 {

@@ -6,11 +6,11 @@
  * Time: 23:35
  */
 
-namespace slimExt\database;
+namespace SlimExt\Database;
 
 /**
  * Class DbFactory
- * @package slimExt\database
+ * @package SlimExt\Database
  *
  * @referrer Windwalker\Database\DatabaseFactory
  */

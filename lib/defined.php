@@ -18,6 +18,6 @@ define('LOC_ENV', 'loc');
 define('SLIM_EXT_PATH', __DIR__);
 
 //if (!class_exists('Slim', false)) {
-//    class Slim extends \slimExt\BaseSlim
+//    class Slim extends \SlimExt\BaseSlim
 //    {}
 //}

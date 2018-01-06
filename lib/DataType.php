@@ -6,11 +6,11 @@
  * Time: 23:35
  */
 
-namespace slimExt;
+namespace SlimExt;
 
 /**
  * Class DataType
- * @package slimExt
+ * @package SlimExt
  */
 abstract class DataType
 {

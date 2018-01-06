@@ -6,22 +6,22 @@
  * Time: 下午9:48
  */
 
-namespace slimExt\web;
+namespace SlimExt\Web;
 
 use inhere\library\helpers\EnvHelper;
 use Slim;
-use slimExt\Collection;
+use SlimExt\Collection;
 
 /**
  * Todo ...
  * Class Module
- * @package slimExt\web
+ * @package SlimExt\Web
  *
  * Recommend, For the module's controller:
  *
  * ```
  *    use Slim;
- *    use slimExt\base\Controller;
+ *    use SlimExt\Base\Controller;
  *    use app\modules\{admin}\Module;
  *
  *    ... ...

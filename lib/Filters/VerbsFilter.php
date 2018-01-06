@@ -6,13 +6,13 @@
  * Time: 上午10:38
  */
 
-namespace slimExt\filters;
+namespace SlimExt\Filters;
 
 /**
  * Class VerbsFilter
  *
  * filter the request method
- * @package slimExt\filters
+ * @package SlimExt\Filters
  */
 class VerbsFilter extends BaseFilter
 {

@@ -3,14 +3,14 @@
  *
  */
 
-namespace slimExt\helpers;
+namespace SlimExt\Helpers;
 
 use inhere\exceptions\UnknownCalledException;
 use Slim;
 
 /**
  * Class TplHelper
- * @package slimExt\helpers
+ * @package SlimExt\Helpers
  */
 class TwigHelper
 {

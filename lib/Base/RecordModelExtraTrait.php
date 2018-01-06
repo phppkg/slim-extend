@@ -1,16 +1,16 @@
 <?php
 
-namespace slimExt\base;
+namespace SlimExt\Base;
 
-use slimExt\helpers\ModelHelper;
+use SlimExt\Helpers\ModelHelper;
 
 /**
  * Class RecordModelExtraTrait
- * @package slimExt\base
+ * @package SlimExt\Base
  *
  * @method static RecordModel load()
- * @method static \slimExt\database\AbstractDriver getDb()
- * @method static \slimExt\database\AbstractDriver setQuery()
+ * @method static \SlimExt\Database\AbstractDriver getDb()
+ * @method static \SlimExt\Database\AbstractDriver setQuery()
  */
 trait RecordModelExtraTrait
 {

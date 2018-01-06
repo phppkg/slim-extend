@@ -6,7 +6,7 @@
  * Time: 23:05
  */
 
-namespace slimExt\base;
+namespace SlimExt\Base;
 
 use inhere\exceptions\LogicException;
 use inhere\library\collections\SimpleCollection;
@@ -14,7 +14,7 @@ use Slim\Container as SlimContainer;
 
 /**
  * Class Container
- * @package slimExt\base
+ * @package SlimExt\Base
  *
  * @property-read SimpleCollection settings
  */

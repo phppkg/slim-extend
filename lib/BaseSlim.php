@@ -1,6 +1,6 @@
 <?php
 
-namespace slimExt;
+namespace SlimExt;
 
 use inhere\library\traits\PathAliasTrait;
 
@@ -12,7 +12,7 @@ use inhere\library\traits\PathAliasTrait;
  * ```
  * // before, please extend it in your application.
  *
- * class Slim extends \slimExt\BaseSlim {
+ * class Slim extends \SlimExt\BaseSlim {
  *      // ...
  * }
  *
@@ -23,7 +23,7 @@ use inhere\library\traits\PathAliasTrait;
  * // equals to:
  * Slim::request();
  * // equals to:
- * Slim::$app->request; // by the magic method { @see \slimExt\web\App::__get() }
+ * Slim::$app->request; // by the magic method { @see \SlimExt\Web\App::__get() }
  * // equals to:
  * Slim::$app->request(); // by the magic method { @see \Slim\App::__call() }
  *
@@ -33,7 +33,7 @@ abstract class BaseSlim
     use PathAliasTrait;
 
     /**
-     * @var $app \slimExt\web\App
+     * @var $app \SlimExt\Web\App
      */
     public static $app;
 

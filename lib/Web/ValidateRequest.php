@@ -7,13 +7,13 @@
  * Time: 23:35
  */
 
-namespace slimExt\web;
+namespace SlimExt\Web;
 
 use inhere\validate\Validation;
 
 /**
  * Class ValidateRequest
- * @package slimExt
+ * @package SlimExt
  *
  * @property array $scene 当前验证的场景 通常是根据 controller 的 action name 来区分 e.g. add, edit, register
  */

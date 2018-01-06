@@ -1,8 +1,8 @@
 <?php
 
-namespace slimExt\console\controllers;
+namespace SlimExt\Console\Controllers;
 
-use inhere\console\Controller;
+use Inhere\Console\Controller;
 
 /**
  * jump to the project root directory. run:
