@@ -30,11 +30,11 @@
   },
   "autoload":{
     "files":[
-      "src/defined.php",
-      "src/functions.php"
+      "lib/defined.php",
+      "lib/functions.php"
     ],
     "psr-4": {
-      "slimExt\\" : "src/"
+      "SlimExt\\" : "lib/"
     }
   },
   "suggest": {
