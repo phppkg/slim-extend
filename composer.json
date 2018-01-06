@@ -20,7 +20,6 @@
     "symfony/yaml": "^3.0",
     "windwalker/query": "^3.0",
     "windwalker/compare": "^3.0",
-    "symfony/console": "^3.0",
     "inhere/library": "dev-master",
     "inhere/library-plus": "dev-master"
   },
