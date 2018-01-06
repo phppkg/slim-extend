@@ -8,7 +8,7 @@
 
 namespace SlimExt\Filters;
 
-use inhere\library\StdObject;
+use Inhere\Library\StdObject;
 use SlimExt\Web\Request;
 use SlimExt\Web\Response;
 

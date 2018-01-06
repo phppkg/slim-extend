@@ -20,7 +20,7 @@ use SlimExt\Components\QuicklyGetServiceTrait;
  *
  * @property \SlimExt\Base\Container container
  * @property \Monolog\Logger logger
- * @property \inhere\libraryPlus\auth\User user
+ * @property \Inhere\LibraryPlus\Auth\User user
  * @property \Slim\Flash\Messages flash
  * @property \SlimExt\Base\Language language
  *

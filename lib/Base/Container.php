@@ -8,8 +8,8 @@
 
 namespace SlimExt\Base;
 
-use inhere\exceptions\LogicException;
-use inhere\library\collections\SimpleCollection;
+use LogicException;
+use Inhere\Library\Collections\SimpleCollection;
 use Slim\Container as SlimContainer;
 
 /**

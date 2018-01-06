@@ -8,7 +8,7 @@
 
 namespace SlimExt\Components;
 
-use inhere\library\collections\FixedData;
+use Inhere\Library\Collections\FixedData;
 
 /**
  * Class AlertMessage

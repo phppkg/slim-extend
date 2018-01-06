@@ -8,7 +8,7 @@
 
 namespace SlimExt\Filters;
 
-use inhere\library\helpers\Arr;
+use Inhere\Library\Helpers\Arr;
 
 /**
  * Class AccessFilter
@@ -68,7 +68,7 @@ class AccessFilter extends BaseFilter
      */
     protected function doFilter($action)
     {
-        /** @var \inhere\libraryPlus\auth\User */
+        /** @var \Inhere\LibraryPlus\Auth\User */
         $user = \Slim::$app->user;
         $allow = true;
 

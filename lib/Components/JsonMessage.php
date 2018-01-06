@@ -8,7 +8,7 @@
 
 namespace SlimExt\Components;
 
-use inhere\library\collections\ActiveData;
+use Inhere\Library\Collections\ActiveData;
 use inhere\exceptions\PropertyException;
 
 /**

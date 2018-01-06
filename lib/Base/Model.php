@@ -9,8 +9,8 @@
 
 namespace SlimExt\Base;
 
-use inhere\library\collections\SimpleCollection;
-use inhere\validate\ValidationTrait;
+use Inhere\Library\Collections\SimpleCollection;
+use Inhere\Validate\ValidationTrait;
 use SlimExt\DataType;
 
 /**
@@ -36,7 +36,7 @@ abstract class Model extends SimpleCollection
     /**
      * Validation class name
      */
-    //protected $validateHandler = '\inhere\validate\Validation';
+    //protected $validateHandler = '\Inhere\Validate\Validation';
 
     /**
      * @param $data

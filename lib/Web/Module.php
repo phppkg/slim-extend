@@ -8,7 +8,7 @@
 
 namespace SlimExt\Web;
 
-use inhere\library\helpers\EnvHelper;
+use Inhere\Library\Helpers\EnvHelper;
 use Slim;
 use SlimExt\Collection;
 

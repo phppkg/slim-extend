@@ -17,7 +17,7 @@
  *     Slim::$app->request() // by the magic method { @see \Slim\App::__call() }
  * ```
  * @method static \SlimExt\Collection cache() Return a driver config instance
- * @method static \inhere\library\utils\LiteLogger logger() Return a driver config instance
+ * @method static \Inhere\Library\Utils\LiteLogger logger() Return a driver config instance
  */
 class Slim extends \SlimExt\BaseSlim
 {

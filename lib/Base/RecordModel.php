@@ -11,7 +11,7 @@ namespace SlimExt\Base;
 use inhere\exceptions\InvalidArgumentException;
 use inhere\exceptions\InvalidConfigException;
 use inhere\exceptions\UnknownMethodException;
-use inhere\library\helpers\Arr;
+use Inhere\Library\Helpers\Arr;
 use SlimExt\Database\AbstractDriver;
 use SlimExt\Helpers\ModelHelper;
 use Windwalker\Query\Query;

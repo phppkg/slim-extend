@@ -9,7 +9,7 @@
 
 namespace SlimExt\Web;
 
-use inhere\validate\Validation;
+use Inhere\Validate\Validation;
 
 /**
  * Class ValidateRequest

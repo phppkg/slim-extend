@@ -2,7 +2,7 @@
 
 namespace SlimExt;
 
-use inhere\library\traits\PathAliasTrait;
+use Inhere\Library\Traits\PathAliasTrait;
 
 /**
  * Class BaseSlim

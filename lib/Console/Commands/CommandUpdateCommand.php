@@ -3,7 +3,7 @@
 namespace SlimExt\Console\Commands;
 
 use Inhere\Console\Command;
-use inhere\library\files\Directory;
+use Inhere\Library\Files\Directory;
 
 /**
  * jump to the project root directory. run:

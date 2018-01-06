@@ -9,8 +9,8 @@
 namespace SlimExt\Database;
 
 use inhere\exceptions\InvalidArgumentException;
-use inhere\library\traits\LiteEventTrait;
-use inhere\library\traits\LiteOptionsTrait;
+use Inhere\Library\Traits\LiteEventTrait;
+use Inhere\Library\Traits\LiteOptionsTrait;
 use Slim;
 use PDO;
 use PDOStatement;

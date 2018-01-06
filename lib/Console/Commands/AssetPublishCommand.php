@@ -8,7 +8,7 @@
 
 namespace SlimExt\Console\Commands;
 
-use inhere\libraryPlus\asset\AssetPublisher;
+use Inhere\LibraryPlus\Asset\AssetPublisher;
 use Inhere\Console\Command;
 
 /**

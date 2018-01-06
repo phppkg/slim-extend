@@ -9,8 +9,8 @@
 namespace SlimExt\Console\Controllers;
 
 use Inhere\Console\Controller;
-use inhere\library\files\Directory;
-use inhere\validate\Validation;
+use Inhere\Library\Files\Directory;
+use Inhere\Validate\Validation;
 use SlimExt\Web\RestController;
 
 /**
