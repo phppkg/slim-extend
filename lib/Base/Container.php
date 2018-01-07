@@ -21,11 +21,18 @@ use Slim\Container as SlimContainer;
  */
 class Container extends SlimContainer
 {
+    /**
+     * Container constructor.
+     * @param array $settings
+     * @param array $values
+     */
     public function __construct(array $settings = [], array $values = [])
     {
         parent::__construct($values);
 
-        $this->settings->replace($settings);
+        if ($settings) {
+            $this->settings->replace($settings);
+        }
     }
 
     /**

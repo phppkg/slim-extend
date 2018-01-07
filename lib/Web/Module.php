@@ -10,7 +10,7 @@ namespace SlimExt\Web;
 
 use Inhere\Library\Helpers\EnvHelper;
 use Slim;
-use SlimExt\Collection;
+use Inhere\Library\Collections\Configuration;
 
 /**
  * Todo ...

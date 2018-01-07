@@ -3,9 +3,10 @@
 namespace SlimExt\Console;
 
 use Inhere\Console\Application;
+use Inhere\Console\IO\Input;
+use Inhere\Console\IO\Output;
 use Psr\Container\ContainerInterface;
 
-use SlimExt\Base\Container;
 use SlimExt\Components\QuicklyGetServiceTrait;
 use SlimExt\Console\Commands\AssetPublishCommand;
 use SlimExt\Console\Commands\CommandUpdateCommand;
@@ -42,24 +43,22 @@ class ConsoleApp extends Application
     /**
      * Constructor.
      *
-     * @param array $settings
-     * @param array $services
-     * @param \SlimExt\Collection $config
+     * @param Input|null $input
+     * @param Output|null $output
      * @internal string $name The name of the application
      * @internal string $version The version of the application
      */
-    public function __construct(array $settings = [], array $services = [], $config)
+    public function __construct(Input $input = null, Output $output = null)
     {
-        \Slim::$app = $this;
-        $this->container = new Container($settings, $services);
-        $this->container['config'] = $config;
+        self::$internalOptions['--env'] = sprintf(
+            'Manually specify the current environment name. allow: %s', implode(',', APP_ENV_LIST)
+        );
 
         parent::__construct([
-            'name' => $config->get('name', 'Inhere Console'),
-            'version' => $config->get('version', '1.0.1')
-        ]);
+            'name' => config('name', 'Blog Console'),
+            'version' => config('version', '1.0.1')
+        ], $input, $output);
 
-        // $config->loadArray($this->config);
         $this->loadBootstrapCommands();
     }
 
@@ -87,7 +86,7 @@ class ConsoleApp extends Application
      */
     public function config($name, $default = null)
     {
-        /** @var \SlimExt\Collection $config */
+        /** @var \Inhere\Library\Collections\Configuration $config */
         $config = $this->getContainer()['config'];
 
         // `$name` is array, set config.
@@ -103,7 +102,7 @@ class ConsoleApp extends Application
     }
 
     /**
-     * @return \SlimExt\Collection
+     * @return \Inhere\Library\Collections\Configuration
      */
     public function getConfig()
     {

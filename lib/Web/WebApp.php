@@ -26,7 +26,7 @@ use SlimExt\Components\QuicklyGetServiceTrait;
  * @property \SlimExt\Base\Language language
  *
  * @property \SlimExt\Database\AbstractDriver db
- * @property \SlimExt\Collection config
+ * @property \Inhere\Library\Collections\Configuration config
  *
  */
 class WebApp extends App
