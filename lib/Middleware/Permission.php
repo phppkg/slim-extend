@@ -20,6 +20,7 @@ class Permission
      * @param  callable $next Next middleware
      *
      * @return ResponseInterface
+     * @throws \Inhere\Exceptions\NotFoundException
      */
     public function __invoke(Request $request, Response $response, $next)
     {

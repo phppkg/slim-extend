@@ -2,14 +2,11 @@
 
 namespace SlimExt\Middleware;
 
-use Inhere\Exceptions\InvalidConfigException;
-use Slim;
 use SlimExt\Web\Request;
 use SlimExt\Web\Response;
 
 class Prepared
 {
-
     /**
      * Auth middleware invokable class
      *
@@ -18,12 +15,11 @@ class Prepared
      * @param  callable $next Next middleware
      *
      * @return Response
-     * @throws InvalidConfigException
      * @throws \InvalidArgumentException
      */
     public function __invoke(Request $request, Response $response, callable $next)
     {
-        Slim::config()->set('urls.route', $request->getUri()->getPath());
+        config()->set('urls.route', $request->getUri()->getPath());
 
         return $next($request, $response);
     }

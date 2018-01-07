@@ -24,6 +24,14 @@ class Request extends \Slim\Http\Request
     const FLASH_OLD_INPUT_KEY = '_last_inputs';
 
     /**
+     * @return bool
+     */
+    public function isAjax()
+    {
+        return $this->isXhr();
+    }
+
+    /**
      * @return array
      */
     public function getMessage()

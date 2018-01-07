@@ -146,9 +146,6 @@ abstract class Controller extends AbstractController
      * @param $view
      * @param array $args
      * @return ResponseInterface
-     * @throws \Twig_Error_Loader
-     * @throws \Twig_Error_Runtime
-     * @throws \Twig_Error_Syntax
      */
     protected function renderTwig($view, array $args = [])
     {

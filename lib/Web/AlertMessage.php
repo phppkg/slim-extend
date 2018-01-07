@@ -12,7 +12,7 @@ namespace SlimExt\Web;
  * Class AlertMessage
  * @package SlimExt\Web
  */
-final class AlertMessage 
+final class AlertMessage
 {
     // info success primary warning danger
     const INFO = 'info';
@@ -40,6 +40,21 @@ final class AlertMessage
      * @var array
      */
     public $closeBtn = true;
+
+    /**
+     * AlertMessage constructor.
+     * @param array $config
+     */
+    public function __construct(array $config = [])
+    {
+        foreach ($config as $name => $value) {
+            if (method_exists($this, $name)) {
+                $this->$name($value);
+            } elseif (property_exists($this, $name)) {
+                $this->$name = $value;
+            }
+        }
+    }
 
     /**
      * @param $type
