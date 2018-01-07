@@ -9,6 +9,7 @@
 namespace SlimExt\Web;
 
 use Slim\App;
+use Slim\Interfaces\RouteInterface;
 use SlimExt\Base\TraitUseModule;
 use SlimExt\Components\QuicklyGetServiceTrait;
 
@@ -33,13 +34,6 @@ class WebApp extends App
 {
     use TraitUseModule, QuicklyGetServiceTrait;
 
-    public function __construct($container = [])
-    {
-        \Slim::$app = $this;
-
-        parent::__construct($container);
-    }
-
     /**
      * Add route for RESTFul resource
      *
@@ -52,11 +46,10 @@ class WebApp extends App
      * @param  string $name  The resource name e.g '/users'
      * @param  string $class The resource controller class
      *
-     * @return \Slim\Interfaces\RouteInterface
+     * @return RouteInterface
      */
-    public function rest($name, $class)
+    public function rest($name, $class): RouteInterface
     {
         return $this->any($name . '[/{resource}]', $class);
     }
-
 }

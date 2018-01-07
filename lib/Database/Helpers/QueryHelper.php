@@ -36,7 +36,7 @@ class QueryHelper
             elseif (is_numeric($key)) {
                 $query->where($value);
             } // If is array or object, we use "IN" condition.
-            elseif (is_array($value) || is_object($value)) {
+            elseif (\is_array($value) || \is_object($value)) {
                 $value = array_map(array($query, 'quote'), (array)$value);
                 $query->where($query->quoteName($key) . new QueryElement('IN ()', $value, ','));
             } // Otherwise, we use equal condition.

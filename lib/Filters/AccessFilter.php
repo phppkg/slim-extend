@@ -83,24 +83,24 @@ class AccessFilter extends BaseFilter
             }
 
             // don't match current action
-            if (self::MATCH_ALL !== $actions[0] && !in_array($action, $actions, true)) {
+            if (self::MATCH_ALL !== $actions[0] && !\in_array($action, $actions, true)) {
                 continue;
             }
 
             $allow = Arr::get($rule, 'allow', false);
 
             // find match all user, char: *
-            if (in_array(self::MATCH_ALL, $roles, true)) {
+            if (\in_array(self::MATCH_ALL, $roles, true)) {
                 break;
             }
 
             // find match logged user, char: @
-            if ($user->id && in_array(self::MATCH_LOGGED, $roles, true)) {
+            if ($user->id && \in_array(self::MATCH_LOGGED, $roles, true)) {
                 break;
             }
 
             // find match guest user, char: ?
-            if (!$user->id && in_array(self::MATCH_LOGGED, $roles, true)) {
+            if (!$user->id && \in_array(self::MATCH_LOGGED, $roles, true)) {
                 break;
             }
 
@@ -119,7 +119,7 @@ class AccessFilter extends BaseFilter
 
         // deny access
         if (!$allow && ($cb = $this->onDenied)) {
-            return call_user_func($cb, $action, $user);
+            return \call_user_func($cb, $action, $user);
         }
 
         return (bool)$allow;

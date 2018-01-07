@@ -47,19 +47,7 @@ abstract class BaseSlim
      * @var array
      */
     protected static $aliases = [
-        '@project' => PROJECT_PATH,
-        '@public' => PROJECT_PATH . DIR_SEP . 'public',
-        '@config' => PROJECT_PATH . DIR_SEP . 'config',
-
-        '@src' => PROJECT_PATH . DIR_SEP . 'src',
-        '@res' => PROJECT_PATH . DIR_SEP . 'resources',
-        '@resources' => PROJECT_PATH . DIR_SEP . 'resources',
-        '@temp' => PROJECT_PATH . DIR_SEP . 'temp',
-
-        // '@assets'  => PROJECT_PATH . DIR_SEP . 'public' . DIR_SEP . 'assets',
-        '@modules' => PROJECT_PATH . DIR_SEP . 'src' . DIR_SEP . 'modules',
-
-        '@vendor' => PROJECT_PATH . DIR_SEP . 'vendor',
+        // ...
     ];
 
     /**
@@ -115,7 +103,6 @@ abstract class BaseSlim
      * @param string $class
      * @param array $params
      * @return mixed
-     * @throws \Inhere\Exceptions\LogicException
      */
     public static function make($id, $class = null, $params = null)
     {
@@ -135,6 +122,7 @@ abstract class BaseSlim
     /**
      * @param string $name
      * @param array $args
+     * @return mixed
      */
     public static function __callStatic($name, $args)
     {

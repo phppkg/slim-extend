@@ -45,7 +45,7 @@ abstract class DsnHelper
     {
         self::$options = $options;
 
-        if (!is_callable([static::class, $driver])) {
+        if (!\is_callable([static::class, $driver])) {
             throw new \DomainException('The ' . $driver . ' driver is not supported.');
         }
 

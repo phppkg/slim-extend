@@ -204,7 +204,7 @@ abstract class RecordModel extends Model
         // only one
         $where = [static::$priKey => $priValue];
 
-        if (is_array($priValue)) {// many
+        if (\is_array($priValue)) {// many
             $where = static::$priKey . ' IN (' . implode(',', $priValue) . ')';
         }
 
@@ -220,7 +220,7 @@ abstract class RecordModel extends Model
     public static function findOne($where, $options = null)
     {
         // as select
-        if (is_string($options)) {
+        if (\is_string($options)) {
             $options = [
                 'select' => $options
             ];
@@ -251,7 +251,7 @@ abstract class RecordModel extends Model
     public static function findAll($where, $options = null)
     {
         // as select
-        if (is_string($options)) {
+        if (\is_string($options)) {
             $options = [
                 'select' => $options
             ];
@@ -328,7 +328,7 @@ abstract class RecordModel extends Model
         $this->beforeSave();
 
         // the primary column is must be exists.
-        if ($updateColumns && !in_array($priKey, $updateColumns, true)) {
+        if ($updateColumns && !\in_array($priKey, $updateColumns, true)) {
             $updateColumns[] = $priKey;
         }
 
@@ -484,7 +484,7 @@ abstract class RecordModel extends Model
      */
     public function enableValidate($value = null)
     {
-        if (is_bool($value)) {
+        if (\is_bool($value)) {
             $this->enableValidate = $value;
         }
 

@@ -6,15 +6,13 @@
  * Time: 上午11:49
  */
 
-namespace SlimExt\Components;
-
-use Inhere\Library\Collections\FixedData;
+namespace SlimExt\Web;
 
 /**
  * Class AlertMessage
- * @package SlimExt\Components
+ * @package SlimExt\Web
  */
-class AlertMessage extends FixedData
+final class AlertMessage 
 {
     // info success primary warning danger
     const INFO = 'info';
@@ -77,7 +75,10 @@ class AlertMessage extends FixedData
         return $this;
     }
 
-    public function all($toArray = true)
+    /**
+     * @return array
+     */
+    public function all()
     {
         // add a new alert message
         return [

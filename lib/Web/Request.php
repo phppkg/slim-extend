@@ -8,6 +8,8 @@
 
 namespace SlimExt\Web;
 
+use Inhere\Http\Traits\ExtendedRequestTrait;
+
 /**
  * extension Slim's Request class
  * Class Request
@@ -16,6 +18,8 @@ namespace SlimExt\Web;
  */
 class Request extends \Slim\Http\Request
 {
+    use ExtendedRequestTrait;
+
     const FLASH_MSG_KEY = '_alert_messages';
     const FLASH_OLD_INPUT_KEY = '_last_inputs';
 

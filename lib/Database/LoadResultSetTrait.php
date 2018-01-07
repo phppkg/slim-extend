@@ -66,7 +66,7 @@ trait LoadResultSetTrait
         // Get the first row from the result set as an array.
         $row = $this->fetchArray();
 
-        if ($row && is_array($row) && isset($row[0])) {
+        if ($row && \is_array($row) && isset($row[0])) {
             $row = $row[0];
         }
 
@@ -90,7 +90,7 @@ trait LoadResultSetTrait
 
         // Get all of the rows from the result set as arrays.
         while ($row = $this->fetchArray()) {
-            if ($row && is_array($row) && isset($row[$offset])) {
+            if ($row && \is_array($row) && isset($row[$offset])) {
                 $array[] = $row[$offset];
             }
         }
@@ -133,7 +133,7 @@ trait LoadResultSetTrait
 
         // Get all of the rows from the result set as arrays.
         while ($row = $this->fetchArray()) {
-            if ($key !== null && is_array($row)) {
+            if ($key !== null && \is_array($row)) {
                 $array[$row[$key]] = $row;
             } else {
                 $array[] = $row;

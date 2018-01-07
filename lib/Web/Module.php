@@ -10,7 +10,7 @@ namespace SlimExt\Web;
 
 use Inhere\Library\Helpers\EnvHelper;
 use Slim;
-use Inhere\Library\Collections\Configuration;
+use Inhere\Library\Collections\Collection;
 
 /**
  * Todo ...
@@ -83,7 +83,7 @@ abstract class Module
 
         // get path
         $reflect = new \ReflectionClass($this);
-        $this->path = dirname($reflect->getFileName());
+        $this->path = \dirname($reflect->getFileName());
 
         $globalFile = Slim::alias('@config') . '/module-' . $name . '.yml';
         $configFile = $this->path . '/config.yml';

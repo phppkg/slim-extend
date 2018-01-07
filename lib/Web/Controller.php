@@ -115,6 +115,9 @@ abstract class Controller extends AbstractController
      * @param $view
      * @param array $args
      * @return ResponseInterface
+     * @throws \Twig_Error_Loader
+     * @throws \Twig_Error_Runtime
+     * @throws \Twig_Error_Syntax
      */
     protected function render($view, array $args = [])
     {
@@ -143,6 +146,9 @@ abstract class Controller extends AbstractController
      * @param $view
      * @param array $args
      * @return ResponseInterface
+     * @throws \Twig_Error_Loader
+     * @throws \Twig_Error_Runtime
+     * @throws \Twig_Error_Syntax
      */
     protected function renderTwig($view, array $args = [])
     {
@@ -168,7 +174,7 @@ abstract class Controller extends AbstractController
             /** @var Response $response */
             $response = $response
                 ->withHeader('X-PJAX-URL', (string)Slim::$app->request->getUri())
-                ->withHeader('X-PJAX-Version', Slim::config('pjax_version', '1.0'));
+                ->withHeader('X-PJAX-Version', config('params.pjax_version', '1.0'));
 
             $args[$globalKey] = $globalVar;
             $rendered = $twig->getEnvironment()->loadTemplate($view)->renderBlock($this->bodyBlock, $args);
@@ -231,7 +237,7 @@ abstract class Controller extends AbstractController
     {
         $jsFiles = $this->appendTplVars['_assets']['cssFiles'];
 
-        if (is_string($file)) {
+        if (\is_string($file)) {
             if ($key) {
                 $jsFiles[$key] = $file;
             } else {
@@ -268,7 +274,7 @@ abstract class Controller extends AbstractController
     {
         $jsFiles = $this->appendTplVars['_assets'][$pos];
 
-        if (is_string($file)) {
+        if (\is_string($file)) {
             if ($key) {
                 $jsFiles[$key] = $file;
             } else {
@@ -386,7 +392,7 @@ abstract class Controller extends AbstractController
     protected function getTplPath()
     {
         if (!$this->tplPath) {
-            $calledClass = get_class($this);
+            $calledClass = \get_class($this);
             $ctrlName = trim(strrchr($calledClass, '\\'), '\\');
 
             $prefix = $this->tplPathPrefix ? '/' . $this->tplPathPrefix : '';
@@ -466,7 +472,7 @@ abstract class Controller extends AbstractController
         $resp = $this->$actionMethod($args);
 
         // if the action return is array data
-        if (is_array($resp)) {
+        if (\is_array($resp)) {
             $resp = $this->response->withRawJson($resp);
         }
 

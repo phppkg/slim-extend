@@ -111,7 +111,7 @@ abstract class AbstractController
             return $result;
         }
 
-        $msg = $result && is_string($result) ? $result : 'Access is not allowed';
+        $msg = $result && \is_string($result) ? $result : 'Access is not allowed';
 
         // when is xhr
         if ($this->request->isXhr()) {

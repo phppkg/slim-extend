@@ -214,17 +214,17 @@ abstract class AbstractDriver implements InterfaceDriver
         // Iterate over the object variables to build the query fields and values.
         foreach ($data as $k => $v) {
             // Convert stringable object
-            if (is_object($v) && is_callable(array($v, '__toString'))) {
+            if (\is_object($v) && \is_callable(array($v, '__toString'))) {
                 $v = (string)$v;
             }
 
             // Only process non-null scalars.
-            if (is_array($v) || is_object($v) || $v === null) {
+            if (\is_array($v) || \is_object($v) || $v === null) {
                 continue;
             }
 
             // Ignore any internal fields.
-            if ($k && is_string($k) && $k[0] === '_') {
+            if ($k && \is_string($k) && $k[0] === '_') {
                 continue;
             }
 
@@ -244,8 +244,8 @@ abstract class AbstractDriver implements InterfaceDriver
         // Update the primary key if it exists.
         $id = $this->pdo->lastInsertId();
 
-        if ($priKey && $id && is_string($priKey)) {
-            if (is_array($data)) {
+        if ($priKey && $id && \is_string($priKey)) {
+            if (\is_array($data)) {
                 $data[$priKey] = $id;
             } else {
                 $data->$priKey = $id;
@@ -268,7 +268,7 @@ abstract class AbstractDriver implements InterfaceDriver
      */
     public function insertMulti($table, &$dataSet, $key = null)
     {
-        if (!is_array($dataSet) && !($dataSet instanceof \Traversable)) {
+        if (!\is_array($dataSet) && !($dataSet instanceof \Traversable)) {
             throw new \InvalidArgumentException('The data set to store should be array or \Traversable');
         }
 
@@ -330,7 +330,7 @@ abstract class AbstractDriver implements InterfaceDriver
      */
     public function update($table, $data, $key = 'id', $updateNulls = false)
     {
-        if (!is_array($data) && !is_object($data)) {
+        if (!\is_array($data) && !\is_object($data)) {
             throw new \InvalidArgumentException('Please give me array or object to update.');
         }
 
@@ -347,17 +347,17 @@ abstract class AbstractDriver implements InterfaceDriver
         // Iterate over the object variables to build the query fields/value pairs.
         foreach (get_object_vars((object)$data) as $k => $v) {
             // Convert stringable object
-            if (is_object($v) && is_callable(array($v, '__toString'))) {
+            if (\is_object($v) && \is_callable(array($v, '__toString'))) {
                 $v = (string)$v;
             }
 
             // Only process scalars that are not internal fields.
-            if (is_array($v) || is_object($v) || ($k && is_string($k) && $k[0] === '_')) {
+            if (\is_array($v) || \is_object($v) || ($k && \is_string($k) && $k[0] === '_')) {
                 continue;
             }
 
             // Set the primary key to the WHERE clause instead of a field to update.
-            if (in_array($k, $key, true)) {
+            if (\in_array($k, $key, true)) {
                 $query->where($query->quoteName($k) . '=' . $query->quote($v));
 
                 continue;
@@ -398,7 +398,7 @@ abstract class AbstractDriver implements InterfaceDriver
      */
     public function updateMulti($table, $dataSet, $key, $updateNulls = false)
     {
-        if (!is_array($dataSet) && !($dataSet instanceof \Traversable)) {
+        if (!\is_array($dataSet) && !($dataSet instanceof \Traversable)) {
             throw new \InvalidArgumentException('The data set to store should be array or \Traversable');
         }
 
@@ -458,7 +458,7 @@ abstract class AbstractDriver implements InterfaceDriver
             throw new \InvalidArgumentException(__NAMESPACE__ . '::save() dose not support multiple keys, please give me only one key.');
         }
 
-        if (is_array($data)) {
+        if (\is_array($data)) {
             $id = $data[$key] ?? null;
         } else {
             $id = $data->$key ?? null;
@@ -480,7 +480,7 @@ abstract class AbstractDriver implements InterfaceDriver
      */
     public function saveMulti($table, $dataSet, $key, $updateNulls = false)
     {
-        if (!is_array($dataSet) && !($dataSet instanceof \Traversable)) {
+        if (!\is_array($dataSet) && !($dataSet instanceof \Traversable)) {
             throw new \InvalidArgumentException('The data set to store should be array or \Traversable');
         }
 

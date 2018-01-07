@@ -8,6 +8,7 @@
 
 namespace SlimExt\Web;
 
+use Inhere\Http\Traits\ExtendedResponseTrait;
 use SlimExt\Components\JsonMessage;
 use Slim;
 
@@ -17,8 +18,10 @@ use Slim;
  * Class Response
  * @package SlimExt\Web
  */
-class Response extends \Inhere\Http\Response
+class Response extends Slim\Http\Response
 {
+    use ExtendedResponseTrait;
+
     /**
      * @param mixed $data
      * @param int $code
@@ -96,9 +99,9 @@ class Response extends \Inhere\Http\Response
             'closeBtn' => true
         ];
 
-        if (is_string($msg)) {
+        if (\is_string($msg)) {
             $alert['msg'] = $msg;
-        } elseif (is_array($msg)) {
+        } elseif (\is_array($msg)) {
             $alert = array_merge($alert, $msg);
             $alert['title'] = ucfirst($alert['type']);
         } else {

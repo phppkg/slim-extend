@@ -40,7 +40,7 @@ class NotFound extends \Slim\Handlers\NotFound
 
         $this->appendParams['homeUrl'] = (string)$request->getUri()->withPath('')->withQuery('')->withFragment('');
 
-        if (($renderer = $this->renderer) && is_object($renderer) && method_exists($renderer, 'fetch')) {
+        if (($renderer = $this->renderer) && \is_object($renderer) && method_exists($renderer, 'fetch')) {
             return $renderer->fetch($this->viewFile, $this->appendParams);
         }
 

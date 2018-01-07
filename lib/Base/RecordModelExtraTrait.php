@@ -82,7 +82,7 @@ trait RecordModelExtraTrait
         $where = [static::$priKey => $priValue];
 
         // many
-        if (is_array($priValue)) {
+        if (\is_array($priValue)) {
             $where = static::$priKey . ' IN (' . implode(',', $priValue) . ')';
         }
 
@@ -132,7 +132,7 @@ trait RecordModelExtraTrait
     {
         $priKey = static::$priKey;
 
-        if (!is_int($this->$column)) {
+        if (!\is_int($this->$column)) {
             throw new \InvalidArgumentException('The method only can be used in the column of type integer');
         }
 
@@ -160,7 +160,7 @@ trait RecordModelExtraTrait
     {
         $priKey = static::$priKey;
 
-        if (!is_int($this->$column)) {
+        if (!\is_int($this->$column)) {
             throw new \InvalidArgumentException('The method only can be used in the column of type integer');
         }
 

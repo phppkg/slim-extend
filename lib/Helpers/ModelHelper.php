@@ -35,10 +35,10 @@ class ModelHelper
             }
 
             if (!method_exists($query, $method)) {
-                throw new UnknownMethodException('The class method [' . get_class($query) . ":$method] don't exists!");
+                throw new UnknownMethodException('The class method [' . \get_class($query) . ":$method] don't exists!");
             }
 
-            is_array($value) ? call_user_func_array([$query, $method], $value) : $query->$method($value);
+            \is_array($value) ? \call_user_func_array([$query, $method], $value) : $query->$method($value);
         }
 
         return $query;
@@ -74,15 +74,15 @@ class ModelHelper
         /** @var Query $query */
         $query = $query ?: $model::getQuery(true);
 
-        if (is_object($wheres) && $wheres instanceof \Closure) {
+        if (\is_object($wheres) && $wheres instanceof \Closure) {
             $wheres($query);
 
             return $query;
         }
 
-        if (is_array($wheres)) {
+        if (\is_array($wheres)) {
             foreach ((array)$wheres as $key => $where) {
-                if (is_object($where) && $where instanceof \Closure) {
+                if (\is_object($where) && $where instanceof \Closure) {
                     $where($query);
                     continue;
                 }
@@ -93,7 +93,7 @@ class ModelHelper
                 if ($key && !is_numeric($key)) {
 
                     // is a 'in|not in' statement. eg: $where link [2,3,5] ['foo', 'bar', 'baz']
-                    if (is_array($where) || is_object($where)) {
+                    if (\is_array($where) || \is_object($where)) {
                         $value = array_map(array($query, 'quote'), (array)$where);
 
                         // check $key exists keyword 'in|not in|IN|NOT IN'
@@ -116,7 +116,7 @@ class ModelHelper
                 $query->where($where);
             }// end foreach
 
-        } elseif ($wheres && is_string($wheres)) {
+        } elseif ($wheres && \is_string($wheres)) {
             $query->where($wheres);
         }
 

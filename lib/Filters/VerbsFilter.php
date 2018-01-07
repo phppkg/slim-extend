@@ -47,6 +47,6 @@ class VerbsFilter extends BaseFilter
 
         $method = strtolower($this->request->getMethod());
 
-        return in_array($method, (array)$this->actions[$action]);
+        return \in_array($method, (array)$this->actions[$action]);
     }
 }

@@ -35,7 +35,7 @@ class ConsoleApp extends Application
             CommandUpdateCommand::class,
         ],
         'controllers' => [
-            AppController::class,
+            // AppController::class,
             GeneratorController::class,
         ],
     ];
@@ -90,7 +90,7 @@ class ConsoleApp extends Application
         $config = $this->getContainer()['config'];
 
         // `$name` is array, set config.
-        if (is_array($name)) {
+        if (\is_array($name)) {
             foreach ((array) $name as $key => $value) {
                 $config[$key] = $value;
             }
@@ -127,5 +127,13 @@ class ConsoleApp extends Application
     public function getContainer(): ContainerInterface
     {
         return $this->container;
+    }
+
+    /**
+     * @param ContainerInterface $container
+     */
+    public function setContainer(ContainerInterface $container)
+    {
+        $this->container = $container;
     }
 }

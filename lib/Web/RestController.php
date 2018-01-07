@@ -239,7 +239,7 @@ abstract class RestController extends AbstractController
         $resp = $this->$actionMethod(array_shift($args));
 
         // if the action return is array data
-        if (is_array($resp)) {
+        if (\is_array($resp)) {
             $resp = $this->response->withRawJson($resp);
         }
 
@@ -255,7 +255,7 @@ abstract class RestController extends AbstractController
             return $result;
         }
 
-        $msg = $result && is_string($result) ? $result : 'Resources not allowed for access';
+        $msg = $result && \is_string($result) ? $result : 'Resources not allowed for access';
 
         return $this->response->withJson([], -403, $msg, 403);
     }
@@ -272,7 +272,7 @@ abstract class RestController extends AbstractController
         // default restFul action name, equals to REQUEST_METHOD
         $mapping = $this->methodMapping();
 
-        if (!$mapping || !is_array($mapping)) {
+        if (!$mapping || !\is_array($mapping)) {
             return [null, 'No any accessible resource method!'];
         }
 
@@ -312,7 +312,7 @@ abstract class RestController extends AbstractController
         // 根据请求方法 匹配 资源方法
         foreach ($map as $key => $value) {
             // want get resources. like 'get*' 'head*'
-            if (!$resourceId && $key === $moreKey && in_array($method, self::$allowMore, true)) {
+            if (!$resourceId && $key === $moreKey && \in_array($method, self::$allowMore, true)) {
                 $action = $value;
 
                 // is a resource. like '/users/1' '/users/username'

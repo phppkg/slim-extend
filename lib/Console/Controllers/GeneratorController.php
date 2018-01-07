@@ -481,8 +481,8 @@ EOF;
             return 0;
         }
 
-        if (!is_dir(dirname($file))) {
-            Directory::create(dirname($file));
+        if (!is_dir(\dirname($file))) {
+            Directory::create(\dirname($file));
         }
 
         if (file_put_contents($file, $content)) {

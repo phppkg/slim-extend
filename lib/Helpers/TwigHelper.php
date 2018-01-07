@@ -65,8 +65,8 @@ EOF;
 
     public function __call($method, array $args = [])
     {
-        if (function_exists($method)) {
-            return call_user_func_array($method, $args);
+        if (\function_exists($method)) {
+            return \call_user_func_array($method, $args);
         }
 
         throw new UnknownCalledException("Call don't exists method [$method]");
