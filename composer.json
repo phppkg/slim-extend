@@ -30,8 +30,7 @@
   },
   "autoload":{
     "files":[
-      "lib/defined.php",
-      "lib/functions.php"
+      "lib/defined.php"
     ],
     "psr-4": {
       "SlimExt\\" : "lib/"
