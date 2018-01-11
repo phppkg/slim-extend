@@ -8,7 +8,6 @@
 
 namespace SlimExt\Database;
 
-use Inhere\Exceptions\InvalidArgumentException;
 use Inhere\Library\Traits\LiteEventTrait;
 use Inhere\Library\Traits\LiteOptionsTrait;
 use Slim;
@@ -25,9 +24,7 @@ use Windwalker\Query\Query;
  */
 abstract class AbstractDriver implements InterfaceDriver
 {
-    use LiteEventTrait;
-    use LiteOptionsTrait;
-    use LoadResultSetTrait;
+    use LiteEventTrait, LiteOptionsTrait, LoadResultSetTrait;
 
     const CONNECT = 'connect';
     const DISCONNECT = 'disconnect';
@@ -110,7 +107,7 @@ abstract class AbstractDriver implements InterfaceDriver
         // $this->driverOptions = $this->getOption('driverOptions');
         $this->debug = $this->getOption('debug', false);
 
-        $this->dsn = DsnHelper::getDsn($this->name, $this->options);
+        $this->dsn = DsnHelper::getDsn($this->options, $this->name);
 
         if (!$pdo && $this->getOption('connecting', false)) {
             $this->connect();
@@ -200,12 +197,12 @@ abstract class AbstractDriver implements InterfaceDriver
      * @param array|\Iterator $data
      * @param string $priKey
      * @return array|bool|int
-     * @throws InvalidArgumentException
+     * @throws \InvalidArgumentException
      */
     public function insert($table, $data, $priKey = '')
     {
         if (!$data) {
-            throw new InvalidArgumentException('Insert data is empty. Please check it.');
+            throw new \InvalidArgumentException('Insert data is empty. Please check it.');
         }
 
         $query = $this->newQuery(true);
@@ -303,7 +300,7 @@ abstract class AbstractDriver implements InterfaceDriver
 
         foreach ($values as $value) {
             // to string. eg: "'Macbeth', 1606"
-            $buildValues[] = implode(',', $query->q($value));
+            $buildValues[] = implode(',', (array)$query->q($value));
             $hasField = true;
         }
 
@@ -326,7 +323,7 @@ abstract class AbstractDriver implements InterfaceDriver
      * @param   array|string $key The name of the primary key.
      * @param   boolean $updateNulls True to update null fields or false to ignore them.
      * @return bool|int
-     * @throws InvalidArgumentException
+     * @throws \InvalidArgumentException
      */
     public function update($table, $data, $key = 'id', $updateNulls = false)
     {
@@ -335,7 +332,7 @@ abstract class AbstractDriver implements InterfaceDriver
         }
 
         if (!$data) {
-            throw new InvalidArgumentException('Update data is empty. Please check it.');
+            throw new \InvalidArgumentException('Update data is empty. Please check it.');
         }
 
         $query = $this->newQuery(true);

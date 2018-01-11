@@ -24,6 +24,21 @@ class Request extends \Slim\Http\Request
     const FLASH_OLD_INPUT_KEY = '_last_inputs';
 
     /**
+     * @param string $name
+     * @param mixed $default
+     * @param string $filter
+     * @return mixed
+     */
+    public function get($name = null, $default = null, $filter = null)
+    {
+        if ($name === null) {
+            return $this->getQueryParams();
+        }
+
+        return $this->filtering($this->getQueryParam($name, $default), $filter);
+    }
+
+    /**
      * @return bool
      */
     public function isAjax()

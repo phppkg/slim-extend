@@ -63,6 +63,12 @@ EOF;
         return Slim::get('csrf')->generateToken();
     }
 
+    /**
+     * @param $method
+     * @param array $args
+     * @return mixed
+     * @throws UnknownCalledException
+     */
     public function __call($method, array $args = [])
     {
         if (\function_exists($method)) {

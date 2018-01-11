@@ -34,7 +34,7 @@ class SqliteDriver extends PdoDriver
      */
     public static function isSupported()
     {
-        return \in_array('sqlite', \PDO::getAvailableDrivers());
+        return \in_array('sqlite', \PDO::getAvailableDrivers(), true);
     }
 
     // public function insertMulti($table, &$dataSet, $key = null)

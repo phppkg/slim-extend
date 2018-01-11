@@ -2,6 +2,7 @@
 
 namespace SlimExt\Web;
 
+use Inhere\Library\Files\File;
 use Psr\Http\Message\ResponseInterface;
 use Slim;
 use Inhere\Exceptions\NotFoundException;
@@ -115,9 +116,6 @@ abstract class Controller extends AbstractController
      * @param $view
      * @param array $args
      * @return ResponseInterface
-     * @throws \Twig_Error_Loader
-     * @throws \Twig_Error_Runtime
-     * @throws \Twig_Error_Syntax
      */
     protected function render($view, array $args = [])
     {
@@ -163,6 +161,7 @@ abstract class Controller extends AbstractController
         // add custom extension
         // $twig->addExtension(new \SlimExt\twig\TwigExtension( $c['request'], $c['csrf'] ));
         $this->appendVarToView($args);
+        $args['_IS_PJAX'] = false;
 
         // is pjax request
         if (Slim::$app->request->isPjax()) {
@@ -174,6 +173,7 @@ abstract class Controller extends AbstractController
                 ->withHeader('X-PJAX-Version', config('params.pjax_version', '1.0'));
 
             $args[$globalKey] = $globalVar;
+            $args['_IS_PJAX'] = true;
             $rendered = $twig->getEnvironment()->loadTemplate($view)->renderBlock($this->bodyBlock, $args);
 
             return $response->write($rendered);
@@ -407,12 +407,12 @@ abstract class Controller extends AbstractController
      */
     protected function getViewPath($view, array $settings)
     {
-        $tpl_suffix = $settings['tpl_suffix'];
-        $suffix = get_extension($view);
+        $viewSuffix = $settings['suffix'];
+        $suffix = File::getSuffix($view);
 
         // no extension
-        if (!$suffix || $suffix !== trim($tpl_suffix, '. ')) {
-            $view .= '.' . trim($tpl_suffix, '. ');
+        if (!$suffix || $suffix !== trim($viewSuffix, '. ')) {
+            $view .= '.' . trim($viewSuffix, '. ');
         }
 
         // if only file name, will auto add this tplPath.
@@ -454,7 +454,7 @@ abstract class Controller extends AbstractController
             $action = str_replace(' ', '', lcfirst($action));
         }
 
-        Slim::config()->set('urls.action', $action);
+        config()->set('urls.action', $action);
         $actionMethod = $action . ucfirst($this->actionSuffix);
 
         if (!method_exists($this, $actionMethod)) {
