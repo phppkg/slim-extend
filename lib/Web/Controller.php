@@ -14,6 +14,13 @@ use SlimExt\Helpers\TwigHelper;
  */
 abstract class Controller extends AbstractController
 {
+    //events
+    const EVENT_BEFORE_VIEW = 'beforeView';
+    const EVENT_AFTER_VIEW = 'afterView';
+
+    const EVENT_BEFORE_RENDER = 'beforeRender';
+    const EVENT_AFTER_RENDER = 'afterRender';
+
     const ENGINE_TWIG = 'twig';
     const ENGINE_PHP = 'php';
 
@@ -165,7 +172,7 @@ abstract class Controller extends AbstractController
 
         // is pjax request
         if (Slim::$app->request->isPjax()) {
-            // X-PJAX-URL:https://github.com/inhere/library
+            // X-PJAX-URL: https://github.com/inhere/library
             // X-PJAX-Version: 23434
             /** @var Response $response */
             $response = $response
@@ -408,7 +415,7 @@ abstract class Controller extends AbstractController
     protected function getViewPath($view, array $settings)
     {
         $viewSuffix = $settings['suffix'];
-        $suffix = File::getSuffix($view);
+        $suffix = File::getSuffix($view, 1);
 
         // no extension
         if (!$suffix || $suffix !== trim($viewSuffix, '. ')) {

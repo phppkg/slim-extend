@@ -24,7 +24,7 @@ use SlimExt\Components\QuicklyGetServiceTrait;
  * @property \Monolog\Logger logger
  * @property \Inhere\LibraryPlus\Auth\User user
  * @property \Slim\Flash\Messages flash
- * @property \SlimExt\Base\Language language
+ * @property \Inhere\Library\Components\Language language
  *
  * @property \SlimExt\Database\AbstractDriver db
  * @property \Inhere\Library\Collections\Configuration config
