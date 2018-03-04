@@ -102,10 +102,9 @@ abstract class Controller extends AbstractController
             'btmJsFiles'  => [],
         ],
         '_page' => [
-            'title' => 'My Site',
-            'language' => 'en',
-            'description' => 'My Site\'s description',
-            'keywords' => 'My Site\' keywords',
+            'title' => 'welcome',
+            'description' => 'blog',
+            'keywords' => 'blog',
         ]
     ];
 
@@ -217,12 +216,24 @@ abstract class Controller extends AbstractController
     /////////////////////////////////////////////////////////////
 
     /**
-     * @param $title
+     * @param array $info
      * @return $this
      */
-    protected function setTitle($title)
+    protected function setPageInfo(array $info)
     {
-        $this->appendTplVars['_page']['title'] = $title;
+        $this->appendTplVars['_page'] = array_merge($this->appendTplVars['_page'], $info);
+
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     * @param $value
+     * @return $this
+     */
+    protected function setPage(string $name, $value)
+    {
+        $this->appendTplVars['_page'][$name] = $value;
 
         return $this;
     }
@@ -323,6 +334,9 @@ abstract class Controller extends AbstractController
         return $globalVar;
     }
 
+    /**
+     * @param array $args
+     */
     protected function appendVarToView(array &$args)
     {
         foreach ($this->appendTplVars as $key => $value) {
