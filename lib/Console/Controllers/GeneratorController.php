@@ -97,8 +97,8 @@ class GeneratorController extends Controller
         // $data = $vd->all();
         // $data = $vd->getSafeData();
 
-        $name = $vd->getValid('name');
-        $type = $vd->getValid('type');
+        $name = $vd->getSafe('name');
+        $type = $vd->getSafe('type');
         $suffix = $input->getOpt('suffix', 'Model');
 
         $useDb = $type === 'db';
@@ -234,8 +234,8 @@ class GeneratorController extends Controller
             return 70;
         }
 
-        $name = $vd->getValid('name');
-        $type = $vd->getValid('type', 'norm');
+        $name = $vd->getSafe('name');
+        $type = $vd->getSafe('type', 'norm');
 
         $defNp = 'app\\controllers';
         $actSuffix = 'Action';
@@ -383,7 +383,7 @@ EOF;
             return 70;
         }
 
-        $name = $vd->getValid('name');
+        $name = $vd->getSafe('name');
         $description = $input->getArg('description', 'the command description message');
 
         $properties = <<<EOF

@@ -123,8 +123,11 @@ abstract class Controller extends AbstractController
      * @param $view
      * @param array $args
      * @return ResponseInterface
+     * @throws \Twig_Error_Loader
+     * @throws \Twig_Error_Runtime
+     * @throws \Twig_Error_Syntax
      */
-    protected function render($view, array $args = [])
+    protected function render(string $view, array $args = []): ResponseInterface
     {
         if ($this->tplEngine === self::ENGINE_TWIG) {
             return $this->renderTwig($view, $args);
@@ -151,8 +154,11 @@ abstract class Controller extends AbstractController
      * @param $view
      * @param array $args
      * @return ResponseInterface
+     * @throws \Twig_Error_Loader
+     * @throws \Twig_Error_Runtime
+     * @throws \Twig_Error_Syntax
      */
-    protected function renderTwig($view, array $args = [])
+    protected function renderTwig(string $view, array $args = []): ResponseInterface
     {
         $response = $this->response;
         $settings = Slim::get('settings')['twigRenderer'];
@@ -201,7 +207,7 @@ abstract class Controller extends AbstractController
      * @param string $string
      * @return ResponseInterface
      */
-    public function renderString($string)
+    public function renderString(string $string): ResponseInterface
     {
         return $this->response->write($string);
     }
@@ -300,7 +306,7 @@ abstract class Controller extends AbstractController
     /**
      * @return array
      */
-    protected function addTwigGlobalVar()
+    protected function addTwigGlobalVar(): array
     {
         $globalVar = [
             'user' => Slim::$app->user,
@@ -359,7 +365,7 @@ abstract class Controller extends AbstractController
      * @param array $varList
      * @return array
      */
-    protected function handleGlobalVar(array $settings, array $varList = [])
+    protected function handleGlobalVar(array $settings, array $varList = []): array
     {
         // form settings
         if (!empty($settings[static::GLOBAL_VAR_LIST_CONFIG_KEY])) {
@@ -393,14 +399,14 @@ abstract class Controller extends AbstractController
      * get current controller's default templates path
      * @return string
      */
-    protected function getTplPath()
+    protected function getTplPath(): string
     {
         if (!$this->tplPath) {
             $calledClass = \get_class($this);
             $ctrlName = trim(strrchr($calledClass, '\\'), '\\');
 
             $prefix = $this->tplPathPrefix ? '/' . $this->tplPathPrefix : '';
-            $this->tplPath = $prefix . '/' . lcfirst($ctrlName);
+            $this->tplPath = $prefix . '/' . lcfirst(substr($ctrlName, 0, - 10));
         }
 
         return $this->tplPath;
